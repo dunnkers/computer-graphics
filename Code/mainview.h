@@ -1,6 +1,8 @@
 #ifndef MAINVIEW_H
 #define MAINVIEW_H
 
+#include "model.h"
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QOpenGLWidget>
@@ -9,14 +11,32 @@
 #include <QOpenGLShaderProgram>
 #include <QTimer>
 #include <QVector3D>
+#include <memory>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
+    QOpenGLDebugLogger *debugLogger;
+    QTimer timer; // timer used for animation
+
+    QOpenGLShaderProgram shaderProgram;
+
+
 
 public:
+    enum ShadingMode : GLuint
+    {
+        PHONG = 0, NORMAL, GOURAUD
+    };
+
     MainView(QWidget *parent = 0);
     ~MainView();
+
+    // Functions for widget input events
+    void setRotation(int rotateX, int rotateY, int rotateZ);
+    void setScale(int scale);
+    void setShadingMode(ShadingMode shading);
+
 
 protected:
     void initializeGL();
@@ -34,18 +54,22 @@ protected:
     void mouseReleaseEvent(QMouseEvent *ev);
     void wheelEvent(QWheelEvent *ev);
 
-private:
-
-    QOpenGLDebugLogger *debugLogger;
-    QTimer timer; // timer used for animation
-    QOpenGLShaderProgram shader;
-
-
-    GLuint vbo;
-    GLuint vao;
-
 private slots:
     void onMessageLogged( QOpenGLDebugMessage Message );
+
+private:
+    void createShaderProgram();
+    GLuint vbo;
+    GLuint vao;
+    GLuint vbo2;
+    GLuint vao2;
+    QMatrix4x4 cubeTransformation;
+    QMatrix4x4 pyramidTransformation;
+    QMatrix4x4 projectionTransformation;
+    GLuint modelTransformLocation;
+
+
+
 
 };
 

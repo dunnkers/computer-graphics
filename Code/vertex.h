@@ -3,15 +3,14 @@
 
 #include "mainview.h"
 
-//initiate 5 dimensional struct with coordinates(vertex) and colours
-struct Twodim {
+struct threeDim {
     float x;
     float y;
+    float z;
     float red;
     float green;
     float blue;
 };
 
-
-
 #endif // VERTEX_H
+
