@@ -97,6 +97,9 @@ void MainView::paintGL() {
 
     // Draw here
 
+
+    // Draw end
+
     shaderProgram.release();
 }
 
