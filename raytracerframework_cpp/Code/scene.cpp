@@ -53,6 +53,16 @@ Color Scene::trace(Ray const &ray)
 
     Color color = material.color;                  // place holder
 
+    LightPtr light = lights.front();
+    Light reallight = *light.get();
+
+    Vector l = reallight.position - hit;
+
+    Vector H = V + l;
+    H.normalize();
+
+    // ... (23. Feb 11:36 stopped here )
+
     return color;
 }
 
