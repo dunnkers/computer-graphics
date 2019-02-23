@@ -23,6 +23,26 @@ Hit Sphere::intersect(Ray const &ray)
     ****************************************************/
 
     // place holder for actual intersection calculation
+    double radius = r;
+    Point point = position;
+    
+
+    Point origin = ray.O;
+    Vector direction = ray.D;
+
+    Point oc = origin - point;
+    float a = direction.dot(direction);
+    float b = 2.0 * oc.dot(direction);
+    float c = oc.dot(oc) - radius * radius;
+    float discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        return Hit::NO_HIT();
+    } else {
+        double t = (-b - sqrt(discriminant)) / (2.0 * a);
+        Vector N;
+        return Hit(t, N);
+    }
+
 
     Vector OC = (position - ray.O).normalized();
     if (OC.dot(ray.D) < 0.999) {
