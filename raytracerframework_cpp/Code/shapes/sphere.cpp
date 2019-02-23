@@ -22,27 +22,26 @@ Hit Sphere::intersect(Ray const &ray)
     * intersection point from the ray origin in *t (see example).
     ****************************************************/
 
-    // place holder for actual intersection calculation
-    double radius = r;
-    Point point = position;
-    
-
+    // Intersection calculation
     Point origin = ray.O;
     Vector direction = ray.D;
+    double radius = r;
 
-    Point oc = origin - point;
+    // solves the quadratic equation At^2 + Bt + C = 0 (book page 77)
+    Point oc = origin - position;
     float a = direction.dot(direction);
     float b = 2.0 * oc.dot(direction);
     float c = oc.dot(oc) - radius * radius;
     float discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) {
-        return Hit::NO_HIT();
-    } else {
+    // if (discriminant < 0) {
+    //     return Hit::NO_HIT();
+    // }
+
+    if (discriminant > 0) {
         double t = (-b - sqrt(discriminant)) / (2.0 * a);
         Vector N;
         return Hit(t, N);
     }
-
 
     Vector OC = (position - ray.O).normalized();
     if (OC.dot(ray.D) < 0.999) {
@@ -59,9 +58,12 @@ Hit Sphere::intersect(Ray const &ray)
     * Insert calculation of the sphere's normal at the intersection point.
     ****************************************************/
 
-    Vector N /* = ... */;
+    Point center = position;
+    Vector surfacePoint = ray.O + t * ray.D;
+    Vector N = surfacePoint - center;
+    N.normalize();
 
-    return Hit(t,N);
+    return Hit(t, N);
 }
 
 Sphere::Sphere(Point const &pos, double radius)
