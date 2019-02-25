@@ -81,6 +81,7 @@ Color Scene::trace(Ray const &ray)
     double b = color.b;
     double kd = material.kd;
     double ks = material.ks;
+    double ka = material.ka;
 
     // grab light source
     LightPtr firstLight = lights.front();
@@ -102,10 +103,16 @@ Color Scene::trace(Ray const &ray)
     l.normalize();
 
     // Phong Shading
-    double p = 100.0;
+    double p = 50.0;
     color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
     color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
     color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
+
+    double intensity = 1.0;
+
+    color.r = color.r + r*intensity*ka;
+    color.g = color.g + g*intensity*ka;
+    color.b = color.b + b*intensity*ka;
 
     return color;
 }
