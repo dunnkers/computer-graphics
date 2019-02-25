@@ -27,39 +27,34 @@ Hit Sphere::intersect(Ray const &ray)
     Vector direction = ray.D;
     double radius = r;
 
-    // solves the quadratic equation At^2 + Bt + C = 0 (book page 77)
+    // solves the quadratic equation At^2 + Bt + C = 0 (book page 77), using abc-method.
     Point oc = origin - position;
     float a = direction.dot(direction);
     float b = 2.0 * oc.dot(direction);
     float c = oc.dot(oc) - radius * radius;
     float discriminant = b * b - 4 * a * c;
-    // if (discriminant < 0) {
-    //     return Hit::NO_HIT();
-    // }
 
+    // there are solutions for discriminant geq 0.
     if (discriminant > 0) {
         double t = (-b - sqrt(discriminant)) / (2.0 * a);
+
+        /****************************************************
+        * RT1.2: NORMAL CALCULATION
+        ****************************************************/
         Point center = position;
         Vector surfacePoint = ray.O + t * ray.D;
         Vector N = surfacePoint - center;
         N.normalize();
+        
+        // return a Hit with newly calculated variables 
         return Hit(t, N);
-    }
-
-    Vector OC = (position - ray.O).normalized();
-    if (OC.dot(ray.D) < 0.999) {
+    } else { // discriminant less than 0, no hit.
         return Hit::NO_HIT();
     }
 
-
-    /****************************************************
-    * RT1.2: NORMAL CALCULATION
-    *
-    * Given: t, C, r
-    * Sought: N
-    *
-    * Insert calculation of the sphere's normal at the intersection point.
-    ****************************************************/
+    /* Old method of return a non-hit. */
+    // Vector OC = (position - ray.O).normalized();
+    // if (OC.dot(ray.D) < 0.999) {return Hit::NO_HIT();}
 }
 
 Sphere::Sphere(Point const &pos, double radius)
