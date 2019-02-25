@@ -39,7 +39,10 @@ Hit Sphere::intersect(Ray const &ray)
 
     if (discriminant > 0) {
         double t = (-b - sqrt(discriminant)) / (2.0 * a);
-        Vector N;
+        Point center = position;
+        Vector surfacePoint = ray.O + t * ray.D;
+        Vector N = surfacePoint - center;
+        N.normalize();
         return Hit(t, N);
     }
 
@@ -47,7 +50,7 @@ Hit Sphere::intersect(Ray const &ray)
     if (OC.dot(ray.D) < 0.999) {
         return Hit::NO_HIT();
     }
-    double t = 1000;
+
 
     /****************************************************
     * RT1.2: NORMAL CALCULATION
@@ -57,13 +60,6 @@ Hit Sphere::intersect(Ray const &ray)
     *
     * Insert calculation of the sphere's normal at the intersection point.
     ****************************************************/
-
-    Point center = position;
-    Vector surfacePoint = ray.O + t * ray.D;
-    Vector N = surfacePoint - center;
-    N.normalize();
-
-    return Hit(t, N);
 }
 
 Sphere::Sphere(Point const &pos, double radius)

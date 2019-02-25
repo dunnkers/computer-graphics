@@ -61,7 +61,27 @@ Color Scene::trace(Ray const &ray)
     Vector H = V + l;
     H.normalize();
 
-    // ... (23. Feb 11:36 stopped here )
+    double dotProduct = N.dot(l);
+    if((N.dot(l)) > 0 ){
+        double dotProductnh = N.dot(H);
+        if((N.dot(H)) > 0 ){
+            color.r = material.color.r*material.kd*dotProduct + material.color.r*dotProductnh*material.ks;
+            color.g = material.color.g*material.kd*dotProduct + material.color.g*dotProductnh*material.ks;
+            color.b = material.color.b*material.kd*dotProduct + material.color.b*dotProductnh*material.ks;
+        }else{
+            color.r = material.color.r*material.kd*dotProduct;
+            color.g = material.color.g*material.kd*dotProduct;
+            color.b = material.color.b*material.kd*dotProduct;
+        }
+        
+    }else{
+        color.r = 0;
+        color.g = 0;
+        color.b = 0;
+    }
+    
+    //printf("%f\n",N.x);
+    
 
     return color;
 }
