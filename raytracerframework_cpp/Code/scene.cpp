@@ -10,6 +10,14 @@
 
 using namespace std;
 
+// Compute Lambertian Shading as in book page 82.
+double lambertianShading(double kd, double I, Vector n, Vector l)
+{
+    double dotProduct = n.dot(l);
+    double maxed = fmax(0, dotProduct);
+    return kd * I * maxed;
+}
+
 Color Scene::trace(Ray const &ray)
 {
     // Find hit object and distance
@@ -51,44 +59,29 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
-    Color color = material.color;                  // place holder
+    Color color = material.color;
     double r = color.r;
     double g = color.g;
     double b = color.b;
     double kd = material.kd;
 
     // grab light source
-    LightPtr light = lights.front();
-    Light reallight = *light.get();
+    LightPtr firstLight = lights.front();
+    Light light = *firstLight.get();
+
     // compute vector l. subtract intersection point of the ray and surface
     // from the light source position. book page 82.
-    Vector l = reallight.position - hit;
+    Vector l = light.position - hit;
+    l.normalize();
+
+    // Lambertian Shading
+    color.r = lambertianShading(r * kd, light.color.r, N, l);
+    color.g = lambertianShading(g * kd, light.color.g, N, l);
+    color.b = lambertianShading(b * kd, light.color.b, N, l);
+
     // vector h is the sum of vectors v and l, normalized. book page 83.
     Vector H = V + l;
     H.normalize();
-
-    double dotProduct = N.dot(l);
-    // max(0, n.dot(l)) results in no color
-    if (dotProduct < 0) {
-        return Color(0, 0, 0);
-    }
-
-    double dotProductnh = N.dot(H);
-    double maxNL = fmax(0, dotProductnh);
-
-    if ((N.dot(H)) > 0 ) {
-        double redI = reallight.color.r;
-        double redDiffuseComponent = r * kd;
-        color.r = redDiffuseComponent * redI * maxNL;
-
-        double greenI = reallight.color.g;
-        double greenDiffuseComponent = g * kd;
-        color.g = greenDiffuseComponent * greenI * maxNL;
-
-        double blueI = reallight.color.b;
-        double blueDiffuseComponent = b * kd;
-        color.b = blueDiffuseComponent * blueI * maxNL;
-    }
 
     return color;
 }
