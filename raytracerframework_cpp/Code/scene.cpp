@@ -69,26 +69,19 @@ Color Scene::trace(Ray const &ray)
     H.normalize();
 
     double dotProduct = N.dot(l);
-
-    if (dotProduct > 0 ) {
-        double dotProductnh = N.dot(H);
-
-        if ((N.dot(H)) > 0 ) {
-            color.r = r * kd * dotProduct + r * dotProductnh * ks;
-            color.g = g * kd * dotProduct + g * dotProductnh * ks;
-            color.b = b * kd * dotProduct + b * dotProductnh * ks;
-        } else {
-            color.r = r * kd * dotProduct;
-            color.g = g * kd * dotProduct;
-            color.b = b * kd * dotProduct;
-        }
-        
-    } else {
-        color.r = 0;
-        color.g = 0;
-        color.b = 0;
+    // max(0, n.dot(l)) results in no color
+    if (dotProduct < 0) {
+        return Color(0, 0, 0);
     }
-    
+
+    double dotProductnh = N.dot(H);
+
+    if ((N.dot(H)) > 0 ) {
+        color.r = r * kd * dotProduct + r * dotProductnh * ks;
+        color.g = g * kd * dotProduct + g * dotProductnh * ks;
+        color.b = b * kd * dotProduct + b * dotProductnh * ks;
+    }
+
     return color;
 }
 
