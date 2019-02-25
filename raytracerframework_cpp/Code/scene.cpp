@@ -52,37 +52,43 @@ Color Scene::trace(Ray const &ray)
     ****************************************************/
 
     Color color = material.color;                  // place holder
+    double r = color.r;
+    double g = color.g;
+    double b = color.b;
+    double kd = material.kd;
+    double ks = material.ks;
 
+    // grab light source
     LightPtr light = lights.front();
     Light reallight = *light.get();
-
+    // compute vector l. subtract intersection point of the ray and surface
+    // from the light source position. book page 82.
     Vector l = reallight.position - hit;
-
+    // vector h is the sum of vectors v and l, normalized. book page 83.
     Vector H = V + l;
     H.normalize();
 
     double dotProduct = N.dot(l);
-    if((N.dot(l)) > 0 ){
+
+    if (dotProduct > 0 ) {
         double dotProductnh = N.dot(H);
-        if((N.dot(H)) > 0 ){
-            color.r = material.color.r*material.kd*dotProduct + material.color.r*dotProductnh*material.ks;
-            color.g = material.color.g*material.kd*dotProduct + material.color.g*dotProductnh*material.ks;
-            color.b = material.color.b*material.kd*dotProduct + material.color.b*dotProductnh*material.ks;
-        }else{
-            color.r = material.color.r*material.kd*dotProduct;
-            color.g = material.color.g*material.kd*dotProduct;
-            color.b = material.color.b*material.kd*dotProduct;
+
+        if ((N.dot(H)) > 0 ) {
+            color.r = r * kd * dotProduct + r * dotProductnh * ks;
+            color.g = g * kd * dotProduct + g * dotProductnh * ks;
+            color.b = b * kd * dotProduct + b * dotProductnh * ks;
+        } else {
+            color.r = r * kd * dotProduct;
+            color.g = g * kd * dotProduct;
+            color.b = b * kd * dotProduct;
         }
         
-    }else{
+    } else {
         color.r = 0;
         color.g = 0;
         color.b = 0;
     }
     
-    //printf("%f\n",N.x);
-    
-
     return color;
 }
 
