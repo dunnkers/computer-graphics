@@ -18,6 +18,22 @@ double lambertianShading(double kd, double I, Vector n, Vector l)
     return kd * I * maxed;
 }
 
+// Compute Blinn-Phong Shading as in book page 82/83.
+double phongShading(double kd, double I, Vector n, Vector l, 
+    Vector h, double ks, double p)
+{
+    double lambertian = lambertianShading(kd, I, n, l);
+
+
+    // second term in Phong calculation
+    double dotProduct = n.dot(h);
+    double maxed = fmax(0, dotProduct);
+    double phong = ks * I * pow(maxed, p);
+
+    // add the two terms.
+    return lambertian + phong;
+}
+
 Color Scene::trace(Ray const &ray)
 {
     // Find hit object and distance
@@ -64,6 +80,7 @@ Color Scene::trace(Ray const &ray)
     double g = color.g;
     double b = color.b;
     double kd = material.kd;
+    double ks = material.ks;
 
     // grab light source
     LightPtr firstLight = lights.front();
@@ -72,16 +89,23 @@ Color Scene::trace(Ray const &ray)
     // compute vector l. subtract intersection point of the ray and surface
     // from the light source position. book page 82.
     Vector l = light.position - hit;
-    l.normalize();
 
     // Lambertian Shading
-    color.r = lambertianShading(r * kd, light.color.r, N, l);
-    color.g = lambertianShading(g * kd, light.color.g, N, l);
-    color.b = lambertianShading(b * kd, light.color.b, N, l);
+    // color.r = lambertianShading(r * kd, light.color.r, N, l);
+    // color.g = lambertianShading(g * kd, light.color.g, N, l);
+    // color.b = lambertianShading(b * kd, light.color.b, N, l);
 
     // vector h is the sum of vectors v and l, normalized. book page 83.
     Vector H = V + l;
     H.normalize();
+
+    l.normalize();
+
+    // Phong Shading
+    double p = 100.0;
+    color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
+    color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
+    color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
 
     return color;
 }
