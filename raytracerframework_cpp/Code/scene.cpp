@@ -56,7 +56,6 @@ Color Scene::trace(Ray const &ray)
     double g = color.g;
     double b = color.b;
     double kd = material.kd;
-    double ks = material.ks;
 
     // grab light source
     LightPtr light = lights.front();
@@ -75,11 +74,20 @@ Color Scene::trace(Ray const &ray)
     }
 
     double dotProductnh = N.dot(H);
+    double maxNL = fmax(0, dotProductnh);
 
     if ((N.dot(H)) > 0 ) {
-        color.r = r * kd * dotProduct + r * dotProductnh * ks;
-        color.g = g * kd * dotProduct + g * dotProductnh * ks;
-        color.b = b * kd * dotProduct + b * dotProductnh * ks;
+        double redI = reallight.color.r;
+        double redDiffuseComponent = r * kd;
+        color.r = redDiffuseComponent * redI * maxNL;
+
+        double greenI = reallight.color.g;
+        double greenDiffuseComponent = g * kd;
+        color.g = greenDiffuseComponent * greenI * maxNL;
+
+        double blueI = reallight.color.b;
+        double blueDiffuseComponent = b * kd;
+        color.b = blueDiffuseComponent * blueI * maxNL;
     }
 
     return color;
