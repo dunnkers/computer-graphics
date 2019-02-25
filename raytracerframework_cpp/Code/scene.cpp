@@ -103,16 +103,16 @@ Color Scene::trace(Ray const &ray)
     l.normalize();
 
     // Phong Shading
-    double p = 50.0;
+    double p = 200.0;
     color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
     color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
     color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
 
+    // Add Ambient Lighting
     double intensity = 1.0;
-
-    color.r = color.r + r*intensity*ka;
-    color.g = color.g + g*intensity*ka;
-    color.b = color.b + b*intensity*ka;
+    color.r = color.r + r * intensity * ka;
+    color.g = color.g + g * intensity * ka;
+    color.b = color.b + b * intensity * ka;
 
     return color;
 }
