@@ -92,20 +92,26 @@ void MainView::createShaderProgram()
 
 void MainView::loadMesh()
 {
+    // load model & get vertices and normals
     Model model(":/models/cube.obj");
     QVector<QVector3D> vertexCoords = model.getVertices();
+    QVector<QVector3D> vertexNormals = model.getNormals();
 
     QVector<float> meshData;
     meshData.reserve(2 * 3 * vertexCoords.size());
 
-    for (auto coord : vertexCoords)
-    {
-        meshData.append(coord.x());
-        meshData.append(coord.y());
-        meshData.append(coord.z());
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
+    // should contain equal amount of elements
+    assert(vertexCoords.size() == vertexNormals.size());
+
+    for (int i = 0; i != vertexCoords.size(); ++i) {
+        QVector3D vertex = vertexCoords.at(i);
+        QVector3D normal = vertexNormals.at(i);
+        meshData.append(vertex.x());
+        meshData.append(vertex.y());
+        meshData.append(vertex.z());
+        meshData.append(normal.x());
+        meshData.append(normal.y());
+        meshData.append(normal.z());
     }
 
     meshSize = vertexCoords.size();
