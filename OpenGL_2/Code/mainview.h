@@ -24,6 +24,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLShaderProgram shaderProgram;
     GLint uniformModelViewTransform;
     GLint uniformProjectionTransform;
+    GLint uniformNormalTransform;
 
     // Mesh values
     GLuint meshVAO;
@@ -35,6 +36,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
+
+    // Normal transform
+    QMatrix4x4 normalTransform;
 
 public:
     enum ShadingMode : GLuint
@@ -77,6 +81,7 @@ private:
 
     void updateProjectionTransform();
     void updateModelTransforms();
+    void updateNormalTransforms();
 };
 
 #endif // MAINVIEW_H

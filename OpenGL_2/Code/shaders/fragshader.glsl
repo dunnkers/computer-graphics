@@ -16,5 +16,5 @@ out vec4 fNormal;
 
 void main()
 {
-    fNormal = vec4(vertNormal, 1.0);
+    fNormal = vec4(normalize(vertNormal), 1.0);
 }
