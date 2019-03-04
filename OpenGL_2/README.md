@@ -17,7 +17,9 @@ A clear difference in color is visible between the mapped color values in the fr
 
 ![Not mapped values](./Screenshots/normal_shading_range-not-mapped.png)
 
+
 Color values mapped. No data is lost, colors are brighter.
+
 ![Mapped values](./Screenshots/normal_shading_range-mapped.png)
 
 ### Selecting shaders
