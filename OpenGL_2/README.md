@@ -28,8 +28,17 @@ Darkening color for Gouraud and Phong shader programs:
 
 ![switching-shader-programs](./Screenshots/switching-shader-programs.png)
 
-### Gouraud shaders
+### Gouraud shader
+
+Gouraud shading. Calculation in vertex shader.
+
+![switching-shader-programs](./Screenshots/gouraud-shading.gif)
+
 ### Phong shader
+
+For the Phong shader, we are using exactly the same calculation as in Gouraud's shader, but then in the Fragment shader instead of the vertex shader. We pass on required variables on from the vertex to the Fragment shader, and other via an uniform variable.
+
+![switching-shader-programs](./Screenshots/phong-shading.gif)
 
 
 ## 2. Texture mapping
