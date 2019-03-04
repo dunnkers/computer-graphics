@@ -6,9 +6,11 @@
 ### Normal shading
 
 Normal shading using no matrix transformation:
+
 ![Normal Shading](./Screenshots/normal_shading_no-matrix.gif)
 
 Normal shading with matrix:
+
 ![Normal Shading](./Screenshots/normal_shading.gif)
 
 A clear difference in color is visible between the mapped color values in the fragment shader and the non-mapped values. Not mapped:
