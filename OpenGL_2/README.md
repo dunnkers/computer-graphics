@@ -5,7 +5,7 @@
 
 ### Normal shading
 
-Normal shading using no matrix transformation:
+Normal shading using no matrix transformation. Visible is the fact that the colors don't adjust according to the newly rotated/transformed angles.
 
 ![Normal Shading](./Screenshots/normal_shading_no-matrix.gif)
 
