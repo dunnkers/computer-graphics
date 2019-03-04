@@ -14,10 +14,12 @@ layout (location = 1) in vec3 vertNormal_in;
 
 // Specify the output of the vertex stage
 out vec3 vertNormal;
+out vec3 vertCoordinates;
 
 void main()
 {
     // gl_Position is the output (a vec4) of the vertex shader
     gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1.0);
     vertNormal = normalize(normalTransform * vertNormal_in);
+    vertCoordinates = vertCoordinates_in;
 }

@@ -6,9 +6,11 @@
 // Specify the inputs to the fragment shader
 // These must have the same type and name!
 in vec3 vertNormal;
+in vec3 vertCoordinates;
 
-// Specify the Uniforms of the fragment shaders
-// uniform vec3 lightPosition; // for example
+// The Uniforms of the fragment shaders
+uniform vec3 lightPos;
+uniform vec4 material;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
@@ -20,8 +22,18 @@ vec3 map(vec3 value, int inMin, int inMax, int outMin, int outMax) {
 }
 
 void main()
-{
-    // map colors from [-1, 1] range to [0, 1] to avoid losing data
-    vec3 vertNormalMapped = map(vertNormal, -1, 1, 0, 1);
-    fNormal = vec4(vertNormalMapped / 3, 1.0);
+{    
+    // gouraud calc
+    vec3 lightDistance = normalize(lightPos - vertCoordinates);
+    vec3 normalizedVertex = normalize(-vertCoordinates);
+    vec3 reflected = reflect(-lightDistance, vertNormal);
+    float angle = max(dot(reflected, normalizedVertex), 0.05);
+    float specular = pow(angle, material.w);
+
+    float diffuse = max(dot(vertNormal, lightDistance), 0.05);
+
+    vec3 unit = vec3(1, 1, 1);
+    vec3 fNormal3 = material.x + unit * material.y * diffuse + material.z * specular;
+    fNormal = vec4(fNormal3, 1.0);
+
 }

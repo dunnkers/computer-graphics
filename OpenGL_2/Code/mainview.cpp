@@ -115,6 +115,8 @@ void MainView::createShaderProgram()
     phongUniformModelViewTransform = phongShaderProgram.uniformLocation("modelViewTransform");
     phongUniformProjectionTransform = phongShaderProgram.uniformLocation("projectionTransform");
     phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
+    phongUniformLightPosition = phongShaderProgram.uniformLocation("lightPos");
+    phongUniformMaterial = phongShaderProgram.uniformLocation("material");
 }
 
 void MainView::loadMesh()
@@ -193,6 +195,8 @@ void MainView::paintGL() {
             uniformProjectionTransform = phongUniformProjectionTransform;
             uniformModelViewTransform = phongUniformModelViewTransform;
             uniformNormalTransform = phongUniformNormalTransform;
+            glUniform3f(phongUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
+            glUniform4f(phongUniformMaterial, material.x(), material.y(), material.z(), material.w());
             break;
         case ShadingMode::NORMAL:
             normalShaderProgram.bind();
