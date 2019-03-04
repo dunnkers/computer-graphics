@@ -1,4 +1,4 @@
-# Computer Graphics 🖥⚛️
+# ⚛️ Computer Graphics 🖥
 > By Jeroen Overschie and Indy Roode
 
 ## 1. Shaders
@@ -26,7 +26,7 @@ Color values mapped. No data is lost, colors are brighter.
 
 Darkening color for Gouraud and Phong shader programs:
 
-![switching-shader-programs](./Screenshots/switching-shader-programs.png)
+![switching-shader-programs](./Screenshots/switching-shader-programs.gif)
 
 ### Gouraud shader
 
