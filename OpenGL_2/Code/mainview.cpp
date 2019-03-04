@@ -101,6 +101,8 @@ void MainView::createShaderProgram()
     gouraudUniformModelViewTransform = gouraudShaderProgram.uniformLocation("modelViewTransform");
     gouraudUniformProjectionTransform = gouraudShaderProgram.uniformLocation("projectionTransform");
     gouraudUniformNormalTransform = gouraudShaderProgram.uniformLocation("normalTransform");
+    gouraudUniformLightPosition = gouraudShaderProgram.uniformLocation("lightPos");
+    gouraudUniformMaterial = gouraudShaderProgram.uniformLocation("material");
 
 
     // Phong
@@ -182,7 +184,16 @@ void MainView::paintGL() {
     GLint uniformModelViewTransform;
     GLint uniformNormalTransform;
 
+    QVector3D lightPos = QVector3D(1, 1, 1);
+    QVector4D material = QVector4D(0.25f, 0.5f, 0.75f, 5.0f);
+
     switch (shadingMode) {
+        case ShadingMode::PHONG:
+            phongShaderProgram.bind();
+            uniformProjectionTransform = phongUniformProjectionTransform;
+            uniformModelViewTransform = phongUniformModelViewTransform;
+            uniformNormalTransform = phongUniformNormalTransform;
+            break;
         case ShadingMode::NORMAL:
             normalShaderProgram.bind();
             uniformProjectionTransform = normalUniformProjectionTransform;
@@ -194,12 +205,8 @@ void MainView::paintGL() {
             uniformProjectionTransform = gouraudUniformProjectionTransform;
             uniformModelViewTransform = gouraudUniformModelViewTransform;
             uniformNormalTransform = gouraudUniformNormalTransform;
-            break;
-        case ShadingMode::PHONG:
-            phongShaderProgram.bind();
-            uniformProjectionTransform = phongUniformProjectionTransform;
-            uniformModelViewTransform = phongUniformModelViewTransform;
-            uniformNormalTransform = phongUniformNormalTransform;
+            glUniform3f(gouraudUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
+            glUniform4f(gouraudUniformMaterial, material.x(), material.y(), material.z(), material.w());
             break;
     }
 

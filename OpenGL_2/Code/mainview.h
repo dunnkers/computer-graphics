@@ -32,6 +32,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint gouraudUniformModelViewTransform;
     GLint gouraudUniformProjectionTransform;
     GLint gouraudUniformNormalTransform;
+    GLint gouraudUniformLightPosition;
+    GLint gouraudUniformMaterial;
 
     // Phong shader
     QOpenGLShaderProgram phongShaderProgram;
