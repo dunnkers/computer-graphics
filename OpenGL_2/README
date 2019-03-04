@@ -1,8 +1,26 @@
-This is a README file
+# Computer Graphics 🖥⚛️
+> By Jeroen Overschie and Indy Roode
 
-When submitting your assignment, describe (briefly) the changes you made and what difficulties you encountered in this file.
+## 1. Shaders
 
-Also describe what controls (key short-cuts, mouse clicks, mouse movement etc) and possible bonus assignments you implemented, so we can check them more easily.
+### Normal shading
 
-If you have any suggestions/feedback for improving the practical assignments or support from teaching assistants, you may include it here OR post in anonymously on Nestor under Feedback.
+Normal shading using no matrix transformation:
+![Normal Shading](./Screenshots/normal_shading_no-matrix.gif)
 
+Normal shading with matrix:
+![Normal Shading](./Screenshots/normal_shading.gif)
+
+A clear difference in color is visible between the mapped color values in the fragment shader and the non-mapped values. Not mapped:
+
+![Not mapped values](./Screenshots/normal_shading_range-not-mapped.png)
+
+Color values mapped. No data is lost, colors are brighter.
+![Mapped values](./Screenshots/normal_shading_range-mapped.png)
+
+### Selecting shaders
+### Gouraud shaders
+### Phong shader
+
+
+## 2. Texture mapping
