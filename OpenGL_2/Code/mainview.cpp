@@ -78,17 +78,41 @@ void MainView::initializeGL() {
 
 void MainView::createShaderProgram()
 {
-    // Create shader program
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader.glsl");
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader.glsl");
-    shaderProgram.link();
+    // Shader program creation
+    // Normal
+    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_normal.glsl");
+    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_normal.glsl");
+    normalShaderProgram.link();
+    // Normal uniforms
+    normalUniformModelViewTransform = normalShaderProgram.uniformLocation("modelViewTransform");
+    normalUniformProjectionTransform = normalShaderProgram.uniformLocation("projectionTransform");
+    normalUniformNormalTransform = normalShaderProgram.uniformLocation("normalTransform");
 
-    // Get the uniforms
-    uniformModelViewTransform = shaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransform = shaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransform = shaderProgram.uniformLocation("normalTransform");
+
+    // Gouraud
+    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_gouraud.glsl");
+    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_gouraud.glsl");
+    gouraudShaderProgram.link();
+    // Gouraud uniforms
+    gouraudUniformModelViewTransform = gouraudShaderProgram.uniformLocation("modelViewTransform");
+    gouraudUniformProjectionTransform = gouraudShaderProgram.uniformLocation("projectionTransform");
+    gouraudUniformNormalTransform = gouraudShaderProgram.uniformLocation("normalTransform");
+
+
+    // Phong
+    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_phong.glsl");
+    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_phong.glsl");
+    phongShaderProgram.link();
+    // Phong uniforms
+    phongUniformModelViewTransform = phongShaderProgram.uniformLocation("modelViewTransform");
+    phongUniformProjectionTransform = phongShaderProgram.uniformLocation("projectionTransform");
+    phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
 }
 
 void MainView::loadMesh()
@@ -154,7 +178,30 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shaderProgram.bind();
+    GLint uniformProjectionTransform;
+    GLint uniformModelViewTransform;
+    GLint uniformNormalTransform;
+
+    switch (shadingMode) {
+        case ShadingMode::NORMAL:
+            normalShaderProgram.bind();
+            uniformProjectionTransform = normalUniformProjectionTransform;
+            uniformModelViewTransform = normalUniformModelViewTransform;
+            uniformNormalTransform = normalUniformNormalTransform;
+            break;
+        case ShadingMode::GOURAUD:
+            gouraudShaderProgram.bind();
+            uniformProjectionTransform = gouraudUniformProjectionTransform;
+            uniformModelViewTransform = gouraudUniformModelViewTransform;
+            uniformNormalTransform = gouraudUniformNormalTransform;
+            break;
+        case ShadingMode::PHONG:
+            phongShaderProgram.bind();
+            uniformProjectionTransform = phongUniformProjectionTransform;
+            uniformModelViewTransform = phongUniformModelViewTransform;
+            uniformNormalTransform = phongUniformNormalTransform;
+            break;
+    }
 
     QMatrix3x3 normalTransform = meshTransform.normalMatrix();
 
@@ -166,7 +213,17 @@ void MainView::paintGL() {
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-    shaderProgram.release();
+    switch (shadingMode) {
+        case ShadingMode::NORMAL:
+            normalShaderProgram.release();
+            break;
+        case ShadingMode::GOURAUD:
+            gouraudShaderProgram.release();
+            break;
+        case ShadingMode::PHONG:
+            phongShaderProgram.release();
+            break;
+    }
 }
 
 /**
@@ -226,7 +283,7 @@ void MainView::setScale(int newScale)
 void MainView::setShadingMode(ShadingMode shading)
 {
     qDebug() << "Changed shading to" << shading;
-    Q_UNIMPLEMENTED();
+    shadingMode = shading;
 }
 
 // --- Private helpers

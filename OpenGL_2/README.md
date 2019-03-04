@@ -23,6 +23,11 @@ Color values mapped. No data is lost, colors are brighter.
 ![Mapped values](./Screenshots/normal_shading_range-mapped.png)
 
 ### Selecting shaders
+
+Darkening color for Gouraud and Phong shader programs:
+
+![switching-shader-programs](./Screenshots/switching-shader-programs.png)
+
 ### Gouraud shaders
 ### Phong shader
 
