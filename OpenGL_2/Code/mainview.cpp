@@ -156,17 +156,17 @@ void MainView::paintGL() {
 
     shaderProgram.bind();
 
+    QMatrix3x3 normalTransform = meshTransform.normalMatrix();
+
     // Set the projection matrix
     glUniformMatrix4fv(uniformProjectionTransform, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix4fv(uniformNormalTransform, 1, GL_FALSE, normalTransform.data());
+    glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, normalTransform.data());
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
     shaderProgram.release();
-
-    QMatrix3x3 matrix;
 }
 
 /**
@@ -198,23 +198,7 @@ void MainView::updateModelTransforms()
     meshTransform.scale(scale);
     meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
 
-    updateNormalTransforms();
-
     update();
-}
-
-/* Update the matrix with normals according to new angle or rotation. */
-void MainView::updateNormalTransforms()
-{
-    normalTransform.setToIdentity();
-
-    // doesnt set the matrix, only returns it... @FIXME
-    normalTransform.normalMatrix();
-
-    // same as in modeltransforms... @FIXME
-    normalTransform.translate(0, 0, -10);
-    normalTransform.scale(scale);
-    normalTransform.rotate(QQuaternion::fromEulerAngles(rotation));
 }
 
 // --- OpenGL cleanup helpers

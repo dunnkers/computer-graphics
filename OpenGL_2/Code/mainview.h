@@ -37,9 +37,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
 
-    // Normal transform
-    QMatrix4x4 normalTransform;
-
 public:
     enum ShadingMode : GLuint
     {
