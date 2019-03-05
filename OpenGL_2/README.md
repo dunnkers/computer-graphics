@@ -63,7 +63,7 @@ GL_TEXTURE_MIN_FILTER = GL_NEAREST
 GL_TEXTURE_MAG_FILTER = GL_NEAREST
 ```
 
-![texturized_gouraud](./Screenshots/texturized_phong-gl-nearest.gif)
+![texturized_gouraud](./Screenshots/texturized_phong-gl-nearest.png)
 
 Using:
 
@@ -72,7 +72,7 @@ GL_TEXTURE_MIN_FILTER = GL_LINEAR
 GL_TEXTURE_MAG_FILTER = GL_LINEAR
 ```
 
-![texturized_gouraud](./Screenshots/texturized_phong-gl-linear.gif)
+![texturized_gouraud](./Screenshots/texturized_phong-gl-linear.png)
 
 ### Texturized Gouraud:
 
