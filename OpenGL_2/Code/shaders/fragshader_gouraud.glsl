@@ -19,4 +19,10 @@ out vec4 fNormal;
 void main()
 {
     fNormal = vec4(vertNormal, 1.0);
+
+    // texture
+    vec4 color = texture(textureColor, textureCoordinates);
+
+    // combine previously calculated light intensity with texture color
+    fNormal = fNormal * color;
 }

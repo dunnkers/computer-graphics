@@ -119,12 +119,12 @@ void MainView::createShaderProgram()
     phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
     phongUniformLightPosition = phongShaderProgram.uniformLocation("lightPos");
     phongUniformMaterial = phongShaderProgram.uniformLocation("material");
-    phongUniformTextureColor = gouraudShaderProgram.uniformLocation("textureColor");
+    phongUniformTextureColor = phongShaderProgram.uniformLocation("textureColor");
 }
 
 void MainView::createTextures()
 {
-    loadTexture(":/textures/cat_diff.png", texture);
+    loadTexture(":/textures/cat_diff.png", texturePtr);
 }
 
 /* Function as suggested in reader */
@@ -135,8 +135,8 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
     glBindTexture(GL_TEXTURE_2D, texturePtr);
 
     // parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -197,12 +197,16 @@ void MainView::loadMesh()
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
     // Set colour coordinates to location 1
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Set texture coordinates to location 2
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -237,6 +241,7 @@ void MainView::paintGL() {
             uniformNormalTransform = phongUniformNormalTransform;
             glUniform3f(phongUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
             glUniform4f(phongUniformMaterial, material.x(), material.y(), material.z(), material.w());
+            glUniform1i(phongUniformTextureColor, 0);
             break;
         case ShadingMode::NORMAL:
             normalShaderProgram.bind();
@@ -251,6 +256,7 @@ void MainView::paintGL() {
             uniformNormalTransform = gouraudUniformNormalTransform;
             glUniform3f(gouraudUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
             glUniform4f(gouraudUniformMaterial, material.x(), material.y(), material.z(), material.w());
+            glUniform1i(gouraudUniformTextureColor, 0);
             break;
     }
 
@@ -261,6 +267,11 @@ void MainView::paintGL() {
     glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
     glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, normalTransform.data());
 
+    // Activate textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+
+    // Bind and draw
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 

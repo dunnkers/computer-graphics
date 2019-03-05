@@ -57,7 +57,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QMatrix4x4 projectionTransform;
 
     // Texture
-    GLuint texture;
+    GLuint texturePtr;
 
 public:
     enum ShadingMode : GLuint

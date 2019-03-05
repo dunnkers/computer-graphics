@@ -42,3 +42,24 @@ For the Phong shader, we are using exactly the same calculation as in Gouraud's 
 
 
 ## 2. Texture mapping
+
+All steps were followed and the texture should successfully show up - but it unfortunately does not. My system required the `texture` method to be used instead of the `texture2D`, but it still does not show any sign of a texture.
+
+I also played around with the different parameters. I set the parameters to:
+
+```
+GL_TEXTURE_WRAP_S = GL_REPEAT
+GL_TEXTURE_WRAP_T = GL_REPEAT
+GL_TEXTURE_MIN_FILTER, GL_NEAREST
+GL_TEXTURE_MAG_FILTER, GL_NEAREST
+```
+
+That shouldn't cause a problem.
+
+
+![textures-not-working](./Screenshots/textures-not-working.png)
+
+
+I suspect either (1) something might be wrong in passing the uniform `textureColor` (2) my system does not correctly handle the texture; I am running the latest MacOS.
+
+The latest state of the code is the version with textures, in case it does work on a different system. ℹ️ To check out the working Gouraud and Phong shading without textures, please comment `fragshader_gouraud.glsl#24-27` and `fragshader_phong.glsl#42-45`.

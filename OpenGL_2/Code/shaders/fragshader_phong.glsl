@@ -38,4 +38,9 @@ void main()
     vec3 fNormal3 = material.x + unit * material.y * diffuse + material.z * specular;
     fNormal = vec4(fNormal3, 1.0);
 
+    // texture
+    vec4 color = texture(textureColor, textureCoordinates);
+
+    // combine previously calculated light intensity with texture color
+    fNormal = fNormal * color;
 }
