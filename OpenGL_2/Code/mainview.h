@@ -34,6 +34,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint gouraudUniformNormalTransform;
     GLint gouraudUniformLightPosition;
     GLint gouraudUniformMaterial;
+    GLint gouraudUniformTextureColor;
 
     // Phong shader
     QOpenGLShaderProgram phongShaderProgram;
@@ -42,6 +43,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint phongUniformNormalTransform;
     GLint phongUniformLightPosition;
     GLint phongUniformMaterial;
+    GLint phongUniformTextureColor;
 
     // Mesh values
     GLuint meshVAO;

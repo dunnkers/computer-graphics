@@ -7,10 +7,12 @@
 // These must have the same type and name!
 in vec3 vertNormal;
 in vec3 vertCoordinates;
+in vec2 textureCoordinates;
 
 // The Uniforms of the fragment shaders
 uniform vec3 lightPos;
 uniform vec4 material;
+uniform sampler2D textureColor;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
@@ -22,7 +24,7 @@ vec3 map(vec3 value, int inMin, int inMax, int outMin, int outMax) {
 }
 
 void main()
-{    
+{
     // gouraud calc
     vec3 lightDistance = normalize(lightPos - vertCoordinates);
     vec3 normalizedVertex = normalize(-vertCoordinates);

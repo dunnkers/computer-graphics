@@ -104,6 +104,7 @@ void MainView::createShaderProgram()
     gouraudUniformNormalTransform = gouraudShaderProgram.uniformLocation("normalTransform");
     gouraudUniformLightPosition = gouraudShaderProgram.uniformLocation("lightPos");
     gouraudUniformMaterial = gouraudShaderProgram.uniformLocation("material");
+    gouraudUniformTextureColor = gouraudShaderProgram.uniformLocation("textureColor");
 
 
     // Phong
@@ -118,6 +119,7 @@ void MainView::createShaderProgram()
     phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
     phongUniformLightPosition = phongShaderProgram.uniformLocation("lightPos");
     phongUniformMaterial = phongShaderProgram.uniformLocation("material");
+    phongUniformTextureColor = gouraudShaderProgram.uniformLocation("textureColor");
 }
 
 void MainView::createTextures()
@@ -155,22 +157,30 @@ void MainView::loadMesh()
     Model model(":/models/cat.obj");
     QVector<QVector3D> vertexCoords = model.getVertices();
     QVector<QVector3D> vertexNormals = model.getNormals();
+    QVector<QVector2D> textureCoords = model.getTextureCoords();
 
+    int meshBlockSize = 8;
     QVector<float> meshData;
-    meshData.reserve(2 * 3 * vertexCoords.size());
+    meshData.reserve(meshBlockSize * vertexCoords.size());
 
     // should contain equal amount of elements
     assert(vertexCoords.size() == vertexNormals.size());
+    assert(vertexCoords.size() == textureCoords.size());
 
     for (int i = 0; i != vertexCoords.size(); ++i) {
         QVector3D vertex = vertexCoords.at(i);
-        QVector3D normal = vertexNormals.at(i);
         meshData.append(vertex.x());
         meshData.append(vertex.y());
         meshData.append(vertex.z());
+
+        QVector3D normal = vertexNormals.at(i);
         meshData.append(normal.x());
         meshData.append(normal.y());
         meshData.append(normal.z());
+
+        QVector2D texture = textureCoords.at(i);
+        meshData.append(texture.x());
+        meshData.append(texture.y());
     }
 
     meshSize = vertexCoords.size();
@@ -187,11 +197,11 @@ void MainView::loadMesh()
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 
     // Set colour coordinates to location 1
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
