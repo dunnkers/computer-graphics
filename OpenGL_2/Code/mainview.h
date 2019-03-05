@@ -101,7 +101,7 @@ private:
     void createShaderProgram();
     void loadMesh();
     void createTextures();
-    void loadTexture(QString file, GLuint texturePtr);
+    void loadTexture(QString file, GLuint *texturePtr);
 
     void destroyModelBuffers();
 

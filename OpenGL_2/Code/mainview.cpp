@@ -69,7 +69,7 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    createTextures();
+    loadTexture(":/textures/cat_diff.png", &texturePtr);
     loadMesh();
 
     // Initialize transformations
@@ -122,17 +122,12 @@ void MainView::createShaderProgram()
     phongUniformTextureColor = phongShaderProgram.uniformLocation("textureColor");
 }
 
-void MainView::createTextures()
-{
-    loadTexture(":/textures/cat_diff.png", texturePtr);
-}
-
 /* Function as suggested in reader */
-void MainView::loadTexture(QString file, GLuint texturePtr)
+void MainView::loadTexture(QString file, GLuint *texturePtr)
 {
     // generate and bind texture
-    glGenTextures(1, &texturePtr);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
+    glGenTextures(1, texturePtr);
+    glBindTexture(GL_TEXTURE_2D, *texturePtr);
 
     // parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

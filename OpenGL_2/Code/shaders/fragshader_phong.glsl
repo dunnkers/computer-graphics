@@ -18,11 +18,6 @@ uniform sampler2D textureColor;
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
 out vec4 fNormal;
 
-/* Simple range mapping function */
-vec3 map(vec3 value, int inMin, int inMax, int outMin, int outMax) {
-  return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
-}
-
 void main()
 {
     // gouraud calc
