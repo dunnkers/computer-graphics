@@ -28,14 +28,17 @@ void main()
     vec3 lightDistance = normalize(lightPos - vertCoordinates_in);
     vec3 normalizedVertex = normalize(-vertCoordinates_in);
     vec3 reflected = reflect(-lightDistance, vertNormal_in);
-    float angle = max(dot(reflected, normalizedVertex), 0.05);
-    float specular = pow(angle, material.w);
 
     vec3 normalTransVert = normalize(normalTransform * vertNormal_in);
-    float diffuse = max(dot(normalTransVert, lightDistance), 0.05);
+
+    float normalLightDotted = dot(normalTransVert, lightDistance);
+    float diffused = max(normalLightDotted, 0.05);
 
     vec3 unit = vec3(1, 1, 1);
-    vertNormal = material.x + unit * material.y * diffuse + material.z * specular;
+    float reflectDotNormalized = dot(reflected, normalizedVertex);
+    float angle = max(reflectDotNormalized, 0.05);
+    float specular = pow(angle, material.w);
+    vertNormal = material.x + unit * diffused * material.y + material.z * specular;
 
     // texture
     textureCoordinates = textureCoordinates_in;
