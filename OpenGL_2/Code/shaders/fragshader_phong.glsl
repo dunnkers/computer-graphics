@@ -7,40 +7,33 @@
 // These must have the same type and name!
 in vec3 vertNormal;
 in vec3 vertCoordinates;
-in vec2 textureCoordinates;
+in vec3 texCoordinates;
 
-// The Uniforms of the fragment shaders
-uniform vec3 lightPos;
+uniform vec3 lightPosition;
 uniform vec4 material;
-uniform sampler2D textureColor;
+uniform sampler2D texColor;
 
+// const vec3 ambientColor = vec3(0.0, 0.0, 0.1);
+// const vec3 diffuseColor = vec3(0.0, 0.0, 0.5);
+// const vec3 specColor = vec3(1.0, 1.0, 1.0);
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
-out vec4 fNormal;
-
-/* Simple range mapping function */
-vec3 map(vec3 value, int inMin, int inMax, int outMin, int outMax) {
-  return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
-}
+out vec4 fColor;
 
 void main()
 {
-    // gouraud calc
-    vec3 lightDistance = normalize(lightPos - vertCoordinates);
-    vec3 normalizedVertex = normalize(-vertCoordinates);
-    vec3 reflected = reflect(-lightDistance, vertNormal);
-    float angle = max(dot(reflected, normalizedVertex), 0.05);
-    float specular = pow(angle, material.w);
+    vec3 lightVector = normalize(lightPosition - vertCoordinates);
 
-    float diffuse = max(dot(vertNormal, lightDistance), 0.05);
+    vec3 viewDir = normalize(-vertCoordinates);
+    vec3 reflectDir = reflect(-lightVector, vertNormal);
 
-    vec3 unit = vec3(1, 1, 1);
-    vec3 fNormal3 = material.x + unit * material.y * diffuse + material.z * specular;
-    fNormal = vec4(fNormal3, 1.0);
+    float specAngle = max(dot(reflectDir, viewDir), 0.01);
+    float specular = pow(specAngle, material.w);
 
-    // texture
-    vec4 color = texture(textureColor, textureCoordinates);
+    float diffuse = max(dot(lightVector, vertNormal), 0.01);
 
-    // combine previously calculated light intensity with texture color
-    fNormal = fNormal * color;
+    vec4 textureColor = texture(texColor, vec2(texCoordinates.x, texCoordinates.y));
+
+    vec3 color = material.x + material.y * vec3(0.95, 0.95, 0.95) * diffuse + material.z * specular;
+    fColor = vec4(color, 1.0) * textureColor;
 }

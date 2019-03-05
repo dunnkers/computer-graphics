@@ -5,6 +5,7 @@
 #include <math.h>
 #include <QDateTime>
 
+static MainView::ShadingMode shadingMode;
 
 /**
  * @brief MainView::MainView
@@ -13,7 +14,8 @@
  *
  * @param parent
  */
-MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
+MainView::MainView(QWidget *parent) : QOpenGLWidget(parent)
+{
     qDebug() << "MainView constructor";
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -27,7 +29,8 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
  * Use this to clean up your variables, buffers etc.
  *
  */
-MainView::~MainView() {
+MainView::~MainView()
+{
     makeCurrent();
     debugLogger->stopLogging();
     delete debugLogger;
@@ -45,17 +48,19 @@ MainView::~MainView() {
  * Called upon OpenGL initialization
  * Attaches a debugger and calls other init functions
  */
-void MainView::initializeGL() {
+void MainView::initializeGL()
+{
     qDebug() << ":: Initializing OpenGL";
     initializeOpenGLFunctions();
 
     debugLogger = new QOpenGLDebugLogger();
-    connect( debugLogger, SIGNAL( messageLogged( QOpenGLDebugMessage ) ),
-             this, SLOT( onMessageLogged( QOpenGLDebugMessage ) ), Qt::DirectConnection );
+    connect(debugLogger, SIGNAL(messageLogged(QOpenGLDebugMessage)),
+             this, SLOT(onMessageLogged(QOpenGLDebugMessage)), Qt::DirectConnection);
 
-    if ( debugLogger->initialize() ) {
+    if (debugLogger->initialize())
+    {
         qDebug() << ":: Logging initialized";
-        debugLogger->startLogging( QOpenGLDebugLogger::SynchronousLogging );
+        debugLogger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
         debugLogger->enableMessages();
     }
 
@@ -69,121 +74,42 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    createTextures();
     loadMesh();
+    loadTexture();
 
-    // Initialize transformations
+    // Initialize tranformations
     updateProjectionTransform();
     updateModelTransforms();
 }
 
 void MainView::createShaderProgram()
 {
-    // Shader program creation
-    // Normal
-    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_normal.glsl");
-    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_normal.glsl");
-    normalShaderProgram.link();
-    // Normal uniforms
-    normalUniformModelViewTransform = normalShaderProgram.uniformLocation("modelViewTransform");
-    normalUniformProjectionTransform = normalShaderProgram.uniformLocation("projectionTransform");
-    normalUniformNormalTransform = normalShaderProgram.uniformLocation("normalTransform");
+    // Create shader programs
+    shaderProgramPhong.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_phong.glsl");
+    shaderProgramPhong.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_phong.glsl");
+    shaderProgramPhong.link();
 
+    shaderProgramNormal.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_normal.glsl");
+    shaderProgramNormal.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_normal.glsl");
+    shaderProgramNormal.link();
 
-    // Gouraud
-    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_gouraud.glsl");
-    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_gouraud.glsl");
-    gouraudShaderProgram.link();
-    // Gouraud uniforms
-    gouraudUniformModelViewTransform = gouraudShaderProgram.uniformLocation("modelViewTransform");
-    gouraudUniformProjectionTransform = gouraudShaderProgram.uniformLocation("projectionTransform");
-    gouraudUniformNormalTransform = gouraudShaderProgram.uniformLocation("normalTransform");
-    gouraudUniformLightPosition = gouraudShaderProgram.uniformLocation("lightPos");
-    gouraudUniformMaterial = gouraudShaderProgram.uniformLocation("material");
-    gouraudUniformTextureColor = gouraudShaderProgram.uniformLocation("textureColor");
-
-
-    // Phong
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_phong.glsl");
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_phong.glsl");
-    phongShaderProgram.link();
-    // Phong uniforms
-    phongUniformModelViewTransform = phongShaderProgram.uniformLocation("modelViewTransform");
-    phongUniformProjectionTransform = phongShaderProgram.uniformLocation("projectionTransform");
-    phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
-    phongUniformLightPosition = phongShaderProgram.uniformLocation("lightPos");
-    phongUniformMaterial = phongShaderProgram.uniformLocation("material");
-    phongUniformTextureColor = phongShaderProgram.uniformLocation("textureColor");
-}
-
-void MainView::createTextures()
-{
-    loadTexture(":/textures/cat_diff.png", texturePtr);
-}
-
-/* Function as suggested in reader */
-void MainView::loadTexture(QString file, GLuint texturePtr)
-{
-    // generate and bind texture
-    glGenTextures(1, &texturePtr);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
-
-    // parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // image file
-    QImage img{file};
-    QVector<quint8> bytes = imageToBytes(img);
-
-    // uploading image data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-                 img.width(), img.height(),
-                 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 bytes.data());
+    shaderProgramGouraud.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_gouraud.glsl");
+    shaderProgramGouraud.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_gouraud.glsl");
+    shaderProgramGouraud.link();
 }
 
 void MainView::loadMesh()
 {
-    // load model & get vertices and normals
     Model model(":/models/cat.obj");
     QVector<QVector3D> vertexCoords = model.getVertices();
-    QVector<QVector3D> vertexNormals = model.getNormals();
+    QVector<QVector3D> normalCoords = model.getNormals();
     QVector<QVector2D> textureCoords = model.getTextureCoords();
 
-    int meshBlockSize = 8;
-    QVector<float> meshData;
-    meshData.reserve(meshBlockSize * vertexCoords.size());
-
-    // should contain equal amount of elements
-    assert(vertexCoords.size() == vertexNormals.size());
-    assert(vertexCoords.size() == textureCoords.size());
-
-    for (int i = 0; i != vertexCoords.size(); ++i) {
-        QVector3D vertex = vertexCoords.at(i);
-        meshData.append(vertex.x());
-        meshData.append(vertex.y());
-        meshData.append(vertex.z());
-
-        QVector3D normal = vertexNormals.at(i);
-        meshData.append(normal.x());
-        meshData.append(normal.y());
-        meshData.append(normal.z());
-
-        QVector2D texture = textureCoords.at(i);
-        meshData.append(texture.x());
-        meshData.append(texture.y());
-    }
-
     meshSize = vertexCoords.size();
+
+    std::vector<Vertex> meshData;
+    for (int i = 0; i < meshSize; i++)
+        meshData.emplace_back(Vertex(vertexCoords[i], normalCoords[i], textureCoords[i]));
 
     // Generate VAO
     glGenVertexArrays(1, &meshVAO);
@@ -194,24 +120,34 @@ void MainView::loadMesh()
     glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
 
     // Write the data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(Vertex), &meshData.front(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
     glEnableVertexAttribArray(0);
 
     // Set colour coordinates to location 1
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // Set texture coordinates to location 2
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
+void MainView::loadTexture()
+{
+    QImage image{":/textures/cat_diff.png"};
+    QVector<quint8> byteImage = imageToBytes(image);
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, byteImage.data());
+}
 
 // --- OpenGL drawing
 
@@ -221,70 +157,73 @@ void MainView::loadMesh()
  * Actual function used for drawing to the screen
  *
  */
-void MainView::paintGL() {
+void MainView::paintGL()
+{
+    QMatrix3x3 normalTransform  = meshTransform.normalMatrix();;
+
     // Clear the screen before rendering
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    GLint uniformProjectionTransform;
-    GLint uniformModelViewTransform;
-    GLint uniformNormalTransform;
-
-    QVector3D lightPos = QVector3D(1, 1, 1);
-    QVector4D material = QVector4D(0.25f, 0.5f, 0.75f, 5.0f);
-
-    switch (shadingMode) {
-        case ShadingMode::PHONG:
-            phongShaderProgram.bind();
-            uniformProjectionTransform = phongUniformProjectionTransform;
-            uniformModelViewTransform = phongUniformModelViewTransform;
-            uniformNormalTransform = phongUniformNormalTransform;
-            glUniform3f(phongUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
-            glUniform4f(phongUniformMaterial, material.x(), material.y(), material.z(), material.w());
-            glUniform1i(phongUniformTextureColor, 0);
+    switch (shadingMode)
+    {
+        case PHONG:
+            uniformModel = shaderProgramPhong.uniformLocation("modelTransform");
+            uniformProjection = shaderProgramPhong.uniformLocation("projectionTransform");
+            uniformNormal = shaderProgramPhong.uniformLocation("normalTransform");
+            uniformLight = shaderProgramPhong.uniformLocation("lightPosition");
+            uniformMaterial = shaderProgramPhong.uniformLocation("material");
+            uniformTexColor = shaderProgramPhong.uniformLocation("texColor");
+            shaderProgramPhong.bind();
+            shaderProgramPhong.setUniformValue(uniformModel, meshTransform);
+            shaderProgramPhong.setUniformValue(uniformProjection, projectionTransform);
+            shaderProgramPhong.setUniformValue(uniformNormal, normalTransform);
+            shaderProgramPhong.setUniformValue(uniformLight, QVector3D(50, 50, 50));
+            shaderProgramPhong.setUniformValue(uniformMaterial, QVector4D(0.2f, 0.7f, 0.5f, 4));
             break;
-        case ShadingMode::NORMAL:
-            normalShaderProgram.bind();
-            uniformProjectionTransform = normalUniformProjectionTransform;
-            uniformModelViewTransform = normalUniformModelViewTransform;
-            uniformNormalTransform = normalUniformNormalTransform;
+        case NORMAL:
+            uniformModel = shaderProgramNormal.uniformLocation("modelTransform");
+            uniformProjection = shaderProgramNormal.uniformLocation("projectionTransform");
+            uniformNormal = shaderProgramNormal.uniformLocation("normalTransform");
+            shaderProgramNormal.bind();
+            shaderProgramNormal.setUniformValue(uniformModel, meshTransform);
+            shaderProgramNormal.setUniformValue(uniformProjection, projectionTransform);
+            shaderProgramNormal.setUniformValue(uniformNormal, normalTransform);
             break;
-        case ShadingMode::GOURAUD:
-            gouraudShaderProgram.bind();
-            uniformProjectionTransform = gouraudUniformProjectionTransform;
-            uniformModelViewTransform = gouraudUniformModelViewTransform;
-            uniformNormalTransform = gouraudUniformNormalTransform;
-            glUniform3f(gouraudUniformLightPosition, lightPos.x(), lightPos.y(), lightPos.z());
-            glUniform4f(gouraudUniformMaterial, material.x(), material.y(), material.z(), material.w());
-            glUniform1i(gouraudUniformTextureColor, 0);
+        case GOURAUD:
+            uniformModel = shaderProgramGouraud.uniformLocation("modelTransform");
+            uniformProjection = shaderProgramGouraud.uniformLocation("projectionTransform");
+            uniformNormal = shaderProgramGouraud.uniformLocation("normalTransform");
+            uniformLight = shaderProgramGouraud.uniformLocation("lightPosition");
+            uniformMaterial = shaderProgramGouraud.uniformLocation("material");
+            uniformTexColor = shaderProgramGouraud.uniformLocation("texColor");
+            shaderProgramGouraud.bind();
+            shaderProgramGouraud.setUniformValue(uniformModel, meshTransform);
+            shaderProgramGouraud.setUniformValue(uniformProjection, projectionTransform);
+            shaderProgramGouraud.setUniformValue(uniformNormal, normalTransform);
+            shaderProgramGouraud.setUniformValue(uniformLight, QVector3D(50, 50, 50));
+            shaderProgramGouraud.setUniformValue(uniformMaterial, QVector4D(0.2f, 0.7f, 0.5f, 4));
             break;
     }
 
-    QMatrix3x3 normalTransform = meshTransform.normalMatrix();
+    glUniform1i(uniformTexColor, 0);
 
-    // Set the projection matrix
-    glUniformMatrix4fv(uniformProjectionTransform, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, normalTransform.data());
-
-    // Activate textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    // Bind and draw
-    glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-    switch (shadingMode) {
-        case ShadingMode::NORMAL:
-            normalShaderProgram.release();
-            break;
-        case ShadingMode::GOURAUD:
-            gouraudShaderProgram.release();
-            break;
-        case ShadingMode::PHONG:
-            phongShaderProgram.release();
-            break;
+    switch (shadingMode)
+    {
+    case PHONG:
+        shaderProgramPhong.release();
+        break;
+    case NORMAL:
+        shaderProgramNormal.release();
+        break;
+    case GOURAUD:
+        shaderProgramGouraud.release();
+        break;
     }
 }
 
@@ -307,13 +246,13 @@ void MainView::updateProjectionTransform()
 {
     float aspect_ratio = static_cast<float>(width()) / static_cast<float>(height());
     projectionTransform.setToIdentity();
-    projectionTransform.perspective(60, aspect_ratio, 0.2, 20);
+    projectionTransform.perspective(60, aspect_ratio, 0.2f, 20);
 }
 
 void MainView::updateModelTransforms()
 {
     meshTransform.setToIdentity();
-    meshTransform.translate(0, 0, -10);
+    meshTransform.translate(0.0f, 0.0f, -5.0f);
     meshTransform.scale(scale);
     meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
 
@@ -332,19 +271,23 @@ void MainView::destroyModelBuffers()
 
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 {
-    rotation = { static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ) };
+    rotation =
+    {
+        static_cast<float>(rotateX),
+        static_cast<float>(rotateY),
+        static_cast<float>(rotateZ)
+    };
     updateModelTransforms();
 }
 
 void MainView::setScale(int newScale)
 {
-    scale = static_cast<float>(newScale) / 25.f;
+    scale = static_cast<float>(newScale) / 100.0f;
     updateModelTransforms();
 }
 
 void MainView::setShadingMode(ShadingMode shading)
 {
-    qDebug() << "Changed shading to" << shading;
     shadingMode = shading;
 }
 
@@ -357,7 +300,7 @@ void MainView::setShadingMode(ShadingMode shading)
  *
  * @param Message
  */
-void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
+void MainView::onMessageLogged(QOpenGLDebugMessage Message)
+{
     qDebug() << " → Log:" << Message;
 }
-

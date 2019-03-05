@@ -6,23 +6,19 @@
 // Specify the inputs to the fragment shader
 // These must have the same type and name!
 in vec3 vertNormal;
-in vec2 textureCoordinates;
+in vec3 texCoordinates;
+
+uniform sampler2D texColor;
 
 // Specify the Uniforms of the fragment shaders
 // uniform vec3 lightPosition; // for example
-uniform sampler2D textureColor;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
-out vec4 fNormal;
+out vec4 fColor;
 
 void main()
 {
-    fNormal = vec4(vertNormal, 1.0);
-
-    // texture
-    vec4 color = texture(textureColor, textureCoordinates);
-
-    // combine previously calculated light intensity with texture color
-    fNormal = fNormal * color;
+    vec4 textureColor = texture(texColor, vec2(texCoordinates.x, texCoordinates.y));
+    fColor = vec4(vertNormal, 1.0) * textureColor;
 }

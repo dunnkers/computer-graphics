@@ -15,35 +15,23 @@
 #include <memory>
 
 
-class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
+class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
+{
     Q_OBJECT
 
     QOpenGLDebugLogger *debugLogger;
     QTimer timer; // timer used for animation
 
-    // Normal shader
-    QOpenGLShaderProgram normalShaderProgram;
-    GLint normalUniformModelViewTransform;
-    GLint normalUniformProjectionTransform;
-    GLint normalUniformNormalTransform;
+    QOpenGLShaderProgram shaderProgramNormal;
+    QOpenGLShaderProgram shaderProgramPhong;
+    QOpenGLShaderProgram shaderProgramGouraud;
 
-    // Gouraud shader
-    QOpenGLShaderProgram gouraudShaderProgram;
-    GLint gouraudUniformModelViewTransform;
-    GLint gouraudUniformProjectionTransform;
-    GLint gouraudUniformNormalTransform;
-    GLint gouraudUniformLightPosition;
-    GLint gouraudUniformMaterial;
-    GLint gouraudUniformTextureColor;
-
-    // Phong shader
-    QOpenGLShaderProgram phongShaderProgram;
-    GLint phongUniformModelViewTransform;
-    GLint phongUniformProjectionTransform;
-    GLint phongUniformNormalTransform;
-    GLint phongUniformLightPosition;
-    GLint phongUniformMaterial;
-    GLint phongUniformTextureColor;
+    GLint uniformModel;
+    GLint uniformProjection;
+    GLint uniformNormal;
+    GLint uniformLight;
+    GLint uniformMaterial;
+    GLint uniformTexColor;
 
     // Mesh values
     GLuint meshVAO;
@@ -51,32 +39,29 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint meshSize;
     QMatrix4x4 meshTransform;
 
+    // Texture values
+    GLuint texture;
+
     // Transforms
-    float scale = 1.f;
+    float scale = 1.0f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
-
-    // Texture
-    GLuint texturePtr;
 
 public:
     enum ShadingMode : GLuint
     {
-        PHONG = 0, NORMAL, GOURAUD
+        PHONG = 0,
+        NORMAL,
+        GOURAUD
     };
-    // Current shading mode
-    ShadingMode shadingMode = ShadingMode::PHONG;
 
-    MainView(QWidget *parent = 0);
+    MainView(QWidget *parent = nullptr);
     ~MainView();
 
     // Functions for widget input events
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
     void setShadingMode(ShadingMode shading);
-
-    // Image reading utility function
-    QVector<quint8> imageToBytes(QImage image);
 
 protected:
     void initializeGL();
@@ -100,14 +85,13 @@ private slots:
 private:
     void createShaderProgram();
     void loadMesh();
-    void createTextures();
-    void loadTexture(QString file, GLuint texturePtr);
+    void loadTexture();
+    QVector<quint8> imageToBytes(QImage image);
 
     void destroyModelBuffers();
 
     void updateProjectionTransform();
     void updateModelTransforms();
-    void updateNormalTransforms();
 };
 
 #endif // MAINVIEW_H
