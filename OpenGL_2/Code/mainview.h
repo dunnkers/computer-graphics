@@ -54,6 +54,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
 
+    // Texture
+    GLuint texture;
+
 public:
     enum ShadingMode : GLuint
     {
@@ -69,6 +72,9 @@ public:
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
     void setShadingMode(ShadingMode shading);
+
+    // Image reading utility function
+    QVector<quint8> imageToBytes(QImage image);
 
 protected:
     void initializeGL();
@@ -92,6 +98,8 @@ private slots:
 private:
     void createShaderProgram();
     void loadMesh();
+    void createTextures();
+    void loadTexture(QString file, GLuint texturePtr);
 
     void destroyModelBuffers();
 

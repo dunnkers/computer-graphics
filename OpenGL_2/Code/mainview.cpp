@@ -69,6 +69,7 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
+    createTextures();
     loadMesh();
 
     // Initialize transformations
@@ -117,6 +118,35 @@ void MainView::createShaderProgram()
     phongUniformNormalTransform = phongShaderProgram.uniformLocation("normalTransform");
     phongUniformLightPosition = phongShaderProgram.uniformLocation("lightPos");
     phongUniformMaterial = phongShaderProgram.uniformLocation("material");
+}
+
+void MainView::createTextures()
+{
+    loadTexture(":/textures/cat_diff.png", texture);
+}
+
+/* Function as suggested in reader */
+void MainView::loadTexture(QString file, GLuint texturePtr)
+{
+    // generate and bind texture
+    glGenTextures(1, &texturePtr);
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+
+    // parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // image file
+    QImage img{file};
+    QVector<quint8> bytes = imageToBytes(img);
+
+    // uploading image data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                 img.width(), img.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 bytes.data());
 }
 
 void MainView::loadMesh()
