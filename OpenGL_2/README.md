@@ -78,3 +78,6 @@ GL_TEXTURE_MAG_FILTER = GL_LINEAR
 
 ![texturized_gouraud](./Screenshots/texturized_gouraud.gif)
 
+
+#### End
+✌🏻
