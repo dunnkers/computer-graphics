@@ -75,46 +75,60 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
-    Color color = material.color;
-    double r = color.r;
-    double g = color.g;
-    double b = color.b;
-    double kd = material.kd;
-    double ks = material.ks;
-    double ka = material.ka;
+    Color Ia = material.color * material.ka;
+    Color Id;
+    Color Is;
 
-    // grab light source
-    LightPtr firstLight = lights.front();
-    Light light = *firstLight.get();
+    for (auto const light : lights) {
+        Vector R = 2 * ((light->position - hit).normalized()).dot(N.normalized()) * N.normalized() - (light->position - hit).normalized();
+        Id += fmax(0, ((light->position - hit).normalized()).dot(N.normalized())) * material.color * light->color * material.kd;
+        Is += pow(fmax(0, R.dot(V)), material.n) * light->color * material.ks;
+    }
 
-    // compute vector l. subtract intersection point of the ray and surface
-    // from the light source position. book page 82.
-    Vector l = light.position - hit;
-
-    // Lambertian Shading
-    // color.r = lambertianShading(r * kd, light.color.r, N, l);
-    // color.g = lambertianShading(g * kd, light.color.g, N, l);
-    // color.b = lambertianShading(b * kd, light.color.b, N, l);
-
-    // vector h is the sum of vectors v and l, normalized. book page 83.
-    Vector H = V + l;
-    H.normalize();
-
-    l.normalize();
-
-    // Phong Shading
-    double p = 200.0;
-    color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
-    color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
-    color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
-
-    // Add Ambient Lighting
-    double intensity = 1.0;
-    color.r = color.r + r * intensity * ka;
-    color.g = color.g + g * intensity * ka;
-    color.b = color.b + b * intensity * ka;
+    Color color = Ia + Id + Is;
 
     return color;
+
+    // Color color = material.color;
+    // double r = color.r;
+    // double g = color.g;
+    // double b = color.b;
+    // double kd = material.kd;
+    // double ks = material.ks;
+    // double ka = material.ka;
+
+    // // grab light source
+    // LightPtr firstLight = lights.front();
+    // Light light = *firstLight.get();
+
+    // // compute vector l. subtract intersection point of the ray and surface
+    // // from the light source position. book page 82.
+    // Vector l = light.position - hit;
+
+    // // Lambertian Shading
+    // // color.r = lambertianShading(r * kd, light.color.r, N, l);
+    // // color.g = lambertianShading(g * kd, light.color.g, N, l);
+    // // color.b = lambertianShading(b * kd, light.color.b, N, l);
+
+    // // vector h is the sum of vectors v and l, normalized. book page 83.
+    // Vector H = V + l;
+    // H.normalize();
+
+    // l.normalize();
+
+    // // Phong Shading
+    // double p = 200.0;
+    // color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
+    // color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
+    // color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
+
+    // // Add Ambient Lighting
+    // double intensity = 1.0;
+    // color.r = color.r + r * intensity * ka;
+    // color.g = color.g + g * intensity * ka;
+    // color.b = color.b + b * intensity * ka;
+
+    // return color;
 }
 
 void Scene::render(Image &img)
