@@ -10,30 +10,6 @@
 
 using namespace std;
 
-// Compute Lambertian Shading as in book page 82.
-double lambertianShading(double kd, double I, Vector n, Vector l)
-{
-    double dotProduct = n.dot(l);
-    double maxed = fmax(0, dotProduct);
-    return kd * I * maxed;
-}
-
-// Compute Blinn-Phong Shading as in book page 82/83.
-double phongShading(double kd, double I, Vector n, Vector l, 
-    Vector h, double ks, double p)
-{
-    double lambertian = lambertianShading(kd, I, n, l);
-
-
-    // second term in Phong calculation
-    double dotProduct = n.dot(h);
-    double maxed = fmax(0, dotProduct);
-    double phong = ks * I * pow(maxed, p);
-
-    // add the two terms.
-    return lambertian + phong;
-}
-
 Color Scene::trace(Ray const &ray)
 {
     // Find hit object and distance
@@ -75,46 +51,29 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
-    Color color = material.color;
-    double r = color.r;
-    double g = color.g;
-    double b = color.b;
-    double kd = material.kd;
-    double ks = material.ks;
-    double ka = material.ka;
+    // Ia is constant, other terms not
+    Color Ia = material.color * material.ka;
+    Color Is;
+    Color Id;
 
-    // grab light source
-    LightPtr firstLight = lights.front();
-    Light light = *firstLight.get();
+    for (auto const light : lights) {
+        // book pg 82
+        Vector l = light->position - hit;
+        l.normalize();
+        N.normalize();
 
-    // compute vector l. subtract intersection point of the ray and surface
-    // from the light source position. book page 82.
-    Vector l = light.position - hit;
+        // book pg 238
+        Vector r = -l + 2 * l.dot(N) * N;
+        // Is - Specular reflection (lecture slides)
+        // material.n resembles Phong specular component p
+        Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
+        // Id - Diffuse term - Lambert's law (lecture slides)
+        Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
+    }
 
-    // Lambertian Shading
-    // color.r = lambertianShading(r * kd, light.color.r, N, l);
-    // color.g = lambertianShading(g * kd, light.color.g, N, l);
-    // color.b = lambertianShading(b * kd, light.color.b, N, l);
-
-    // vector h is the sum of vectors v and l, normalized. book page 83.
-    Vector H = V + l;
-    H.normalize();
-
-    l.normalize();
-
-    // Phong Shading
-    double p = 200.0;
-    color.r = phongShading(r * kd, light.color.r, N, l, H, r * ks, p);
-    color.g = phongShading(g * kd, light.color.g, N, l, H, g * ks, p);
-    color.b = phongShading(b * kd, light.color.b, N, l, H, b * ks, p);
-
-    // Add Ambient Lighting
-    double intensity = 1.0;
-    color.r = color.r + r * intensity * ka;
-    color.g = color.g + g * intensity * ka;
-    color.b = color.b + b * intensity * ka;
-
-    return color;
+    // add up all terms
+    Color I = Ia + Is + Id;
+    return I;
 }
 
 void Scene::render(Image &img)
