@@ -99,6 +99,18 @@ try
 
     // TODO: add your other configuration settings here
 
+    if (jsonscene.find("Shadows") != jsonscene.end()) {
+        scene.setShadows(jsonscene["Shadows"]);
+    }
+    
+    if (jsonscene.find("MaxRecursionDepth") != jsonscene.end()) {
+        scene.setRecursionDepth(jsonscene["MaxRecursionDepth"]);
+    }
+
+    if (jsonscene.find("SuperSamplingFactor") != jsonscene.end()) {
+        scene.setSamplingFactor(jsonscene["SuperSamplingFactor"]);
+    }
+
     for (auto const &lightNode : jsonscene["Lights"])
         scene.addLight(parseLightNode(lightNode));
 

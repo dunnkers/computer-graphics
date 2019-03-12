@@ -16,6 +16,9 @@ class Scene
     std::vector<ObjectPtr> objects;
     std::vector<LightPtr> lights;   // no ptr needed, but kept for consistency
     Point eye;
+    bool shadows = false;
+    int recursionDepth = 0;
+    int samplingFactor = 1;
 
     public:
 
@@ -28,10 +31,14 @@ class Scene
 
         void addObject(ObjectPtr obj);
         void addLight(Light const &light);
-        void setEye(Triple const &position);
+        void setEye(Triple const& position);
 
         unsigned getNumObject();
         unsigned getNumLights();
+
+        void setShadows(bool shadows);
+        void setRecursionDepth(int depth);
+        void setSamplingFactor(int factor);
 };
 
 #endif

@@ -119,3 +119,16 @@ unsigned Scene::getNumLights()
 {
     return lights.size();
 }
+
+void Scene::setShadows(bool shad) {
+    shadows = shad;
+}
+
+void Scene::setRecursionDepth(int depth) {
+    recursionDepth = depth;
+}
+
+void Scene::setSamplingFactor(int factor)
+{
+    samplingFactor = factor;
+}
