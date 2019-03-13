@@ -21,20 +21,18 @@ Color Scene::reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
     Ray reflectedRay{ hit, r };
 
     Vector V = -ray.D;
+
+    // Find hit object and distance
     Hit min_hit_reflected(numeric_limits<double>::infinity(), Vector());
-    ObjectPtr refObj = nullptr;
-    for (unsigned idx = 0; idx != objects.size(); ++idx) {
-        Hit hit2(objects[idx]->intersect(reflectedRay));
-        if (hit2.t < min_hit_reflected.t && objects[idx] != obj) {
-            min_hit_reflected = hit2;
-            refObj = objects[idx];
-        }
-    }
-    if (refObj != nullptr) {
+    ObjectPtr obj_hit_refl = nullptr;
+    findHitObject(reflectedRay, &obj_hit_refl, &min_hit_reflected, obj);
+
+    if (obj_hit_refl != nullptr) {
         Point reflectedHit = reflectedRay.at(min_hit_reflected.t);
         Light reflectedLight(reflectedHit, trace(reflectedRay, depth + 1) * material.ks);
         Vector L = (reflectedLight.position - hit).normalized();
         r = 2 * (N.dot(L)) * N - L;
+
 
         Color res = Color(pow(fmax(0, V.dot(r)), material.n) * reflectedLight.color * material.ks);
         return res;
@@ -42,11 +40,21 @@ Color Scene::reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
     return Color(0, 0, 0);
 }
 
+Color computeSpecular(Vector r, Vector V, Material material, LightPtr light) {
+    return pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
+}
+
 void Scene::findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit)
+{
+    findHitObject(ray, obj, min_hit, nullptr);
+}
+
+void Scene::findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit, 
+    ObjectPtr exclusion)
 {
     for (unsigned idx = 0; idx != objects.size(); ++idx) {
         Hit hit(objects[idx]->intersect(ray));
-        if (hit.t < min_hit->t) {
+        if (hit.t < min_hit->t && objects[idx] != exclusion) {
             *min_hit = hit;
             *obj = objects[idx];
         }
@@ -63,8 +71,8 @@ Color Scene::trace(Ray const &ray, int depth)
     // No hit? Return background color.
     if (!obj) return Color(0.0, 0.0, 0.0);
 
-    Material &material = obj->material; //the hit objects material
-    Point hit = ray.at(min_hit.t);      //the hit point
+    Material &material = obj->material;        //the hit objects material
+    Point hit = ray.at(min_hit.t - 1e-8);      //the hit point
     Vector V = -ray.D;
     Vector N = min_hit.N;
 
@@ -136,7 +144,7 @@ void Scene::render(Image &img)
     unsigned h = img.height();
     for (float i = 0.5 / samplingFactor; i < h; i += 1.0 / samplingFactor) {
         for (float j = 0.5 / samplingFactor; j < w; j += 1.0 / samplingFactor) {
-            Point pixel(i + 0.5, (h - 1 - j) + 0.5, 0);
+            Point pixel(0.5 + i, 0.5 + (h - j - 1), 0);
             Ray ray(eye, (pixel - eye).normalized());
             Color col = trace(ray, 0);
             col.clamp();

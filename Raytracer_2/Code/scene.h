@@ -27,6 +27,8 @@ class Scene
         Color reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit);
 
         void findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit);
+        void findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit, 
+                            ObjectPtr exclusion);
 
         // render the scene to the given image
         void render(Image &img);
