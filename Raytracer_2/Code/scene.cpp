@@ -10,33 +10,34 @@
 
 using namespace std;
 
-Color Scene::reflectRay(int depth, Hit min_hit, Ray ray, ObjectPtr obj)
+Color Scene::reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
 {
     Material& material = obj->material;
-    Point hit = ray.at(min_hit.t - 0.0000000001); //the hit point
+    Point hit = ray.at(min_hit.t - 1e-8); //the hit point
     Vector N = min_hit.N;
 
     Vector r = 2 * (N.dot(-ray.D)) * N + ray.D;
-    Vector V = -ray.D;
     r.normalize();
     Ray reflectedRay{ hit, r };
 
-    Hit min_reflectedHit(numeric_limits<double>::infinity(), Vector());
+    Vector V = -ray.D;
+    Hit min_hit_reflected(numeric_limits<double>::infinity(), Vector());
     ObjectPtr refObj = nullptr;
     for (unsigned idx = 0; idx != objects.size(); ++idx) {
         Hit hit2(objects[idx]->intersect(reflectedRay));
-        if (hit2.t < min_reflectedHit.t && objects[idx] != obj) {
-            min_reflectedHit = hit2;
+        if (hit2.t < min_hit_reflected.t && objects[idx] != obj) {
+            min_hit_reflected = hit2;
             refObj = objects[idx];
         }
     }
     if (refObj != nullptr) {
-        Point reflectedHit = reflectedRay.at(min_reflectedHit.t);
+        Point reflectedHit = reflectedRay.at(min_hit_reflected.t);
         Light reflectedLight(reflectedHit, trace(reflectedRay, depth + 1) * material.ks);
         Vector L = (reflectedLight.position - hit).normalized();
         r = 2 * (N.dot(L)) * N - L;
 
-        return Color(pow(fmax(0, V.dot(r)), material.n) * reflectedLight.color * material.ks);
+        Color res = Color(pow(fmax(0, V.dot(r)), material.n) * reflectedLight.color * material.ks);
+        return res;
     }
     return Color(0, 0, 0);
 }
@@ -119,7 +120,7 @@ Color Scene::trace(Ray const &ray, int depth)
             Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
 
             if (depth < recursionDepth) {
-                Is += reflectRay(depth, min_hit, ray, obj);
+                Is += reflectRay(ray, depth, obj, min_hit);
             }
         }
     }
@@ -139,6 +140,7 @@ void Scene::render(Image &img)
             Ray ray(eye, (pixel - eye).normalized());
             Color col = trace(ray, 0);
             col.clamp();
+            
             int width = (int) i; // cast float to int
             int height = (int) j; // cast float to int
             img(width, height) += col / (samplingFactor * samplingFactor);
