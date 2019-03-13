@@ -59,10 +59,11 @@ Color Scene::trace(Ray const &ray, int depth)
     // No hit? Return background color.
     if (!obj) return Color(0.0, 0.0, 0.0);
 
-    Material material = obj->material;          //the hit objects material
-    Point hit = ray.at(min_hit.t);                 //the hit point
-    Vector N = min_hit.N;                          //the normal at hit point
-    Vector V = -ray.D;                             //the view vector
+    Material& material = obj->material; //the hit objects material
+    Point hit; //the hit point
+    Vector V = -ray.D;
+    Vector N = min_hit.N;
+    hit = ray.at(min_hit.t - 0.0000000001); //the hit point
 
     /****************************************************
     * This is where you should insert the color
@@ -91,6 +92,8 @@ Color Scene::trace(Ray const &ray, int depth)
     Color Is;
     Color Id;
 
+    Vector R;
+
     for (auto const light : lights) {
         if (shadows) {
             Ray lightRay(light->position, -(light->position - hit).normalized());
@@ -105,28 +108,18 @@ Color Scene::trace(Ray const &ray, int depth)
                 }
             }
             if (blockingObj == obj) {
-                Vector r = 2 * (N).dot((light->position - hit).normalized()) * N - (light->position - hit).normalized();
+                R = 2 * (N).dot((light->position - hit).normalized()) * N - (light->position - hit).normalized();
                 Id += fmax(0, ((light->position - hit).normalized()).dot(N.normalized())) * material.color * light->color * material.kd;
-                Is += pow(fmax(0, r.dot(V)), material.n) * light->color * material.ks;
+                Is += pow(fmax(0, R.dot(V)), material.n) * light->color * material.ks;
 
                 if (depth < recursionDepth) {
                     Is += reflectRay(depth, min_hit, ray, obj);
                 }
             }
         } else {
-            // book pg 82
-            Vector l = light->position - hit;
-            l.normalize();
-            N.normalize();
-
-            // book pg 238
-            Vector r = -l + 2 * l.dot(N) * N;
-            // Is - Specular reflection (lecture slides)
-            // material.n resembles Phong specular component p
-            Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
-            // Id - Diffuse term - Lambert's law (lecture slides)
-            Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
-
+            R = 2 * (N).dot((light->position - hit).normalized()) * N - (light->position - hit).normalized();
+            Id += fmax(0, ((light->position - hit).normalized()).dot(N.normalized())) * material.color * light->color * material.kd;
+            Is += pow(fmax(0, R.dot(V)), material.n) * light->color * material.ks;
             if (depth < recursionDepth) {
                 Is += reflectRay(depth, min_hit, ray, obj);
             }
@@ -142,15 +135,13 @@ void Scene::render(Image &img)
 {
     unsigned w = img.width();
     unsigned h = img.height();
-    for (unsigned y = 0; y < h; ++y)
-    {
-        for (unsigned x = 0; x < w; ++x)
-        {
-            Point pixel(x + 0.5, h - 1 - y + 0.5, 0);
+    for (float i = 0.5 / samplingFactor; i < h; i += 1.0 / samplingFactor) {
+        for (float j = 0.5 / samplingFactor; j < w; j += 1.0 / samplingFactor) {
+            Point pixel(i + 0.5, (h - 1 - j) + 0.5, 0);
             Ray ray(eye, (pixel - eye).normalized());
             Color col = trace(ray, 0);
             col.clamp();
-            img(x, y) = col;
+            img((int)i, (int)j) += col / (samplingFactor * samplingFactor);
         }
     }
 }

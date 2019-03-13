@@ -49,19 +49,19 @@ bool Raytracer::parseObjectNode(json const &node)
             angle = node["angle"];
         }
 
-        obj = ObjectPtr(new Sphere(pos, radius, rotation, angle));
-    }
-    else if (node["type"] == "triangle")
-    {
-        Point vectorA(node["vectorA"]);
-        Point vectorB(node["vectorB"]);
-        Point vectorC(node["vectorC"]);
-        obj = ObjectPtr(new Triangle(vectorA, vectorB, vectorC));
-    }
-    else
-    {
-        cerr << "Unknown object type: " << node["type"] << ".\n";
-    }
+		obj = ObjectPtr(new Sphere(pos, radius, rotation, angle));
+	}
+	else if (node["type"] == "triangle")
+	{
+		Point vertex0(node["vertex0"]);
+		Point vertex1(node["vertex1"]);
+		Point vertex2(node["vertex2"]);
+		obj = ObjectPtr(new Triangle(vertex0, vertex1, vertex2));
+	}
+	else
+	{
+		cerr << "Unknown object type: " << node["type"] << ".\n";
+	}
 
 // =============================================================================
 // -- End of object reading ----------------------------------------------------
@@ -85,20 +85,24 @@ Light Raytracer::parseLightNode(json const &node) const
 
 Material Raytracer::parseMaterialNode(json const &node) const
 {
-    Color color(node["color"]);
     double ka = node["ka"];
     double kd = node["kd"];
     double ks = node["ks"];
     double n  = node["n"];
-    
-    if (node.find("texture") != node.end()) {
-        string const file = node["texture"];
-        string append = "../Scenes/";
-        append = append + file;
-        return Material(append, ka, kd, ks, n);
-    }
 
-    return Material(color, ka, kd, ks, n);
+	if (node.find("color") != node.end()) {
+		Color color(node["color"]);
+		return Material(color, ka, kd, ks, n);
+	}
+	
+	if (node.find("texture") != node.end()) {
+		string const file = node["texture"];
+		string append = "../Scenes/";
+		append = append + file;
+		return Material(append, ka, kd, ks, n);
+	}
+	
+	return Material();
 }
 
 bool Raytracer::readScene(string const &ifname)
