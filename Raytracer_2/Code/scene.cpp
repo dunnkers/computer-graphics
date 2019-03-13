@@ -144,9 +144,13 @@ void Scene::render(Image &img)
 {
     unsigned w = img.width();
     unsigned h = img.height();
-    for (float i = 0.5 / samplingFactor; i < h; i += 1.0 / samplingFactor) {
-        for (float j = 0.5 / samplingFactor; j < w; j += 1.0 / samplingFactor) {
-            Point pixel(0.5 + i, 0.5 + (h - j - 1), 0);
+    
+    float thr = 0.5;
+    float add = 1.0;
+
+    for (float i = thr / samplingFactor; i < h; i += add / samplingFactor) {
+        for (float j = thr / samplingFactor; j < w; j += add / samplingFactor) {
+            Point pixel(thr + i, thr + (h - j - 1), 0);
             Ray ray(eye, (pixel - eye).normalized());
             Color col = trace(ray, 0);
             col.clamp();

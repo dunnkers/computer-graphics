@@ -2,6 +2,8 @@
 
 > By Jeroen Overschie and Indy Roode
 
+All exercises are implemented.
+
 ### Optical Laws
 
 Using shadow.

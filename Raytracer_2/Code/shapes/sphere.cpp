@@ -5,15 +5,15 @@
 
 using namespace std;
 
-Color Sphere::textureColorAt(Point point, bool shouldRotate)
+Color Sphere::textureColorAt(Point point, bool hasToRotate)
 {
     Vector N = (point - position).normalized();
 
-    if (shouldRotate)
+    if (hasToRotate) {
         N = rotate(N);
+    }
 
     double PI = acos(-1);
-
     double u = atan2(-N.y, -N.x) / (2 * PI) + 0.5;
     double v = 0.5 - asin(N.z) / PI;
 
@@ -22,13 +22,18 @@ Color Sphere::textureColorAt(Point point, bool shouldRotate)
     return color;
 }
 
-Vector Sphere::rotate(Vector normal)
+Vector Sphere::rotate(Vector normalVector)
 {
+    // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
     double radAngle = angle * (acos(-1) / 180);
 
-    Vector rotatedNormal = normal * cos(radAngle) + ((rotation.normalized()).cross(normal)) * sin(radAngle) + rotation.normalized() * (rotation.normalized()).dot(normal) * (1 - cos(radAngle));
+    Vector normalRotated = normalVector
+        * cos(radAngle) + ((rotation.normalized()).cross(normalVector))
+        * sin(radAngle) + rotation.normalized()
+        * (rotation.normalized()).dot(normalVector)
+        * (1 - cos(radAngle));
 
-    return rotatedNormal.normalized();
+    return normalRotated.normalized();
 }
 
 Hit Sphere::intersect(Ray const &ray)
