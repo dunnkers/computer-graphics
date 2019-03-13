@@ -61,7 +61,7 @@ Color Scene::trace(Ray const &ray, int currentDepth)
     ****************************************************/
 
     if (material.isTextured()) {
-        material.color = obj->textureColorAt(hit, obj->isRotated());
+        material.color = obj->colorAtTexture(hit, obj->isRotated());
     }
 
     // Ia is constant, other terms not
@@ -144,7 +144,7 @@ void Scene::render(Image &img)
 {
     unsigned w = img.width();
     unsigned h = img.height();
-    
+
     float thr = 0.5;
     float add = 1.0;
 

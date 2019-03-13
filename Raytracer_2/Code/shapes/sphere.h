@@ -9,7 +9,7 @@ class Sphere: public Object
         Sphere(Point const &pos, double radius, Vector rotation, int angle);
 
         virtual Hit intersect(Ray const& ray);
-        virtual Color textureColorAt(Point N, bool rotate);
+        virtual Color colorAtTexture(Point N, bool rotate);
 
         virtual bool isRotated() { return (angle != -1); };
         virtual Vector rotate(Point point);

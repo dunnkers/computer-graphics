@@ -5,37 +5,6 @@
 
 using namespace std;
 
-Color Sphere::textureColorAt(Point point, bool hasToRotate)
-{
-    Vector N = (point - position).normalized();
-
-    if (hasToRotate) {
-        N = rotate(N);
-    }
-
-    double PI = acos(-1);
-    double u = atan2(-N.y, -N.x) / (2 * PI) + 0.5;
-    double v = 0.5 - asin(N.z) / PI;
-
-    Color color = material.texture.colorAt(u, v);
-
-    return color;
-}
-
-Vector Sphere::rotate(Vector normalVector)
-{
-    // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
-    double radAngle = angle * (acos(-1) / 180);
-
-    Vector normalRotated = normalVector
-        * cos(radAngle) + ((rotation.normalized()).cross(normalVector))
-        * sin(radAngle) + rotation.normalized()
-        * (rotation.normalized()).dot(normalVector)
-        * (1 - cos(radAngle));
-
-    return normalRotated.normalized();
-}
-
 Hit Sphere::intersect(Ray const &ray)
 {
     // Sphere formula: ||x - position||^2 = r^2
@@ -68,6 +37,36 @@ Hit Sphere::intersect(Ray const &ray)
         N = -N;
 
     return Hit(t0, N);
+}
+
+Color Sphere::colorAtTexture(Point point, bool hasToRotate)
+{
+    Vector N = (point - position).normalized();
+
+    if (hasToRotate) {
+        N = rotate(N);
+    }
+
+    double PI = acos(-1);
+    double u = 0.5 + atan2(-N.y, -N.x) / (PI * 2);
+    double v = 0.5 - asin(N.z) / PI;
+
+    Color color = material.texture.colorAt(u, v);
+    return color;
+}
+
+Vector Sphere::rotate(Vector normalVector)
+{
+    // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+    double radAngle = angle * (acos(-1) / 180);
+
+    Vector normalRotated = normalVector
+        * cos(radAngle) + ((rotation.normalized()).cross(normalVector))
+        * sin(radAngle) + rotation.normalized()
+        * (rotation.normalized()).dot(normalVector)
+        * (1 - cos(radAngle));
+
+    return normalRotated.normalized();
 }
 
 Sphere::Sphere(Point const &pos, double radius, Vector rot, int ang)

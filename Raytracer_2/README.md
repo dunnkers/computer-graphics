@@ -22,7 +22,7 @@ Using shadow.
 
 ### Anti-Aliasing
 
-Super sampling.
+Super sampling. 
 
 `scene01-ss.png`
 
