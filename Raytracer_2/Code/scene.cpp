@@ -63,7 +63,7 @@ Color Scene::trace(Ray const &ray, int depth)
     Point hit; //the hit point
     Vector V = -ray.D;
     Vector N = min_hit.N;
-    hit = ray.at(min_hit.t - 0.0000000001); //the hit point
+    hit = ray.at(min_hit.t); //the hit point
 
     /****************************************************
     * This is where you should insert the color
