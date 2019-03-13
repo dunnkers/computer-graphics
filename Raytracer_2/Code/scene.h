@@ -23,8 +23,8 @@ class Scene
     public:
 
         // trace a ray into the scene and return the color
-        Color trace(Ray const &ray, int depth);
-        Color reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit);
+        Color trace(Ray const &ray, int currentDepth);
+        Color traceRefl(Ray ray, int currentDepth, ObjectPtr obj, Hit min_hit);
 
         void findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit);
         void findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit, 

@@ -10,40 +10,6 @@
 
 using namespace std;
 
-Color Scene::reflectRay(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
-{
-    Material& material = obj->material;
-    Point hit = ray.at(min_hit.t - 1e-8); //the hit point
-    Vector N = min_hit.N;
-
-    Vector r = 2 * (N.dot(-ray.D)) * N + ray.D;
-    r.normalize();
-    Ray reflectedRay{ hit, r };
-
-    Vector V = -ray.D;
-
-    // Find hit object and distance
-    Hit min_hit_reflected(numeric_limits<double>::infinity(), Vector());
-    ObjectPtr obj_hit_refl = nullptr;
-    findHitObject(reflectedRay, &obj_hit_refl, &min_hit_reflected, obj);
-
-    if (obj_hit_refl != nullptr) {
-        Point reflectedHit = reflectedRay.at(min_hit_reflected.t);
-        Light reflectedLight(reflectedHit, trace(reflectedRay, depth + 1) * material.ks);
-        Vector L = (reflectedLight.position - hit).normalized();
-        r = 2 * (N.dot(L)) * N - L;
-
-
-        Color res = Color(pow(fmax(0, V.dot(r)), material.n) * reflectedLight.color * material.ks);
-        return res;
-    }
-    return Color(0, 0, 0);
-}
-
-Color computeSpecular(Vector r, Vector V, Material material, LightPtr light) {
-    return pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
-}
-
 void Scene::findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit)
 {
     findHitObject(ray, obj, min_hit, nullptr);
@@ -61,7 +27,7 @@ void Scene::findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit,
     }
 }
 
-Color Scene::trace(Ray const &ray, int depth)
+Color Scene::trace(Ray const &ray, int currentDepth)
 {
     // Find hit object and distance
     Hit min_hit(numeric_limits<double>::infinity(), Vector());
@@ -72,7 +38,7 @@ Color Scene::trace(Ray const &ray, int depth)
     if (!obj) return Color(0.0, 0.0, 0.0);
 
     Material &material = obj->material;        //the hit objects material
-    Point hit = ray.at(min_hit.t - 1e-8);      //the hit point
+    Point hit = ray.at(min_hit.t - 1e-15);      //the hit point
     Vector V = -ray.D;
     Vector N = min_hit.N;
 
@@ -127,8 +93,8 @@ Color Scene::trace(Ray const &ray, int depth)
             // Id - Diffuse term - Lambert's law (lecture slides)
             Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
 
-            if (depth < recursionDepth) {
-                Is += reflectRay(ray, depth, obj, min_hit);
+            if (currentDepth < recursionDepth) {
+                Is += traceRefl(ray, currentDepth, obj, min_hit);
             }
         }
     }
@@ -136,6 +102,41 @@ Color Scene::trace(Ray const &ray, int depth)
     // add up all terms
     Color I = Ia + Is + Id;
     return I;
+}
+
+Color Scene::traceRefl(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
+{
+    Material& material = obj->material;
+    Point hit = ray.at(min_hit.t - 1e-15); //the hit point
+    Vector N = min_hit.N;
+
+    Vector r = (N * 2 * (N.dot(-ray.D)) + ray.D).normalized();
+    Ray ray_refl{ hit, r };
+
+    Vector V = -ray.D;
+
+    // Find hit object and distance
+    Hit min_hit_reflected(numeric_limits<double>::infinity(), Vector());
+    ObjectPtr obj_hit_refl = nullptr;
+    findHitObject(ray_refl, &obj_hit_refl, &min_hit_reflected, obj);
+
+    if (obj_hit_refl != nullptr) {
+        Point hit_refl = ray_refl.at(min_hit_reflected.t - 1e-15);
+        // recurse into another trace
+        Light light_refl(hit_refl, trace(ray_refl, depth + 1) * material.ks);
+        Vector L = (light_refl.position - hit).normalized();
+        r = N * 2 * (N.dot(L)) - L;
+
+        Color Is;
+
+        Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light_refl.color;
+        
+        // add up all terms
+        Color I =  Is;
+        return I;
+    }
+    
+    return Color(0, 0, 0);
 }
 
 void Scene::render(Image &img)
