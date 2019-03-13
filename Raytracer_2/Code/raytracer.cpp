@@ -96,10 +96,8 @@ Material Raytracer::parseMaterialNode(json const &node) const
 	}
 	
 	if (node.find("texture") != node.end()) {
-		string const file = node["texture"];
-		string append = "../Scenes/";
-		append = append + file;
-		return Material(append, ka, kd, ks, n);
+		string const textureFile = node["texture"];
+		return Material("../Scenes/" + textureFile, ka, kd, ks, n);
 	}
 	
 	return Material();

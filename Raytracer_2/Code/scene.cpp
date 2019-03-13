@@ -106,37 +106,38 @@ Color Scene::trace(Ray const &ray, int currentDepth)
 
 Color Scene::traceRefl(Ray ray, int depth, ObjectPtr obj, Hit min_hit)
 {
-    Material& material = obj->material;
+    // calc hitpoint
     Point hit = ray.at(min_hit.t - 1e-15); //the hit point
     Vector N = min_hit.N;
-
     Vector r = (N * 2 * (N.dot(-ray.D)) + ray.D).normalized();
+
+    // new ray
     Ray ray_refl{ hit, r };
-
-    Vector V = -ray.D;
-
     // Find hit object and distance
     Hit min_hit_reflected(numeric_limits<double>::infinity(), Vector());
     ObjectPtr obj_hit_refl = nullptr;
     findHitObject(ray_refl, &obj_hit_refl, &min_hit_reflected, obj);
 
-    if (obj_hit_refl != nullptr) {
-        Point hit_refl = ray_refl.at(min_hit_reflected.t - 1e-15);
-        // recurse into another trace
-        Light light_refl(hit_refl, trace(ray_refl, depth + 1) * material.ks);
-        Vector L = (light_refl.position - hit).normalized();
-        r = N * 2 * (N.dot(L)) - L;
+    Material& material = obj->material;
+    Vector V = -ray.D;
 
-        Color Is;
+    // Return background color.if no object reflected hit
+    if (!obj_hit_refl) return Color(0.0, 0.0, 0.0);
 
-        Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light_refl.color;
-        
-        // add up all terms
-        Color I =  Is;
-        return I;
-    }
+    Point hit_refl = ray_refl.at(min_hit_reflected.t - 1e-15);
     
-    return Color(0, 0, 0);
+    // recurse into another trace
+    Light light_refl(hit_refl, trace(ray_refl, depth + 1) * material.ks);
+    Vector L = (light_refl.position - hit).normalized();
+    r = N * 2 * (N.dot(L)) - L;
+
+    Color Is;
+
+    Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light_refl.color;
+    
+    // add up all terms
+    Color I =  Is;
+    return I;
 }
 
 void Scene::render(Image &img)
