@@ -37,7 +37,19 @@ bool Raytracer::parseObjectNode(json const &node)
     {
         Point pos(node["position"]);
         double radius = node["radius"];
-        obj = ObjectPtr(new Sphere(pos, radius));
+        Vector rotation{};
+        int angle = -1;
+
+        if (node.find("rotation") != node.end()) {
+            Vector rot(node["rotation"]);
+            rotation = rot;
+        }
+
+        if (node.find("angle") != node.end()) {
+            angle = node["angle"];
+        }
+
+        obj = ObjectPtr(new Sphere(pos, radius, rotation, angle));
     }
     else if (node["type"] == "triangle")
     {
@@ -78,6 +90,14 @@ Material Raytracer::parseMaterialNode(json const &node) const
     double kd = node["kd"];
     double ks = node["ks"];
     double n  = node["n"];
+    
+    if (node.find("texture") != node.end()) {
+        string const file = node["texture"];
+        string append = "../Scenes/";
+        append = append + file;
+        return Material(append, ka, kd, ks, n);
+    }
+
     return Material(color, ka, kd, ks, n);
 }
 

@@ -7,7 +7,7 @@
 
 #include <vector>
 
-// Forward declerations
+// Forward declarations
 class Ray;
 class Image;
 
@@ -23,7 +23,8 @@ class Scene
     public:
 
         // trace a ray into the scene and return the color
-        Color trace(Ray const &ray);
+        Color trace(Ray const &ray, int depth);
+        Color reflectRay(int depth, Hit min_hit, Ray ray, ObjectPtr obj);
 
         // render the scene to the given image
         void render(Image &img);

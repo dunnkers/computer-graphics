@@ -10,7 +10,38 @@
 
 using namespace std;
 
-Color Scene::trace(Ray const &ray)
+Color Scene::reflectRay(int depth, Hit min_hit, Ray ray, ObjectPtr obj)
+{
+    Material& material = obj->material;
+    Point hit = ray.at(min_hit.t - 0.0000000001); //the hit point
+    Vector N = min_hit.N;
+
+    Vector R = 2 * (N.dot(-ray.D)) * N + ray.D;
+    Vector V = -ray.D;
+    R.normalize();
+    Ray reflectedRay{ hit, R };
+
+    Hit min_reflectedHit(numeric_limits<double>::infinity(), Vector());
+    ObjectPtr refObj = nullptr;
+    for (unsigned idx = 0; idx != objects.size(); ++idx) {
+        Hit hit2(objects[idx]->intersect(reflectedRay));
+        if (hit2.t < min_reflectedHit.t && objects[idx] != obj) {
+            min_reflectedHit = hit2;
+            refObj = objects[idx];
+        }
+    }
+    if (refObj != nullptr) {
+        Point reflectedHit = reflectedRay.at(min_reflectedHit.t);
+        Light reflectedLight(reflectedHit, trace(reflectedRay, depth + 1) * material.ks);
+        Vector L = (reflectedLight.position - hit).normalized();
+        R = 2 * (N.dot(L)) * N - L;
+
+        return Color(pow(fmax(0, V.dot(R)), material.n) * reflectedLight.color * material.ks);
+    }
+    return Color(0, 0, 0);
+}
+
+Color Scene::trace(Ray const &ray, int depth)
 {
     // Find hit object and distance
     Hit min_hit(numeric_limits<double>::infinity(), Vector());
@@ -51,24 +82,55 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
+    if (material.isTextured()) {
+        material.color = obj->textureColorAt(hit, obj->isRotated());
+    }
+
     // Ia is constant, other terms not
     Color Ia = material.color * material.ka;
     Color Is;
     Color Id;
 
     for (auto const light : lights) {
-        // book pg 82
-        Vector l = light->position - hit;
-        l.normalize();
-        N.normalize();
+        if (shadows) {
+            Ray lightRay(light->position, -(light->position - hit).normalized());
 
-        // book pg 238
-        Vector r = -l + 2 * l.dot(N) * N;
-        // Is - Specular reflection (lecture slides)
-        // material.n resembles Phong specular component p
-        Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
-        // Id - Diffuse term - Lambert's law (lecture slides)
-        Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
+            Hit min_hit2(numeric_limits<double>::infinity(), Vector());
+            ObjectPtr blockingObj = nullptr;
+            for (unsigned idx = 0; idx != objects.size(); ++idx) {
+                Hit checkHit(objects[idx]->intersect(lightRay));
+                if (checkHit.t < min_hit2.t) {
+                    min_hit2 = checkHit;
+                    blockingObj = objects[idx];
+                }
+            }
+            if (blockingObj == obj) {
+                Vector r = 2 * (N).dot((light->position - hit).normalized()) * N - (light->position - hit).normalized();
+                Id += fmax(0, ((light->position - hit).normalized()).dot(N.normalized())) * material.color * light->color * material.kd;
+                Is += pow(fmax(0, r.dot(V)), material.n) * light->color * material.ks;
+
+                if (depth < recursionDepth) {
+                    Is += reflectRay(depth, min_hit, ray, obj);
+                }
+            }
+        } else {
+            // book pg 82
+            Vector l = light->position - hit;
+            l.normalize();
+            N.normalize();
+
+            // book pg 238
+            Vector r = -l + 2 * l.dot(N) * N;
+            // Is - Specular reflection (lecture slides)
+            // material.n resembles Phong specular component p
+            Is += pow(fmax(0, r.dot(V)), material.n) * material.ks * light->color;
+            // Id - Diffuse term - Lambert's law (lecture slides)
+            Id += fmax(0, N.dot(l)) * material.color * material.kd * light->color;
+
+            if (depth < recursionDepth) {
+                Is += reflectRay(depth, min_hit, ray, obj);
+            }
+        }
     }
 
     // add up all terms
@@ -86,7 +148,7 @@ void Scene::render(Image &img)
         {
             Point pixel(x + 0.5, h - 1 - y + 0.5, 0);
             Ray ray(eye, (pixel - eye).normalized());
-            Color col = trace(ray);
+            Color col = trace(ray, 0);
             col.clamp();
             img(x, y) = col;
         }

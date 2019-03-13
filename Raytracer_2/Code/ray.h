@@ -9,6 +9,10 @@ class Ray
         Point O;        // origin
         Vector D;       // direction of the ray
 
+        Ray()
+        : O(Point()), D(Vector())
+        {
+        }
         Ray(Point const &from, Vector const &dir)
         :
             O(from),

@@ -11,6 +11,10 @@ class Triangle: public Object
                  Point const &v2);
 
         virtual Hit intersect(Ray const &ray);
+        virtual Color textureColorAt(Point N, bool rotate){ return Color(); };
+        virtual bool isRotated() { return false; };
+        // virtual Ray rotate(Ray const &ray) { return Ray(); };
+        virtual Vector rotate(Point point) { return Vector(); };
 
         Point v0;
         Point v1;

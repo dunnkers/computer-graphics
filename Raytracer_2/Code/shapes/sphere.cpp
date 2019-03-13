@@ -5,6 +5,32 @@
 
 using namespace std;
 
+Color Sphere::textureColorAt(Point point, bool shouldRotate)
+{
+    Vector N = (point - position).normalized();
+
+    if (shouldRotate)
+        N = rotate(N);
+
+    double PI = acos(-1);
+
+    double u = atan2(-N.y, -N.x) / (2 * PI) + 0.5;
+    double v = 0.5 - asin(N.z) / PI;
+
+    Color color = material.texture.colorAt(u, v);
+
+    return color;
+}
+
+Vector Sphere::rotate(Vector normal)
+{
+    double radAngle = angle * (acos(-1) / 180);
+
+    Vector rotatedNormal = normal * cos(radAngle) + ((rotation.normalized()).cross(normal)) * sin(radAngle) + rotation.normalized() * (rotation.normalized()).dot(normal) * (1 - cos(radAngle));
+
+    return rotatedNormal.normalized();
+}
+
 Hit Sphere::intersect(Ray const &ray)
 {
     // Sphere formula: ||x - position||^2 = r^2
@@ -39,8 +65,10 @@ Hit Sphere::intersect(Ray const &ray)
     return Hit(t0, N);
 }
 
-Sphere::Sphere(Point const &pos, double radius)
+Sphere::Sphere(Point const &pos, double radius, Vector rot, int ang)
 :
     position(pos),
-    r(radius)
+    r(radius),
+    rotation(rot),
+    angle(ang)
 {}

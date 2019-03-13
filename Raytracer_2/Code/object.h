@@ -21,6 +21,9 @@ class Object
 
         virtual Hit intersect(Ray const &ray) = 0;  // must be implemented
                                                     // in derived class
+        virtual Color textureColorAt(Point point, bool rotate) = 0;
+        virtual bool isRotated() = 0;
+        virtual Vector rotate(Point point) = 0;
 };
 
 #endif

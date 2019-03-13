@@ -81,17 +81,17 @@
             "type": "triangle",
             "comment": "Gold Triangle",
             "vectorA": [
-                100,
+                300,
                 100,
                 200
             ],
             "vectorB": [
-                200,
+                400,
                 100,
                 200
             ],
             "vectorC": [
-                150,
+                300,
                 200,
                 300
             ],
