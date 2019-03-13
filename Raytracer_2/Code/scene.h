@@ -26,6 +26,8 @@ class Scene
         Color trace(Ray const &ray, int depth);
         Color reflectRay(int depth, Hit min_hit, Ray ray, ObjectPtr obj);
 
+        void findHitObject(Ray const &ray, ObjectPtr *obj, Hit *min_hit);
+
         // render the scene to the given image
         void render(Image &img);
 
