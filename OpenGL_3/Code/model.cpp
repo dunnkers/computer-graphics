@@ -71,7 +71,7 @@ Model::Model(QString filename) {
 }
 
 /**
- * @brief Model::unitize Not Implemented yet!
+ * @brief Model::unitze Not Implemented yet!
  *
  * Unitize the model by scaling so that it fits a box with sides 1
  * and origin at 0,0,0
@@ -79,7 +79,40 @@ Model::Model(QString filename) {
  *
  */
 void Model::unitize() {
-    qDebug() << "TODO: implement this yourself";
+    QVector3D min, max;
+    getBounds(min, max);
+    QVector3D center = (min + max) / 2;
+    QVector3D distance = max - min;
+    float length = qMax(distance.x(), distance.y());
+    length = qMax(length, distance.z()) / 2;
+
+    for (QVector3D &vertex : vertices) {
+        vertex -= center;
+        vertex /= length;
+    }
+}
+
+void Model::getBounds(QVector3D &min, QVector3D &max) {
+    int numVertices = vertices.size();
+
+    if (numVertices < 1)
+        return;
+    min.setX(vertices[0].x());
+    min.setY(vertices[0].y());
+    min.setZ(vertices[0].z());
+    max.setX(vertices[0].x());
+    max.setY(vertices[0].y());
+    max.setZ(vertices[0].z());
+
+    for (QVector3D vertex : vertices) {
+        min.setX(qMin(vertex.x(), min.x()));
+        min.setY(qMin(vertex.y(), min.y()));
+        min.setZ(qMin(vertex.z(), min.z()));
+
+        max.setX(qMax(vertex.x(), max.x()));
+        max.setY(qMax(vertex.y(), max.y()));
+        max.setZ(qMax(vertex.z(), max.z()));
+    }
 }
 
 QVector<QVector3D> Model::getVertices() {

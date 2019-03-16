@@ -5,41 +5,43 @@
 
 // Specify the input locations of attributes
 layout (location = 0) in vec3 vertCoordinates_in;
-layout (location = 1) in vec3 vertNormal_in;
-layout (location = 2) in vec2 textureCoordinates_in;
+layout (location = 1) in vec3 vertNormals_in;
+layout (location = 2) in vec2 texCoords_in;
 
-// Specify the Uniforms of the vertex shader
- uniform mat4 modelViewTransform;
- uniform mat4 projectionTransform;
- uniform mat3 normalTransform;
- uniform vec3 lightPos;
- uniform vec4 material;
+// Transformation matrices.
+uniform mat4 modelViewTransform;
+uniform mat4 projectionTransform;
+uniform mat3 normalTransform;
+
+// Lighting model constants.
+uniform vec4 material;
+uniform vec3 lightPosition;
 
 // Specify the output of the vertex stage
-out vec3 vertNormal;
-out vec2 textureCoordinates;
+out float ambient, diffuse, specular;
+out vec2 texCoords;
 
 void main()
 {
-    // gl_Position is the output (a vec4) of the vertex shader
-    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1.0);
+    // Ambient component.
+    ambient = material.x;
 
-    // gouraud calc
-    vec3 lightDistance = normalize(lightPos - vertCoordinates_in);
-    vec3 normalizedVertex = normalize(-vertCoordinates_in);
-    vec3 reflected = reflect(-lightDistance, vertNormal_in);
+    // Calculate light direction, vertex position and normal.
+    vec3 vertexPosition        = vec3(modelViewTransform * vec4(vertCoordinates_in, 1));
+    vec3 vertexNormal          = normalize(normalTransform * vertNormals_in);
+    vec3 relativeLightPosition = vec3(modelViewTransform * vec4(lightPosition, 1));
+    vec3 lightDirection        = normalize(relativeLightPosition - vertexPosition);
 
-    vec3 normalTransVert = normalize(normalTransform * vertNormal_in);
+    // Diffuse component.
+    float diffuseIntensity = max(dot(vertexNormal, lightDirection), 0);
+    diffuse = material.y * diffuseIntensity;
 
-    float normalLightDotted = dot(normalTransVert, lightDistance);
-    float diffused = max(normalLightDotted, 0.05);
+    // Specular component.
+    vec3 viewDirection      = normalize(-vertexPosition); // The camera is always at (0, 0, 0).
+    vec3 reflectDirection   = reflect(-lightDirection, vertexNormal);
+    float specularIntensity = max(dot(viewDirection, reflectDirection), 0);
+    specular = material.z * pow(specularIntensity, material.w);
 
-    vec3 unit = vec3(1, 1, 1);
-    float reflectDotNormalized = dot(reflected, normalizedVertex);
-    float angle = max(reflectDotNormalized, 0.05);
-    float specular = pow(angle, material.w);
-    vertNormal = material.x + unit * diffused * material.y + material.z * specular;
-
-    // texture
-    textureCoordinates = textureCoordinates_in;
+    texCoords = texCoords_in;
+    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1);;
 }

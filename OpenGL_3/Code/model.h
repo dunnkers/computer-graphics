@@ -58,6 +58,9 @@ private:
     void alignData();
     void unpackIndexes();
 
+    // For unitizing.
+    void getBounds(QVector3D &min, QVector3D &max);
+
     // Intermediate storage of values
     QVector<QVector3D> vertices_indexed;
     QVector<QVector3D> normals_indexed;

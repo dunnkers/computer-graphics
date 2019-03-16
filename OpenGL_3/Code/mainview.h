@@ -11,9 +11,10 @@
 #include <QOpenGLShaderProgram>
 #include <QTimer>
 #include <QVector3D>
-#include <QMatrix4x4>
+#include <QImage>
+#include <QVector>
 #include <memory>
-
+#include <QMatrix4x4>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -21,51 +22,62 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLDebugLogger *debugLogger;
     QTimer timer; // timer used for animation
 
-    // Normal shader
-    QOpenGLShaderProgram normalShaderProgram;
-    GLint normalUniformModelViewTransform;
-    GLint normalUniformProjectionTransform;
-    GLint normalUniformNormalTransform;
+    QOpenGLShaderProgram normalShaderProgram,
+                         gouraudShaderProgram,
+                         phongShaderProgram;
 
-    // Gouraud shader
-    QOpenGLShaderProgram gouraudShaderProgram;
-    GLint gouraudUniformModelViewTransform;
-    GLint gouraudUniformProjectionTransform;
-    GLint gouraudUniformNormalTransform;
-    GLint gouraudUniformLightPosition;
-    GLint gouraudUniformMaterial;
-    GLint gouraudUniformTextureColor;
+    // Uniforms for the normal shader.
+    GLint uniformModelViewTransformNormal;
+    GLint uniformProjectionTransformNormal;
+    GLint uniformNormalTransformNormal;
 
-    // Phong shader
-    QOpenGLShaderProgram phongShaderProgram;
-    GLint phongUniformModelViewTransform;
-    GLint phongUniformProjectionTransform;
-    GLint phongUniformNormalTransform;
-    GLint phongUniformLightPosition;
-    GLint phongUniformMaterial;
-    GLint phongUniformTextureColor;
+    // Uniforms for the gouraud shader.
+    GLint uniformModelViewTransformGouraud;
+    GLint uniformProjectionTransformGouraud;
+    GLint uniformNormalTransformGouraud;
 
-    // Mesh values
+    GLint uniformMaterialGouraud;
+    GLint uniformLightPositionGouraud;
+    GLint uniformLightColourGouraud;
+
+    GLint uniformTextureSamplerGouraud;
+
+    // Uniforms for the phong shader.
+    GLint uniformModelViewTransformPhong;
+    GLint uniformProjectionTransformPhong;
+    GLint uniformNormalTransformPhong;
+
+    GLint uniformMaterialPhong;
+    GLint uniformLightPositionPhong;
+    GLint uniformLightColourPhong;
+
+    GLint uniformTextureSamplerPhong;
+
+    // Buffers
     GLuint meshVAO;
     GLuint meshVBO;
     GLuint meshSize;
-    QMatrix4x4 meshTransform;
+
+    // Texture
+    GLuint texturePtr;
 
     // Transforms
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
+    QMatrix3x3 meshNormalTransform;
+    QMatrix4x4 meshTransform;
 
-    // Texture
-    GLuint texturePtr;
+    // Phong model constants.
+    QVector4D material = {0.5, 0.5, 1, 5};
+    QVector3D lightPosition = {1, 100, 1};
+    QVector3D lightColour = {1, 1, 1};
 
 public:
     enum ShadingMode : GLuint
     {
         PHONG = 0, NORMAL, GOURAUD
     };
-    // Current shading mode
-    ShadingMode shadingMode = ShadingMode::PHONG;
 
     MainView(QWidget *parent = 0);
     ~MainView();
@@ -74,9 +86,6 @@ public:
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
     void setShadingMode(ShadingMode shading);
-
-    // Image reading utility function
-    QVector<quint8> imageToBytes(QImage image);
 
 protected:
     void initializeGL();
@@ -100,14 +109,25 @@ private slots:
 private:
     void createShaderProgram();
     void loadMesh();
-    void createTextures();
-    void loadTexture(QString file, GLuint *texturePtr);
+
+    // Loads texture data into the buffer of texturePtr.
+    void loadTextures();
+    void loadTexture(QString file, GLuint texturePtr);
 
     void destroyModelBuffers();
 
     void updateProjectionTransform();
     void updateModelTransforms();
-    void updateNormalTransforms();
+
+    void updateNormalUniforms();
+    void updateGouraudUniforms();
+    void updatePhongUniforms();
+
+    // Useful utility method to convert image to bytes.
+    QVector<quint8> imageToBytes(QImage image);
+
+    // The current shader to use.
+    ShadingMode currentShader = PHONG;
 };
 
 #endif // MAINVIEW_H

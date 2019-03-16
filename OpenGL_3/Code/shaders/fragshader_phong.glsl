@@ -3,41 +3,42 @@
 // Define constants
 #define M_PI 3.141593
 
-// Specify the inputs to the fragment shader
-// These must have the same type and name!
+// The input from the vertex shader.
 in vec3 vertNormal;
-in vec3 vertCoordinates;
-in vec2 textureCoordinates;
+in vec3 vertPosition;
+in vec3 relativeLightPosition;
+in vec2 texCoords;
 
-// The Uniforms of the fragment shaders
-uniform vec3 lightPos;
+// Lighting model constants.
 uniform vec4 material;
-uniform sampler2D textureColor;
+uniform vec3 lightColour;
+
+// Texture sampler
+uniform sampler2D textureSampler;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
-out vec4 fNormal;
+out vec4 vertColour;
 
 void main()
 {
-    // gouraud calc
-    vec3 lightDistance = normalize(lightPos - vertCoordinates);
-    vec3 normalizedVertex = normalize(-vertCoordinates);
-    vec3 reflected = reflect(-lightDistance, vertNormal);
+  // Ambient colour does not depend on any vectors.
+  vec3 texColour = texture(textureSampler, texCoords).xyz;
+  vec3 colour    = material.x * texColour;
 
-    float normalLightDotted = dot(vertNormal, lightDistance);
-    float diffused = max(normalLightDotted, 0.05);
+  // Calculate light direction vectors in the phong model.
+  vec3 lightDirection   = normalize(relativeLightPosition - vertPosition);
+  vec3 normal           = normalize(vertNormal);
 
-    vec3 unit = vec3(1, 1, 1);
-    float reflectDotNormalized = dot(reflected, normalizedVertex);
-    float angle = max(reflectDotNormalized, 0.05);
-    float specular = pow(angle, material.w);
-    vec3 fNormal3 = material.x + unit * diffused * material.y + material.z * specular;
-    fNormal = vec4(fNormal3, 1.0);
+  // Diffuse colour.
+  float diffuseIntesity = max(dot(normal, lightDirection), 0);
+  colour += texColour * material.y * diffuseIntesity;
 
-    // texture
-    vec4 color = texture(textureColor, textureCoordinates);
+  // Specular colour.
+  vec3 viewDirection     = normalize(-vertPosition); // The camera is always at (0, 0, 0).
+  vec3 reflectDirection  = reflect(-lightDirection, normal);
+  float specularIntesity = max(dot(reflectDirection, viewDirection), 0);
+  colour += texColour * lightColour * material.z * pow(specularIntesity, material.w);
 
-    // combine previously calculated light intensity with texture color
-    fNormal = fNormal * color;
+  vertColour = vec4(colour, 1);
 }
