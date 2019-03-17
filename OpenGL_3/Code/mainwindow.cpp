@@ -60,6 +60,11 @@ void MainWindow::on_ScaleSlider_sliderMoved(int value)
     ui->mainView->setScale(value);
 }
 
+void MainWindow::on_AnimationSpeed_sliderMoved(int value)
+{
+    ui->mainView->setAnimationSpeed(value);
+}
+
 void MainWindow::on_PhongButton_toggled(bool checked)
 {
     if (checked)
@@ -86,3 +91,4 @@ void MainWindow::on_GouraudButton_toggled(bool checked)
         ui->mainView->update();
     }
 }
+

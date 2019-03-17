@@ -74,6 +74,8 @@ void MainView::initializeGL() {
     // Initialize transformations
     updateProjectionTransform();
     updateModelTransforms();
+
+    timer.start(1000.0 / 60.0);
 }
 
 void MainView::createShaderProgram()
@@ -194,6 +196,10 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    float newY = rotation.y() + animationSpeed;
+    rotation = { rotation.x(), newY, rotation.z() };
+    updateModelTransforms();
+
     // Choose the selected shader.
     QOpenGLShaderProgram *shaderProgram;
     switch (currentShader) {
@@ -236,6 +242,7 @@ void MainView::resizeGL(int newWidth, int newHeight)
 {
     Q_UNUSED(newWidth)
     Q_UNUSED(newHeight)
+
     updateProjectionTransform();
 }
 
@@ -309,6 +316,12 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 void MainView::setScale(int newScale)
 {
     scale = static_cast<float>(newScale) / 100.f;
+    updateModelTransforms();
+}
+
+void MainView::setAnimationSpeed(int newAnimationSpeed)
+{
+    animationSpeed = static_cast<float>(newAnimationSpeed) / 100.f;
     updateModelTransforms();
 }
 

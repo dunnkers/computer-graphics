@@ -73,6 +73,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D lightPosition = {1, 100, 1};
     QVector3D lightColour = {1, 1, 1};
 
+    // Animation
+    float animationSpeed = 1.f;
+
 public:
     enum ShadingMode : GLuint
     {
@@ -85,6 +88,7 @@ public:
     // Functions for widget input events
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
+    void setAnimationSpeed(int newAnimationSpeed);
     void setShadingMode(ShadingMode shading);
 
 protected:
