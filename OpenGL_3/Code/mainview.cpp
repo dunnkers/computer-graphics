@@ -1,6 +1,7 @@
 #include "mainview.h"
 #include "model.h"
 #include "vertex.h"
+#include "objectinstance.h"
 
 #include <math.h>
 #include <QDateTime>
@@ -32,6 +33,11 @@ MainView::~MainView() {
     qDebug() << "MainView destructor";
 
     glDeleteTextures(1, &texturePtr);
+
+    for (ObjectInstance object : objects)
+    {
+        glDeleteTextures(1, &object.texturePtr);
+    }
 
     destroyModelBuffers();
 }
@@ -68,7 +74,7 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    loadMesh();
+    loadMeshes();
     loadTextures();
 
     // Initialize transformations
@@ -125,21 +131,34 @@ void MainView::createShaderProgram()
     uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
 }
 
-void MainView::loadMesh()
+void MainView::loadMeshes()
 {
-    Model model(":/models/cat.obj");
+    ObjectInstance cat(":/models/cat.obj", ":/textures/cat_diff.png");
+    cat.position = QVector3D(0, 0, -4);
+    loadMesh(&cat);
+    objects.append(cat);
+
+    ObjectInstance cube(":/models/cube.obj", ":/textures/rug_logo.png");
+    cube.position = QVector3D(0, 0, -4);
+    loadMesh(&cube);
+    objects.append(cube);
+}
+
+void MainView::loadMesh(ObjectInstance *object)
+{
+    Model model(object->meshFile);
     model.unitize();
     QVector<float> meshData = model.getVNTInterleaved();
 
-    this->meshSize = model.getVertices().size();
+    object->meshSize = model.getVertices().size();
 
     // Generate VAO
-    glGenVertexArrays(1, &meshVAO);
-    glBindVertexArray(meshVAO);
+    glGenVertexArrays(1, &object->meshVAO);
+    glBindVertexArray(object->meshVAO);
 
     // Generate VBO
-    glGenBuffers(1, &meshVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
+    glGenBuffers(1, &object->meshVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, object->meshVBO);
 
     // Write the data to the buffer
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
@@ -162,8 +181,15 @@ void MainView::loadMesh()
 
 void MainView::loadTextures()
 {
-    glGenTextures(1, &texturePtr);
-    loadTexture(":/textures/cat_diff.png", texturePtr);
+    for (ObjectInstance object : objects)
+    {
+        if (object.textureFile.isNull()) {
+            continue;
+        }
+
+        glGenTextures(1, &object.texturePtr);
+        loadTexture(object.textureFile, object.texturePtr);
+    }
 }
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
@@ -221,11 +247,14 @@ void MainView::paintGL() {
     }
 
     // Set the texture and draw the mesh.
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
+//    glActiveTexture(GL_TEXTURE0);
 
-    glBindVertexArray(meshVAO);
-    glDrawArrays(GL_TRIANGLES, 0, meshSize);
+    for (ObjectInstance object : objects)
+    {
+        glBindTexture(GL_TEXTURE_2D, object.texturePtr);
+        glBindVertexArray(object.meshVAO);
+        glDrawArrays(GL_TRIANGLES, 0, object.meshSize);
+    }
 
     shaderProgram->release();
 }
@@ -263,7 +292,7 @@ void MainView::updateGouraudUniforms()
     glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
     glUniform3fv(uniformLightColourGouraud, 1, &lightColour[0]);
 
-    //glUniform1i(uniformTextureSamplerGouraud, 0); // Redundant now, but useful when you have multiple textures.
+    glUniform1i(uniformTextureSamplerGouraud, 0); // Redundant now, but useful when you have multiple textures.
 }
 
 void MainView::updatePhongUniforms()
@@ -288,6 +317,7 @@ void MainView::updateProjectionTransform()
 
 void MainView::updateModelTransforms()
 {
+    // update for every model separately...
     meshTransform.setToIdentity();
     meshTransform.translate(0, 0, -4);
     meshTransform.scale(scale);
@@ -300,9 +330,12 @@ void MainView::updateModelTransforms()
 // --- OpenGL cleanup helpers
 
 void MainView::destroyModelBuffers()
-{
-    glDeleteBuffers(1, &meshVBO);
-    glDeleteVertexArrays(1, &meshVAO);
+{   
+    for (ObjectInstance object : objects)
+    {
+        glDeleteBuffers(1, &object.meshVBO);
+        glDeleteVertexArrays(1, &object.meshVAO);
+    }
 }
 
 // --- Public interface

@@ -2,6 +2,7 @@
 #define MAINVIEW_H
 
 #include "model.h"
+#include "objectinstance.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -52,6 +53,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformLightColourPhong;
 
     GLint uniformTextureSamplerPhong;
+
+    // Objects
+    QVector<ObjectInstance> objects;
 
     // Buffers
     GLuint meshVAO;
@@ -112,7 +116,10 @@ private slots:
 
 private:
     void createShaderProgram();
-    void loadMesh();
+
+    // Loads meshes
+    void loadMeshes();
+    void loadMesh(ObjectInstance *object);
 
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();
