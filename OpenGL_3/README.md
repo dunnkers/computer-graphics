@@ -22,4 +22,12 @@ In order to support multiple objects I created a struct called `ObjectInstance`,
 
 ## 2. Advanced vertex manipulation: water shader
 
-...
+### Wave with shading
+
+Using 4 waves:
+
+![wave](./Screenshots/wave-demo.gif)
+
+With different wave properties:
+
+![wave](./Screenshots/wave-demo-2.gif)
