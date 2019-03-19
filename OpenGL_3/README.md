@@ -59,3 +59,8 @@ With amplitude-, phase and frequency properties:
 Using 8 waves:
 
 ![wave](./Screenshots/waves-3.gif)
+
+
+#### ✌🏻
+
+That's it - I hope all is OK! Cheers!
