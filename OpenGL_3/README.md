@@ -2,6 +2,9 @@
 > Computer Graphics by Jeroen Overschie. (Indy Roode dropped out)
 
 ## 1. Common animation
+
+> Code for animation is in `/Code`
+
 ### Rotating a model
 
 I created a slider in the UI to modify the number with which we modify the rotation in each repaint.
@@ -22,11 +25,13 @@ In order to support multiple objects I created a struct called `ObjectInstance`,
 
 ## 2. Advanced vertex manipulation: water shader
 
+> Code for the wave animation is in `/CodeWater`
+
 ### Wave with shading
 
 Using 4 waves:
 
-![wave](./Screenshots/wave-demo.gif)
+![wave](./Screenshots/waves-demo.gif)
 
 With different wave properties:
 
