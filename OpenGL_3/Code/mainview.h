@@ -133,7 +133,7 @@ private:
     void updateNormalUniforms();
     void updateGouraudUniforms();
     void updatePhongUniforms();
-    void updateObjectUniforms(ObjectInstance *object);
+    void updateObjectUniforms(ObjectInstance &object);
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);

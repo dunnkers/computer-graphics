@@ -32,7 +32,7 @@ MainView::~MainView() {
 
     qDebug() << "MainView destructor";
 
-    for (ObjectInstance object : objects)
+    for (ObjectInstance &object : objects)
     {
         glDeleteTextures(1, &object.texturePtr);
     }
@@ -132,7 +132,7 @@ void MainView::createShaderProgram()
 void MainView::loadMeshes()
 {
     ObjectInstance cat(":/models/cat.obj", ":/textures/cat_diff.png");
-    cat.position = QVector3D(0, 0, -4);
+    cat.position = QVector3D(1, 0, -4);
     loadMesh(&cat);
     objects.append(cat);
 
@@ -179,7 +179,7 @@ void MainView::loadMesh(ObjectInstance *object)
 
 void MainView::loadTextures()
 {
-    for (ObjectInstance object : objects)
+    for (ObjectInstance &object : objects)
     {
         if (object.textureFile.isNull()) {
             continue;
@@ -247,9 +247,9 @@ void MainView::paintGL() {
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
 
-    for (ObjectInstance object : objects)
+    for (ObjectInstance &object : objects)
     {
-        updateObjectUniforms(&object);
+        updateObjectUniforms(object);
         glBindTexture(GL_TEXTURE_2D, object.texturePtr);
         glBindVertexArray(object.meshVAO);
         glDrawArrays(GL_TRIANGLES, 0, object.meshSize);
@@ -307,23 +307,23 @@ void MainView::updatePhongUniforms()
     glUniform1i(uniformTextureSamplerPhong, 0);
 }
 
-void MainView::updateObjectUniforms(ObjectInstance *object)
+void MainView::updateObjectUniforms(ObjectInstance &object)
 {
-    object->meshTransform.rotate(object->speed, object->rotation);
-    object->meshNormalTransform = object->meshTransform.normalMatrix();
+    object.meshTransform.rotate(object.speed, object.rotation);
+    object.meshNormalTransform = object.meshTransform.normalMatrix();
 
     switch (currentShader) {
     case NORMAL:
-        glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, object->meshTransform.data());
-        glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, object->meshNormalTransform.data());
+        glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     case GOURAUD:
-        glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, object->meshTransform.data());
-        glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, object->meshNormalTransform.data());
+        glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     case PHONG:
-        glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, object->meshTransform.data());
-        glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, object->meshNormalTransform.data());
+        glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     }
 }
@@ -337,20 +337,14 @@ void MainView::updateProjectionTransform()
 
 void MainView::updateModelTransforms()
 {
-    // update for every model separately...
-    for (ObjectInstance object : objects)
+    for (ObjectInstance &object : objects)
     {
         object.meshTransform.setToIdentity();
-        object.meshTransform.translate(0, 0, -4);
+        object.meshTransform.translate(object.position);
         object.meshTransform.scale(scale);
-//        object.meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
+        object.meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
         object.meshNormalTransform = object.meshTransform.normalMatrix();
     }
-//    meshTransform.setToIdentity();
-//    meshTransform.translate(0, 0, -4);
-//    meshTransform.scale(scale);
-//    meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
-//    meshNormalTransform = meshTransform.normalMatrix();
 
     update();
 }
@@ -358,8 +352,8 @@ void MainView::updateModelTransforms()
 // --- OpenGL cleanup helpers
 
 void MainView::destroyModelBuffers()
-{   
-    for (ObjectInstance object : objects)
+{
+    for (ObjectInstance &object : objects)
     {
         glDeleteBuffers(1, &object.meshVBO);
         glDeleteVertexArrays(1, &object.meshVAO);
