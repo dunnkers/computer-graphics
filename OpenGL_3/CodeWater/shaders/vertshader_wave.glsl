@@ -13,10 +13,12 @@ uniform mat4 modelViewTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
-uniform float waveTime;
+uniform int waveAmount;
 uniform float amplitude[4];
-uniform float frequency[4];
 uniform float phase[4];
+uniform float frequency[4];
+uniform float waveSpeed;
+
 // Specify the output of the vertex stage
 out vec2 uvCoords;
 out vec3 vertNormal;
@@ -24,12 +26,12 @@ out vec3 vertCoord;
 
 float waveHeight(int waveIdx, float uvalue)
 {
- return amplitude[waveIdx]*sin(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveTime));
+ return amplitude[waveIdx]*sin(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed));
 }
 
 float waveDU(int waveIdx, float uvalue)
 {
-  return amplitude[waveIdx]*cos(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveTime)) * 2 * M_PI * frequency[waveIdx];
+  return amplitude[waveIdx]*cos(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed)) * 2 * M_PI * frequency[waveIdx];
 }
 
 void main()
@@ -38,7 +40,7 @@ void main()
     vec3 coords = vertCoordinates_in;
     float derivative = 0;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < waveAmount; ++i)
     {
       coords.z += waveHeight(i, uvCoords.x);
       derivative += waveDU(i, uvCoords.x);

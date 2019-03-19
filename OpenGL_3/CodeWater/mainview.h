@@ -58,14 +58,17 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformModelViewTransformWave;
     GLint uniformProjectionTransformWave;
     GLint uniformNormalTransformWave;
-    GLint uniformAmplitudeWave;
-    GLint uniformFrequencyWave;
-    GLint uniformPhaseWave;
+
     GLint uniformMaterialWave;
     GLint uniformLightPositionWave;
     GLint uniformLightColourWave;
+    // ... extra wave properties
+    GLint uniformAmountWave;
+    GLint uniformAmplitudeWave;
+    GLint uniformPhaseWave;
+    GLint uniformFrequencyWave;
     GLint uniformColorWave;
-    GLint uniformTimeWave;
+    GLint uniformSpeedWave;
 
     // Buffers
     GLuint meshVAO;
@@ -77,6 +80,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Transforms
     float scale = 1.5f;
+    // set default rotation such that wave is nicely visible
     QVector3D rotation = { -45, 0, 0};
     QMatrix4x4 projectionTransform;
     QMatrix3x3 meshNormalTransform;
@@ -89,11 +93,12 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Wave animation
     float       waveSpeed           = 0;
+    int         waveAmount          = 4;
     QVector3D   waveColor           = {1, 1, 1};
-    GLfloat     waveAmplitude[4]    = {0.04f, 0.023f, 0.05f, 0.03f};
-    GLfloat     waveFrequency[4]    = {2.3f, 3.5f, 7.0f, 5.0f};
-    GLfloat     wavePhase[4]        = {0.2f, 0.5f, 1.0f, 0.0f};
-    QVector4D   waveMaterial        = {0.2f,0.6f,0.5f,1};
+    GLfloat     waveAmplitude[4]    = { 0.05f, 0.03f, 0.02f, 0.04f   };
+    GLfloat     waveFrequency[4]    = { 2.0f, 3.0f, 4.0f, 5.0f  };
+    GLfloat     wavePhase[4]        = { 1.0f, 0.1f, 0.4f, 0.0f  };
+    QVector4D   waveMaterial        = { 0.5f, 0.5f, 1.0f, 1.0f  };
 public:
     enum ShadingMode : GLuint
     {
@@ -143,6 +148,7 @@ private:
     void updateNormalUniforms();
     void updateGouraudUniforms();
     void updatePhongUniforms();
+    void updateWaveUniforms();
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
