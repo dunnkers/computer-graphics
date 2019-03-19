@@ -24,12 +24,12 @@ out vec2 uvCoords;
 out vec3 vertNormal;
 out vec3 vertCoord;
 
-float waveHeight(int waveIdx, float uvalue)
+float calcAmplForWave(int waveIdx, float uvalue)
 {
  return amplitude[waveIdx]*sin(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed));
 }
 
-float waveDU(int waveIdx, float uvalue)
+float calcDerivForWave(int waveIdx, float uvalue)
 {
   return amplitude[waveIdx]*cos(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed)) * 2 * M_PI * frequency[waveIdx];
 }
@@ -42,8 +42,8 @@ void main()
 
     for (int i = 0; i < waveAmount; ++i)
     {
-      coords.z += waveHeight(i, uvCoords.x);
-      derivative += waveDU(i, uvCoords.x);
+      coords.z += calcAmplForWave(i, uvCoords.x);
+      derivative += calcDerivForWave(i, uvCoords.x);
     }
 
     gl_Position = projectionTransform * modelViewTransform * vec4(coords, 1.0);
