@@ -32,8 +32,6 @@ MainView::~MainView() {
 
     qDebug() << "MainView destructor";
 
-    glDeleteTextures(1, &texturePtr);
-
     for (ObjectInstance object : objects)
     {
         glDeleteTextures(1, &object.texturePtr);
@@ -139,7 +137,7 @@ void MainView::loadMeshes()
     objects.append(cat);
 
     ObjectInstance cube(":/models/cube.obj", ":/textures/rug_logo.png");
-    cube.position = QVector3D(0, 0, -4);
+    cube.position = QVector3D(0, 0, -8);
     loadMesh(&cube);
     objects.append(cube);
 }
@@ -247,10 +245,11 @@ void MainView::paintGL() {
     }
 
     // Set the texture and draw the mesh.
-//    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 
     for (ObjectInstance object : objects)
     {
+        updateObjectUniforms(&object);
         glBindTexture(GL_TEXTURE_2D, object.texturePtr);
         glBindVertexArray(object.meshVAO);
         glDrawArrays(GL_TRIANGLES, 0, object.meshSize);
@@ -278,15 +277,15 @@ void MainView::resizeGL(int newWidth, int newHeight)
 void MainView::updateNormalUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformNormal, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
+//    glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, meshTransform.data());
+//    glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
 }
 
 void MainView::updateGouraudUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformGouraud, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, meshNormalTransform.data());
+//    glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, meshTransform.data());
+//    glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, meshNormalTransform.data());
 
     glUniform4fv(uniformMaterialGouraud, 1, &material[0]);
     glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
@@ -298,14 +297,35 @@ void MainView::updateGouraudUniforms()
 void MainView::updatePhongUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
+//    glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
+//    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
 
     glUniform4fv(uniformMaterialPhong, 1, &material[0]);
     glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
     glUniform3f(uniformLightColourPhong, lightColour.x(), lightColour.y(), lightColour.z());
 
     glUniform1i(uniformTextureSamplerPhong, 0);
+}
+
+void MainView::updateObjectUniforms(ObjectInstance *object)
+{
+    object->meshTransform.rotate(object->speed, object->rotation);
+    object->meshNormalTransform = object->meshTransform.normalMatrix();
+
+    switch (currentShader) {
+    case NORMAL:
+        glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, object->meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, object->meshNormalTransform.data());
+        break;
+    case GOURAUD:
+        glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, object->meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, object->meshNormalTransform.data());
+        break;
+    case PHONG:
+        glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, object->meshTransform.data());
+        glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, object->meshNormalTransform.data());
+        break;
+    }
 }
 
 void MainView::updateProjectionTransform()
@@ -318,11 +338,19 @@ void MainView::updateProjectionTransform()
 void MainView::updateModelTransforms()
 {
     // update for every model separately...
-    meshTransform.setToIdentity();
-    meshTransform.translate(0, 0, -4);
-    meshTransform.scale(scale);
-    meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
-    meshNormalTransform = meshTransform.normalMatrix();
+    for (ObjectInstance object : objects)
+    {
+        object.meshTransform.setToIdentity();
+        object.meshTransform.translate(0, 0, -4);
+        object.meshTransform.scale(scale);
+//        object.meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
+        object.meshNormalTransform = object.meshTransform.normalMatrix();
+    }
+//    meshTransform.setToIdentity();
+//    meshTransform.translate(0, 0, -4);
+//    meshTransform.scale(scale);
+//    meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
+//    meshNormalTransform = meshTransform.normalMatrix();
 
     update();
 }

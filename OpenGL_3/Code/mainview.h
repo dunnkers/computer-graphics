@@ -58,19 +58,19 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector<ObjectInstance> objects;
 
     // Buffers
-    GLuint meshVAO;
-    GLuint meshVBO;
-    GLuint meshSize;
+//    GLuint meshVAO;
+//    GLuint meshVBO;
+//    GLuint meshSize;
 
     // Texture
-    GLuint texturePtr;
+//    GLuint texturePtr;
 
     // Transforms
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
-    QMatrix3x3 meshNormalTransform;
-    QMatrix4x4 meshTransform;
+//    QMatrix3x3 meshNormalTransform;
+//    QMatrix4x4 meshTransform;
 
     // Phong model constants.
     QVector4D material = {0.5, 0.5, 1, 5};
@@ -133,6 +133,7 @@ private:
     void updateNormalUniforms();
     void updateGouraudUniforms();
     void updatePhongUniforms();
+    void updateObjectUniforms(ObjectInstance *object);
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
