@@ -55,17 +55,15 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformTextureSamplerPhong;
 
     // Uniforms for the wave shader.
-    GLint uniformModelTransformWave;
+    GLint uniformModelViewTransformWave;
     GLint uniformProjectionTransformWave;
     GLint uniformNormalTransformWave;
-    GLint uniformViewTransformWave;
     GLint uniformAmplitudeWave;
     GLint uniformFrequencyWave;
     GLint uniformPhaseWave;
     GLint uniformMaterialWave;
     GLint uniformLightPositionWave;
     GLint uniformLightColourWave;
-    GLint uniformTextureSamplerWave;
     GLint uniformColorWave;
     GLint uniformTimeWave;
 
@@ -90,12 +88,12 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D lightColour   = {1, 1, 1};
 
     // Wave animation
-    float waveSpeed = 0;
-    QVector3D waveColor         = {1, 1, 1};
-    GLfloat waveAmplitude[4]    = {0.04f, 0.023f, 0.05f, 0.03f};
-    GLfloat waveFrequency[4]    = {2.3f, 3.5f, 7.0f, 5.0f};
-    GLfloat wavePhase[4]        = {0.2f, 0.5f, 1.0f, 0.0f};
-    QVector4D waveMaterial      = {0.2f,0.6f,0.5f,1};
+    float       waveSpeed           = 0;
+    QVector3D   waveColor           = {1, 1, 1};
+    GLfloat     waveAmplitude[4]    = {0.04f, 0.023f, 0.05f, 0.03f};
+    GLfloat     waveFrequency[4]    = {2.3f, 3.5f, 7.0f, 5.0f};
+    GLfloat     wavePhase[4]        = {0.2f, 0.5f, 1.0f, 0.0f};
+    QVector4D   waveMaterial        = {0.2f,0.6f,0.5f,1};
 public:
     enum ShadingMode : GLuint
     {

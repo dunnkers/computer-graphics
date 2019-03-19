@@ -16,7 +16,6 @@ uniform vec4 material;
 uniform vec3 lightColour;
 uniform vec3 lightPosition;
 uniform vec3 waveColor;
-uniform sampler2D textureSampler;
 
 // Texture sampler
 // Specify the output of the fragment shader

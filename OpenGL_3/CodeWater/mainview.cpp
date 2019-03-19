@@ -132,17 +132,16 @@ void MainView::createShaderProgram()
     uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
 
     // Get the uniforms for the wave shader.
-    uniformModelTransformWave       = waveShaderProgram.uniformLocation("modelTransform");
+    uniformModelViewTransformWave       = waveShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformWave  = waveShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformWave      = waveShaderProgram.uniformLocation("normalTransform");
-    uniformViewTransformWave        = waveShaderProgram.uniformLocation("viewTransform");
-    uniformAmplitudeWave            = waveShaderProgram.uniformLocation("amplitude");
-    uniformFrequencyWave            = waveShaderProgram.uniformLocation("frequency");
-    uniformPhaseWave                = waveShaderProgram.uniformLocation("phase");
     uniformMaterialWave             = waveShaderProgram.uniformLocation("material");
     uniformLightPositionWave        = waveShaderProgram.uniformLocation("lightPosition");
     uniformLightColourWave          = waveShaderProgram.uniformLocation("lightColour");
-    uniformTextureSamplerWave       = waveShaderProgram.uniformLocation("textureSampler");
+    // ... extra wave properties
+    uniformAmplitudeWave            = waveShaderProgram.uniformLocation("amplitude");
+    uniformFrequencyWave            = waveShaderProgram.uniformLocation("frequency");
+    uniformPhaseWave                = waveShaderProgram.uniformLocation("phase");
     uniformColorWave                = waveShaderProgram.uniformLocation("waveColor");
     uniformTimeWave                 = waveShaderProgram.uniformLocation("waveTime");
 }
@@ -239,8 +238,10 @@ void MainView::paintGL() {
         break;
     }
 
+    // Wave shader
     shaderProgram = &waveShaderProgram;
     shaderProgram->bind();
+
     meshNormalTransform = meshTransform.normalMatrix();
 
     glUniformMatrix4fv(uniformProjectionTransformWave, 1, GL_FALSE, projectionTransform.data());
@@ -253,11 +254,11 @@ void MainView::paintGL() {
 
 
     // transforms
-    glUniformMatrix4fv(uniformModelTransformWave,   1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformWave,  1, GL_FALSE, meshNormalTransform.data());
+    glUniformMatrix4fv(uniformModelViewTransformWave,   1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransformWave,      1, GL_FALSE, meshNormalTransform.data());
 
     // wave property uniforms
-    glUniform4fv(uniformMaterialWave, 1, &waveMaterial[0]);
+    glUniform4fv(uniformMaterialWave,       1, &waveMaterial[0]);
     glUniform3fv(uniformColorWave,          1, &waveColor[0]);
     glUniform3fv(uniformLightPositionWave,  1, &lightPosition[0]);
     glUniform3fv(uniformLightColourWave,    1, &lightColour[0]);

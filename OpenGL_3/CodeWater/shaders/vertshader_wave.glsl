@@ -9,7 +9,7 @@ layout (location = 1) in vec3 vertNormals_in;
 layout (location = 2) in vec2 texCoords_in;
 
 // Specify the Uniforms of the vertex shader
-uniform mat4 modelTransform;
+uniform mat4 modelViewTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
@@ -44,8 +44,8 @@ void main()
       derivative += waveDU(i, uvCoords.x);
     }
 
-    gl_Position = projectionTransform * modelTransform * vec4(coords, 1.0);
-    vertCoord = vec3(modelTransform * vec4(coords, 1.0));
+    gl_Position = projectionTransform * modelViewTransform * vec4(coords, 1.0);
+    vertCoord = vec3(modelViewTransform * vec4(coords, 1.0));
     // vertNormal  = normalTransform * vertNormals_in;
     vertNormal = normalize(vec3(-derivative, 0.0, 1.0));
 }
