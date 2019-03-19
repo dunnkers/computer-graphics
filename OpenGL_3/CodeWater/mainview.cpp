@@ -140,11 +140,11 @@ void MainView::createShaderProgram()
     uniformLightColourWave          = waveShaderProgram.uniformLocation("lightColour");
     // ... extra wave properties
     uniformAmountWave               = waveShaderProgram.uniformLocation("waveAmount");
+    uniformSpeedWave                = waveShaderProgram.uniformLocation("waveSpeed");
     uniformAmplitudeWave            = waveShaderProgram.uniformLocation("amplitude");
     uniformPhaseWave                = waveShaderProgram.uniformLocation("phase");
     uniformFrequencyWave            = waveShaderProgram.uniformLocation("frequency");
     uniformColorWave                = waveShaderProgram.uniformLocation("waveColor");
-    uniformSpeedWave                = waveShaderProgram.uniformLocation("waveSpeed");
 }
 
 void MainView::loadMesh()
@@ -314,10 +314,10 @@ void MainView::updateWaveUniforms()
     // wave float properties
     glUniform1i(uniformAmountWave, waveAmount);
     glUniform1f(uniformSpeedWave, waveSpeed);
-    glUniform3fv(uniformColorWave, 1, &waveColor[0]);
     glUniform1fv(uniformAmplitudeWave,  waveAmount, waveAmplitude);
     glUniform1fv(uniformPhaseWave,      waveAmount, wavePhase);
     glUniform1fv(uniformFrequencyWave,  waveAmount, waveFrequency);
+    glUniform3fv(uniformColorWave, 1, &waveColor[0]);
 }
 
 void MainView::updateProjectionTransform()

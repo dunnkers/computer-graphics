@@ -14,10 +14,10 @@ uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
 uniform int waveAmount;
+uniform float waveSpeed;
 uniform float amplitude[4];
 uniform float phase[4];
 uniform float frequency[4];
-uniform float waveSpeed;
 
 // Specify the output of the vertex stage
 out vec2 uvCoords;
