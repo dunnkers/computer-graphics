@@ -33,6 +33,10 @@ Using 4 waves:
 
 ![wave](./Screenshots/waves-demo.gif)
 
-With different wave properties:
+With amplitude-, phase and frequency properties:
 
 ![wave](./Screenshots/wave-demo-2.gif)
+
+Using 8 waves:
+
+![wave](./Screenshots/waves-3.gif)

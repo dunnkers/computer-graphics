@@ -92,11 +92,11 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D lightColour   = {1, 1, 1};
 
     // Wave animation
-    int         waveAmount          = 4;
+    int         waveAmount          = 8;
     float       waveSpeed           = 0;
-    GLfloat     waveAmplitude[4]    = { 0.05f, 0.03f, 0.02f, 0.04f   };
-    GLfloat     waveFrequency[4]    = { 2.0f, 3.0f, 4.0f, 5.0f  };
-    GLfloat     wavePhase[4]        = { 1.0f, 0.1f, 0.4f, 0.0f  };
+    GLfloat     waveAmplitude[8]    = { 0.05f, 0.03f, 0.02f, 0.04f, 0.01f, 0.03f, 0.00f, 0.07f  };
+    GLfloat     waveFrequency[8]    = { 2.0f, 3.0f, 4.0f, 5.0f, 2.0f, 4.0f, 3.0f, 2.0f  };
+    GLfloat     wavePhase[8]        = { 1.0f, 0.1f, 0.4f, 0.0f, 0.4f, 0.1f, 1.0f, 0.4f  };
     QVector3D   waveColor           = {1, 1, 1};
     // specify wave own material instead of using `global` one.
     QVector4D   waveMaterial        = { 0.5f, 0.5f, 1.0f, 1.0f  };

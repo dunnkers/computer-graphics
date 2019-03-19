@@ -29,6 +29,7 @@ void main()
 
     // Calculate light direction vectors in the phong model.
     vec3 lightDirection   = normalize(lightPosition - vertCoord);
+    vec3 normal           = normalize(vertNormal);
 
     // Diffuse colour.
     vec3 diffuseIntensity = waveColor * material.y * lightColour * max(dot(vertNormal, lightDirection), 0);
@@ -36,10 +37,14 @@ void main()
     // Specular colour.
     vec3 viewDirection     = normalize(-vertCoord); // The camera is always at (0, 0, 0).
     vec3 reflectDirection  = reflect(-lightDirection, vertNormal);
-    vec3 specularIntesity = lightColour * waveColor * material.z *  pow(max(dot(reflectDirection, viewDirection), 0), material.w);
+    vec3 specularIntesity = lightColour * material.z * waveColor *  pow(max(dot(reflectDirection, viewDirection), 0), material.w);
 
-    float smoothedVal = smoothstep(-2.0f, 2.0f, vertCoord.y);
-    vec4 heightColor = vec4(0.0f, 1.0f, mix(1.0f, 0.5f, smoothedVal), 1.0f);
+    // apply smoothstep etc.
+    float smoothstepped = smoothstep(-1.0f, 1.0f, vertCoord.y);
+    float mixed = mix(1.0f, 0.5f, smoothstepped);
+    vec4 heightColor = vec4(0.0f, 1.0f, mixed, 1.0f);
 
-    fColor = heightColor * vec4(ambientIntensity + diffuseIntensity + specularIntesity, 1.0);
+    // final color intensity.
+    vec3 I = ambientIntensity + diffuseIntensity + specularIntesity;
+    fColor = heightColor * vec4(I, 1.0);
 }

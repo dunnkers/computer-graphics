@@ -16,9 +16,9 @@ uniform mat3 normalTransform;
 // wave uniform props
 uniform int waveAmount;
 uniform float waveSpeed;
-uniform float amplitude[4];
-uniform float phase[4];
-uniform float frequency[4];
+uniform float amplitude[8];
+uniform float phase[8];
+uniform float frequency[8];
 
 // Specify the output of the vertex stage
 out vec2 uvCoords;
