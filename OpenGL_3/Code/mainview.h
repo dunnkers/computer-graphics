@@ -29,14 +29,16 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
                          phongShaderProgram;
 
     // Uniforms for the normal shader.
-    GLint uniformModelViewTransformNormal;
+    GLint uniformModelTransformNormal;
     GLint uniformProjectionTransformNormal;
     GLint uniformNormalTransformNormal;
+    GLint uniformViewTransformNormal;
 
     // Uniforms for the gouraud shader.
-    GLint uniformModelViewTransformGouraud;
+    GLint uniformModelTransformGouraud;
     GLint uniformProjectionTransformGouraud;
     GLint uniformNormalTransformGouraud;
+    GLint uniformViewTransformGouraud;
 
     GLint uniformMaterialGouraud;
     GLint uniformLightPositionGouraud;
@@ -45,9 +47,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformTextureSamplerGouraud;
 
     // Uniforms for the phong shader.
-    GLint uniformModelViewTransformPhong;
+    GLint uniformModelTransformPhong;
     GLint uniformProjectionTransformPhong;
     GLint uniformNormalTransformPhong;
+    GLint uniformViewTransformPhong;
 
     GLint uniformMaterialPhong;
     GLint uniformLightPositionPhong;
@@ -62,6 +65,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
+    QMatrix4x4 viewTransform;
 
     // Phong model constants.
     QVector4D material = {0.5, 0.5, 1, 5};
@@ -123,6 +127,7 @@ private:
     void destroyModelBuffers();
 
     void updateProjectionTransform();
+    void updateViewTransforms();
     void updateModelTransforms();
 
     void updateNormalUniforms();

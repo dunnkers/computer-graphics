@@ -9,9 +9,10 @@ layout (location = 1) in vec3 vertNormals_in;
 layout (location = 2) in vec2 texCoords_in;
 
 // Transformation matrices.
-uniform mat4 modelViewTransform;
+uniform mat4 modelTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
+uniform mat4 viewTransform;
 
 // Lighting model constants.
 uniform vec4 material;
@@ -27,9 +28,9 @@ void main()
     ambient = material.x;
 
     // Calculate light direction, vertex position and normal.
-    vec3 vertexPosition        = vec3(modelViewTransform * vec4(vertCoordinates_in, 1));
+    vec3 vertexPosition        = vec3(modelTransform * vec4(vertCoordinates_in, 1));
     vec3 vertexNormal          = normalize(normalTransform * vertNormals_in);
-    vec3 relativeLightPosition = vec3(modelViewTransform * vec4(lightPosition, 1));
+    vec3 relativeLightPosition = lightPosition;
     vec3 lightDirection        = normalize(relativeLightPosition - vertexPosition);
 
     // Diffuse component.
@@ -43,5 +44,5 @@ void main()
     specular = material.z * pow(specularIntensity, material.w);
 
     texCoords = texCoords_in;
-    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1);;
+    gl_Position = projectionTransform * modelTransform * viewTransform * vec4(vertCoordinates_in, 1);;
 }

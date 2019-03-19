@@ -46,7 +46,7 @@ Higher frequency.
 
 ![wave](./Screenshots/multiplewaves.png)
 
-### Wave with shading
+### Animating water
 
 Using 4 waves:
 

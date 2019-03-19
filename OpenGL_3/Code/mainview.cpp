@@ -77,6 +77,7 @@ void MainView::initializeGL() {
 
     // Initialize transformations
     updateProjectionTransform();
+    updateViewTransforms();
     updateModelTransforms();
 
     timer.start(1000.0 / 60.0);
@@ -107,27 +108,30 @@ void MainView::createShaderProgram()
     phongShaderProgram.link();
 
     // Get the uniforms for the normal shader.
-    uniformModelViewTransformNormal  = normalShaderProgram.uniformLocation("modelViewTransform");
+    uniformModelTransformNormal  = normalShaderProgram.uniformLocation("modelTransform");
     uniformProjectionTransformNormal = normalShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformNormal     = normalShaderProgram.uniformLocation("normalTransform");
+    uniformViewTransformNormal       = normalShaderProgram.uniformLocation("viewTransform");
 
     // Get the uniforms for the gouraud shader.
-    uniformModelViewTransformGouraud  = gouraudShaderProgram.uniformLocation("modelViewTransform");
+    uniformModelTransformGouraud  = gouraudShaderProgram.uniformLocation("modelTransform");
     uniformProjectionTransformGouraud = gouraudShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformGouraud     = gouraudShaderProgram.uniformLocation("normalTransform");
     uniformMaterialGouraud            = gouraudShaderProgram.uniformLocation("material");
     uniformLightPositionGouraud       = gouraudShaderProgram.uniformLocation("lightPosition");
     uniformLightColourGouraud         = gouraudShaderProgram.uniformLocation("lightColour");
     uniformTextureSamplerGouraud      = gouraudShaderProgram.uniformLocation("textureSampler");
+    uniformViewTransformGouraud       = gouraudShaderProgram.uniformLocation("viewTransform");
 
     // Get the uniforms for the phong shader.
-    uniformModelViewTransformPhong  = phongShaderProgram.uniformLocation("modelViewTransform");
+    uniformModelTransformPhong  = phongShaderProgram.uniformLocation("modelTransform");
     uniformProjectionTransformPhong = phongShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformPhong     = phongShaderProgram.uniformLocation("normalTransform");
     uniformMaterialPhong            = phongShaderProgram.uniformLocation("material");
     uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
     uniformLightColourPhong         = phongShaderProgram.uniformLocation("lightColour");
     uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
+    uniformViewTransformPhong       = phongShaderProgram.uniformLocation("viewTransform");
 }
 
 void MainView::loadMeshes()
@@ -309,11 +313,13 @@ void MainView::resizeGL(int newWidth, int newHeight)
 void MainView::updateNormalUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformNormal, 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformViewTransformNormal, 1, GL_FALSE, viewTransform.data());
 }
 
 void MainView::updateGouraudUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformGouraud, 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformViewTransformGouraud, 1, GL_FALSE, viewTransform.data());
 
     glUniform4fv(uniformMaterialGouraud, 1, &material[0]);
     glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
@@ -325,6 +331,7 @@ void MainView::updateGouraudUniforms()
 void MainView::updatePhongUniforms()
 {
     glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformViewTransformPhong, 1, GL_FALSE, viewTransform.data());
 
     glUniform4fv(uniformMaterialPhong, 1, &material[0]);
     glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
@@ -337,15 +344,15 @@ void MainView::updateObjectUniforms(ObjectInstance &object)
 {
     switch (currentShader) {
     case NORMAL:
-        glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix4fv(uniformModelTransformNormal, 1, GL_FALSE, object.meshTransform.data());
         glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     case GOURAUD:
-        glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix4fv(uniformModelTransformGouraud, 1, GL_FALSE, object.meshTransform.data());
         glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     case PHONG:
-        glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, object.meshTransform.data());
+        glUniformMatrix4fv(uniformModelTransformPhong, 1, GL_FALSE, object.meshTransform.data());
         glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, object.meshNormalTransform.data());
         break;
     }
@@ -356,6 +363,12 @@ void MainView::updateProjectionTransform()
     float aspect_ratio = static_cast<float>(width()) / static_cast<float>(height());
     projectionTransform.setToIdentity();
     projectionTransform.perspective(60, aspect_ratio, 0.2, 20);
+}
+
+void MainView::updateViewTransforms()
+{
+    viewTransform.setToIdentity();
+    viewTransform.rotate(QQuaternion::fromEulerAngles(rotation));
 }
 
 void MainView::updateModelTransforms()
@@ -388,7 +401,7 @@ void MainView::destroyModelBuffers()
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 {
     rotation = { static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ) };
-    updateModelTransforms();
+    updateViewTransforms();
 }
 
 void MainView::setScale(int newScale)
