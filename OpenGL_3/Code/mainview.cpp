@@ -132,12 +132,14 @@ void MainView::createShaderProgram()
 void MainView::loadMeshes()
 {
     ObjectInstance cat(":/models/cat.obj", ":/textures/cat_diff.png");
-    cat.position = QVector3D(1, 0, -4);
+    cat.position = QVector3D(-2, 0, -4);
+    cat.speed = QVector3D(0, 0, 0);
     loadMesh(&cat);
     objects.append(cat);
 
     ObjectInstance cube(":/models/cube.obj", ":/textures/rug_logo.png");
-    cube.position = QVector3D(0, 0, -8);
+    cube.position = QVector3D(5, 2, -4);
+    cube.speed = QVector3D(-0.001, 0, 0);
     loadMesh(&cube);
     objects.append(cube);
 }
@@ -220,8 +222,11 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float newY = rotation.y() + animationSpeed;
-    rotation = { rotation.x(), newY, rotation.z() };
+    // update object positions.
+    for (ObjectInstance &object : objects)
+    {
+        object.position += object.speed;
+    }
     updateModelTransforms();
 
     // Choose the selected shader.
@@ -303,9 +308,6 @@ void MainView::updatePhongUniforms()
 
 void MainView::updateObjectUniforms(ObjectInstance &object)
 {
-    object.meshTransform.rotate(object.speed, object.rotation);
-    object.meshNormalTransform = object.meshTransform.normalMatrix();
-
     switch (currentShader) {
     case NORMAL:
         glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, object.meshTransform.data());
