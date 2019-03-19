@@ -74,6 +74,8 @@ void MainView::initializeGL() {
     // Initialize transformations
     updateProjectionTransform();
     updateModelTransforms();
+
+    timer.start(1000.0 / 60.0);
 }
 
 void MainView::createShaderProgram()
@@ -99,6 +101,13 @@ void MainView::createShaderProgram()
                                            ":/shaders/fragshader_phong.glsl");
     phongShaderProgram.link();
 
+    // Creat Wave shader program
+    waveShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_wave.glsl");
+    waveShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_wave.glsl");
+    waveShaderProgram.link();
+
     // Get the uniforms for the normal shader.
     uniformModelViewTransformNormal  = normalShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformNormal = normalShaderProgram.uniformLocation("projectionTransform");
@@ -121,11 +130,26 @@ void MainView::createShaderProgram()
     uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
     uniformLightColourPhong         = phongShaderProgram.uniformLocation("lightColour");
     uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
+
+    // Get the uniforms for the wave shader.
+    uniformModelTransformWave       = waveShaderProgram.uniformLocation("modelTransform");
+    uniformProjectionTransformWave  = waveShaderProgram.uniformLocation("projectionTransform");
+    uniformNormalTransformWave      = waveShaderProgram.uniformLocation("normalTransform");
+    uniformViewTransformWave        = waveShaderProgram.uniformLocation("viewTransform");
+    uniformAmplitudeWave            = waveShaderProgram.uniformLocation("amplitude");
+    uniformFrequencyWave            = waveShaderProgram.uniformLocation("frequency");
+    uniformPhaseWave                = waveShaderProgram.uniformLocation("phase");
+    uniformMaterialWave             = waveShaderProgram.uniformLocation("material");
+    uniformLightPositionWave        = waveShaderProgram.uniformLocation("lightPosition");
+    uniformLightColourWave          = waveShaderProgram.uniformLocation("lightColour");
+    uniformTextureSamplerWave       = waveShaderProgram.uniformLocation("textureSampler");
+    uniformColorWave                = waveShaderProgram.uniformLocation("waveColor");
+    uniformTimeWave                 = waveShaderProgram.uniformLocation("waveTime");
 }
 
 void MainView::loadMesh()
 {
-    Model model(":/models/cat.obj");
+    Model model(":/models/grid.obj");
     model.unitize();
     QVector<float> meshData = model.getVNTInterleaved();
 
@@ -160,8 +184,6 @@ void MainView::loadMesh()
 
 void MainView::loadTextures()
 {
-    glGenTextures(1, &texturePtr);
-    loadTexture(":/textures/cat_diff.png", texturePtr);
 }
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
@@ -194,6 +216,9 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Gradually increase wave speed
+    waveSpeed += 1 / 100.0f;
+
     // Choose the selected shader.
     QOpenGLShaderProgram *shaderProgram;
     switch (currentShader) {
@@ -214,9 +239,28 @@ void MainView::paintGL() {
         break;
     }
 
-    // Set the texture and draw the mesh.
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
+    shaderProgram = &waveShaderProgram;
+    shaderProgram->bind();
+    meshNormalTransform = meshTransform.normalMatrix();
+
+    glUniformMatrix4fv(uniformProjectionTransformWave, 1, GL_FALSE, projectionTransform.data());
+
+    // wave float properties
+    glUniform1f(uniformTimeWave, waveSpeed);
+    glUniform1fv(uniformAmplitudeWave,  4, waveAmplitude);
+    glUniform1fv(uniformFrequencyWave,  4, waveFrequency);
+    glUniform1fv(uniformPhaseWave,      4, wavePhase);
+
+
+    // transforms
+    glUniformMatrix4fv(uniformModelTransformWave,   1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransformWave,  1, GL_FALSE, meshNormalTransform.data());
+
+    // wave property uniforms
+    glUniform4fv(uniformMaterialWave, 1, &waveMaterial[0]);
+    glUniform3fv(uniformColorWave,          1, &waveColor[0]);
+    glUniform3fv(uniformLightPositionWave,  1, &lightPosition[0]);
+    glUniform3fv(uniformLightColourWave,    1, &lightColour[0]);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);

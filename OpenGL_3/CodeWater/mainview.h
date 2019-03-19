@@ -24,7 +24,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     QOpenGLShaderProgram normalShaderProgram,
                          gouraudShaderProgram,
-                         phongShaderProgram;
+                         phongShaderProgram,
+                         waveShaderProgram;
 
     // Uniforms for the normal shader.
     GLint uniformModelViewTransformNormal;
@@ -53,6 +54,21 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     GLint uniformTextureSamplerPhong;
 
+    // Uniforms for the wave shader.
+    GLint uniformModelTransformWave;
+    GLint uniformProjectionTransformWave;
+    GLint uniformNormalTransformWave;
+    GLint uniformViewTransformWave;
+    GLint uniformAmplitudeWave;
+    GLint uniformFrequencyWave;
+    GLint uniformPhaseWave;
+    GLint uniformMaterialWave;
+    GLint uniformLightPositionWave;
+    GLint uniformLightColourWave;
+    GLint uniformTextureSamplerWave;
+    GLint uniformColorWave;
+    GLint uniformTimeWave;
+
     // Buffers
     GLuint meshVAO;
     GLuint meshVBO;
@@ -62,17 +78,24 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint texturePtr;
 
     // Transforms
-    float scale = 1.f;
-    QVector3D rotation;
+    float scale = 1.5f;
+    QVector3D rotation = { -45, 0, 0};
     QMatrix4x4 projectionTransform;
     QMatrix3x3 meshNormalTransform;
     QMatrix4x4 meshTransform;
 
     // Phong model constants.
-    QVector4D material = {0.5, 0.5, 1, 5};
+    QVector4D material      = {0.5, 0.5, 1, 5};
     QVector3D lightPosition = {1, 100, 1};
-    QVector3D lightColour = {1, 1, 1};
+    QVector3D lightColour   = {1, 1, 1};
 
+    // Wave animation
+    float waveSpeed = 0;
+    QVector3D waveColor         = {1, 1, 1};
+    GLfloat waveAmplitude[4]    = {0.04f, 0.023f, 0.05f, 0.03f};
+    GLfloat waveFrequency[4]    = {2.3f, 3.5f, 7.0f, 5.0f};
+    GLfloat wavePhase[4]        = {0.2f, 0.5f, 1.0f, 0.0f};
+    QVector4D waveMaterial      = {0.2f,0.6f,0.5f,1};
 public:
     enum ShadingMode : GLuint
     {
