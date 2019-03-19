@@ -53,6 +53,10 @@ void MainView::mousePressEvent(QMouseEvent *ev)
 {
     qDebug() << "Mouse button pressed:" << ev->button();
 
+    characterPitch = 45;
+    characterEnergy = 1;
+    characterJumpTime.start();
+
     update();
     // Do not remove the line below, clicking must focus on this widget!
     this->setFocus();

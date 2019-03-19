@@ -8,8 +8,9 @@
 struct ObjectInstance {
     // Positioning and animation
     QVector3D position; // position in 3d space
-    QVector3D rotation; // rotation speed in all 3 axis
+    QVector3D rotation; // rotation all 3 axis
     QVector3D speed;
+    QVector3D rotationalSpeed;
 
     // Mesh
     QString meshFile;

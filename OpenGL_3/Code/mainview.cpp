@@ -80,6 +80,7 @@ void MainView::initializeGL() {
     updateModelTransforms();
 
     timer.start(1000.0 / 60.0);
+    characterJumpTime.start(); // character jump time
 }
 
 void MainView::createShaderProgram()
@@ -132,22 +133,31 @@ void MainView::createShaderProgram()
 void MainView::loadMeshes()
 {
     ObjectInstance cat(":/models/cat.obj", ":/textures/cat_diff.png");
-    cat.position = QVector3D(-2, 0, -6);
+    cat.position = QVector3D(-2, 0, -8);
     cat.speed = QVector3D(0, 0, 0);
     loadMesh(&cat);
     objects.append(cat);
+    characterIdx = 0;
 
     ObjectInstance cube(":/models/cube.obj", ":/textures/rug_logo.png");
-    cube.position = QVector3D(5, 2, -6);
+    cube.position = QVector3D(5, 2, -8);
     cube.speed = QVector3D(-0.001, 0, 0);
     loadMesh(&cube);
     objects.append(cube);
 
-    ObjectInstance pilar(":/models/sphere.obj", ":/textures/rug_logo.png");
-    pilar.position = QVector3D(6, -2, -6);
-    pilar.speed = QVector3D(-0.002, 0, 0);
-    loadMesh(&pilar);
-    objects.append(pilar);
+    ObjectInstance sphere(":/models/sphere.obj", ":/textures/rug_logo.png");
+    sphere.position = QVector3D(6, -2, -8);
+    sphere.speed = QVector3D(-0.002, 0, 0);
+    sphere.rotationalSpeed = QVector3D(0, 0.2, 0);
+    loadMesh(&sphere);
+    objects.append(sphere);
+
+    ObjectInstance sphere2(":/models/sphere.obj", ":/textures/rug_logo.png");
+    sphere2.position = QVector3D(4, -1, -8);
+    sphere2.speed = QVector3D(-0.003, 0, 0);
+    sphere2.rotation = QVector3D(0, 180, 0);
+    loadMesh(&sphere2);
+    objects.append(sphere2);
 }
 
 void MainView::loadMesh(ObjectInstance *object)
@@ -228,10 +238,21 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // update object positions.
+    // character jump
+    float t = characterJumpTime.elapsed();
+    float d = 0.5f * t * t;
+    float y = (characterEnergy / 100) - d / 10000000;
+    QVector3D jumpVector = QVector3D(0, y, 0);
+    objects[characterIdx].speed = jumpVector;
+    QVector3D rotationVector = QVector3D(0, 0, characterPitch);
+    objects[characterIdx].rotation = rotationVector;
+    if (characterPitch > 0) characterPitch -= 0.3f;
+
+    // update object positions
     for (ObjectInstance &object : objects)
     {
         object.position += object.speed;
+        object.rotation += object.rotationalSpeed;
     }
     updateModelTransforms();
 
@@ -344,7 +365,7 @@ void MainView::updateModelTransforms()
         object.meshTransform.setToIdentity();
         object.meshTransform.translate(object.position);
         object.meshTransform.scale(scale);
-        object.meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
+        object.meshTransform.rotate(QQuaternion::fromEulerAngles(object.rotation));
         object.meshNormalTransform = object.meshTransform.normalMatrix();
     }
 

@@ -16,6 +16,7 @@
 #include <QVector>
 #include <memory>
 #include <QMatrix4x4>
+#include <QElapsedTimer>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -57,20 +58,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Objects
     QVector<ObjectInstance> objects;
 
-    // Buffers
-//    GLuint meshVAO;
-//    GLuint meshVBO;
-//    GLuint meshSize;
-
-    // Texture
-//    GLuint texturePtr;
-
     // Transforms
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
-//    QMatrix3x3 meshNormalTransform;
-//    QMatrix4x4 meshTransform;
 
     // Phong model constants.
     QVector4D material = {0.5, 0.5, 1, 5};
@@ -79,6 +70,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Animation
     float animationSpeed = 1.f;
+    int characterIdx = 0;
+    float characterPitch = 0.f; // 0 degrees.
+    float characterEnergy = 0.f; // vertical energy/speed
+    QElapsedTimer characterJumpTime;
 
 public:
     enum ShadingMode : GLuint
@@ -94,7 +89,7 @@ public:
     void setScale(int scale);
     void setAnimationSpeed(int newAnimationSpeed);
     void setShadingMode(ShadingMode shading);
-
+    void resetPositions();
 protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
