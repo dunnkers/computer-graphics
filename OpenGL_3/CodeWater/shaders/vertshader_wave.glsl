@@ -51,6 +51,6 @@ void main()
     // set position and normal
     gl_Position = projectionTransform * modelViewTransform * vec4(coords, 1.0);
     vertCoord = vec3(modelViewTransform * vec4(coords, 1.0));
-    vertNormal = vec3(-deriv, 0.0, 1.0);
+    vertNormal = vec3(-deriv, 0.0, 1.0); //dU and dV. dV is zero.
     vertNormal = normalize(vertNormal);
 }

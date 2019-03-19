@@ -31,8 +31,8 @@ void main()
   vec3 normal           = normalize(vertNormal);
 
   // Diffuse colour.
-  float diffuseIntesity = max(dot(normal, lightDirection), 0);
-  colour += texColour * material.y * diffuseIntesity;
+  float diffuseIntensity = max(dot(normal, lightDirection), 0);
+  colour += texColour * material.y * diffuseIntensity;
 
   // Specular colour.
   vec3 viewDirection     = normalize(-vertPosition); // The camera is always at (0, 0, 0).

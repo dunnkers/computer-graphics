@@ -27,6 +27,25 @@ In order to support multiple objects I created a struct called `ObjectInstance`,
 
 > Code for the wave animation is in `/CodeWater`
 
+### Height map
+
+The plane transformed into a wave. Using vertex normals as coloring.
+
+![wave](./Screenshots/heightmap-1.png)
+
+Higher frequency.
+
+![wave](./Screenshots/heightmap-2.png)
+
+
+### Normals
+
+![wave](./Screenshots/normals.png)
+
+### Multiple waves
+
+![wave](./Screenshots/multiplewaves.png)
+
 ### Wave with shading
 
 Using 4 waves:
