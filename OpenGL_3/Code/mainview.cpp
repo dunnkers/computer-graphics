@@ -132,16 +132,22 @@ void MainView::createShaderProgram()
 void MainView::loadMeshes()
 {
     ObjectInstance cat(":/models/cat.obj", ":/textures/cat_diff.png");
-    cat.position = QVector3D(-2, 0, -4);
+    cat.position = QVector3D(-2, 0, -6);
     cat.speed = QVector3D(0, 0, 0);
     loadMesh(&cat);
     objects.append(cat);
 
     ObjectInstance cube(":/models/cube.obj", ":/textures/rug_logo.png");
-    cube.position = QVector3D(5, 2, -4);
+    cube.position = QVector3D(5, 2, -6);
     cube.speed = QVector3D(-0.001, 0, 0);
     loadMesh(&cube);
     objects.append(cube);
+
+    ObjectInstance pilar(":/models/sphere.obj", ":/textures/rug_logo.png");
+    pilar.position = QVector3D(6, -2, -6);
+    pilar.speed = QVector3D(-0.002, 0, 0);
+    loadMesh(&pilar);
+    objects.append(pilar);
 }
 
 void MainView::loadMesh(ObjectInstance *object)
