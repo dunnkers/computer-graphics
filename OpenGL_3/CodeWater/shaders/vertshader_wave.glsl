@@ -13,6 +13,7 @@ uniform mat4 modelViewTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
+// wave uniform props
 uniform int waveAmount;
 uniform float waveSpeed;
 uniform float amplitude[4];
@@ -24,30 +25,32 @@ out vec2 uvCoords;
 out vec3 vertNormal;
 out vec3 vertCoord;
 
-float calcAmplForWave(int waveIdx, float uvalue)
+float calcDerivForWave(int wave, float uvcoordval)
 {
- return amplitude[waveIdx]*sin(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed));
+  return amplitude[wave] * cos((2 * M_PI) * (frequency[wave] * uvcoordval + phase[wave] + waveSpeed)) * frequency[wave] * (2 * M_PI);
 }
 
-float calcDerivForWave(int waveIdx, float uvalue)
+float calcAmplForWave(int wave, float uvcoordval)
 {
-  return amplitude[waveIdx]*cos(2 * M_PI * (frequency[waveIdx] * uvalue + phase[waveIdx] + waveSpeed)) * 2 * M_PI * frequency[waveIdx];
+ return amplitude[wave] * sin((2 * M_PI) * (frequency[wave] * uvcoordval + phase[wave] + waveSpeed));
 }
 
 void main()
 {
-    uvCoords = texCoords_in;
+    uvCoords    = texCoords_in;
     vec3 coords = vertCoordinates_in;
-    float derivative = 0;
 
-    for (int i = 0; i < waveAmount; ++i)
+    // compute coord for each wave
+    float deriv = 0;
+    for (int i = 0; i < waveAmount; i ++)
     {
+      deriv += calcDerivForWave(i, uvCoords.x);
       coords.z += calcAmplForWave(i, uvCoords.x);
-      derivative += calcDerivForWave(i, uvCoords.x);
     }
 
+    // set position and normal
     gl_Position = projectionTransform * modelViewTransform * vec4(coords, 1.0);
     vertCoord = vec3(modelViewTransform * vec4(coords, 1.0));
-    // vertNormal  = normalTransform * vertNormals_in;
-    vertNormal = normalize(vec3(-derivative, 0.0, 1.0));
+    vertNormal = vec3(-deriv, 0.0, 1.0);
+    vertNormal = normalize(vertNormal);
 }
