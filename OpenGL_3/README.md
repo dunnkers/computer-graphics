@@ -16,7 +16,7 @@ For the scene I decided to mimic a sort of 2D game (but then now obviously in 3D
 
 ![scene](./Screenshots/scene-demo.gif)
 
-The cat is to be controlled by the mouse, which makes it jump up upon clicking. The movement is inspired by Flappy birds' movements.
+The cat is to be controlled by the mouse, which makes it jump up upon clicking. The movement is inspired by Flappy birds' movements. The game aspect is still very basic and is to be extended (for the competition); there's no object-hit detection yet and no game-over state.
 
 In order to support multiple objects I created a struct called `ObjectInstance`, holding its current `VAO`, `VBO` and all positioning- and rotational data.
 
