@@ -181,6 +181,38 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
                  0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
 }
 
+// Creating the framebuffer object.
+void MainView::createBuffers()
+{
+    createBuffer(colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    createBuffer(normalsTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    createBuffer(zBufferTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 150, 150, // @FIXME should be window size. @see resizeGL
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+//    // Textures for color, normals and the z-buffer.
+//    glGenTextures(1, &colorTexture);
+//    glGenTextures(1, &normalsTexture);
+//    glGenTextures(1, &zBufferTexture);
+
+//    // Bind each texture
+//    glBindTexture(GL_TEXTURE_2D, colorTexture);
+//    glBindTexture(GL_TEXTURE_2D, normalsTexture);
+//    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
+}
+
+void MainView::createBuffer(GLuint locTexture)
+{
+    glGenTextures(1, &locTexture);
+    glBindTexture(GL_TEXTURE_2D, locTexture);
+
+}
+
 // --- OpenGL drawing
 
 /**

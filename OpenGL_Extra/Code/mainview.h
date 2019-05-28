@@ -60,6 +60,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Texture
     GLuint texturePtr;
+    GLuint colorTexture;
+    GLuint normalsTexture;
+    GLuint zBufferTexture;
 
     // Transforms
     float scale = 1.f;
@@ -113,6 +116,10 @@ private:
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();
     void loadTexture(QString file, GLuint texturePtr);
+
+    // Generate frame buffers
+    void createBuffers();
+    void createBuffer(GLuint locTexture);
 
     void destroyModelBuffers();
 
