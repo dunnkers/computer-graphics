@@ -142,7 +142,7 @@
           <item>
            <widget class="QRadioButton" name="GouraudButton">
             <property name="text">
-             <string>&amp;Gouraud</string>
+             <string>&amp;Deferred</string>
             </property>
            </widget>
           </item>

@@ -86,11 +86,11 @@ void MainView::createShaderProgram()
                                            ":/shaders/fragshader_normal.glsl");
     normalShaderProgram.link();
 
-    // Create Gouraud Shader program
+    // Create Deferred Shader program
     gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_gouraud.glsl");
+                                           ":/shaders/vertshader_deferred.glsl");
     gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_gouraud.glsl");
+                                           ":/shaders/fragshader_deferred.glsl");
     gouraudShaderProgram.link();
 
     // Create Phong Shader program
@@ -109,9 +109,9 @@ void MainView::createShaderProgram()
     uniformModelViewTransformGouraud  = gouraudShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformGouraud = gouraudShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformGouraud     = gouraudShaderProgram.uniformLocation("normalTransform");
-    uniformMaterialGouraud            = gouraudShaderProgram.uniformLocation("material");
-    uniformLightPositionGouraud       = gouraudShaderProgram.uniformLocation("lightPosition");
-    uniformLightColourGouraud         = gouraudShaderProgram.uniformLocation("lightColour");
+//    uniformMaterialGouraud            = gouraudShaderProgram.uniformLocation("material");
+//    uniformLightPositionGouraud       = gouraudShaderProgram.uniformLocation("lightPosition");
+//    uniformLightColourGouraud         = gouraudShaderProgram.uniformLocation("lightColour");
     uniformTextureSamplerGouraud      = gouraudShaderProgram.uniformLocation("textureSampler");
 
     // Get the uniforms for the phong shader.
@@ -301,9 +301,9 @@ void MainView::updateGouraudUniforms()
     glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, meshTransform.data());
     glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, meshNormalTransform.data());
 
-    glUniform4fv(uniformMaterialGouraud, 1, &material[0]);
-    glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
-    glUniform3fv(uniformLightColourGouraud, 1, &lightColour[0]);
+//    glUniform4fv(uniformMaterialGouraud, 1, &material[0]);
+//    glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
+//    glUniform3fv(uniformLightColourGouraud, 1, &lightColour[0]);
 
     //glUniform1i(uniformTextureSamplerGouraud, 0); // Redundant now, but useful when you have multiple textures.
 }
