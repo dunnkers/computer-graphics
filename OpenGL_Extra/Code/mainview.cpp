@@ -185,38 +185,48 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 // Creating the framebuffer object.
 void MainView::createBuffers()
 {
-    createBuffer(colorTexture, colorBuffer);
+    // @note shouldn't we glTextImage2D first, then bind? We bind first now.
+    // 12:21 Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
+
+    // Generate gBuffers
+    createBuffer(colorTexture);
+    createBuffer(normalsTexture);
+    createBuffer(zBufferTexture);
+
+    // Initialize textures
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
-    createBuffer(normalsTexture, normalsBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, normalsTexture, 0);
 
-    createBuffer(zBufferTexture, zBufferBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, zBufferTexture, 0);
 
+    // Generate Frame Buffer Object
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+    // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalsTexture, 0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
+
+    // Specify which color attachments to draw to
     GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, drawBuffers);
 }
 
-void MainView::createBuffer(GLuint locTexture, GLuint locBuffer)
+void MainView::createBuffer(GLuint locTexture)
 {
-    // Generate texture
+    // Generate gBuffer
     glGenTextures(1, &locTexture);
     glBindTexture(GL_TEXTURE_2D, locTexture);
+    // disable linear interpolation
     glTexParameteri(GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER ,
         GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER ,
         GL_NEAREST);
-
-    // Generate buffer
-    glGenFramebuffers(1, &locBuffer);
-    glBindFramebuffer(GL_DRAW_BUFFER, locBuffer);
 }
 
 // --- OpenGL drawing
@@ -338,10 +348,13 @@ void MainView::destroyModelBuffers()
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
 
-    // deleting frame buffers
-    glDeleteFramebuffers(1, &colorBuffer);
-    glDeleteFramebuffers(1, &normalsBuffer);
-    glDeleteFramebuffers(1, &zBufferBuffer);
+    // deleting fbo
+    glDeleteFramebuffers(1, &fbo);
+
+    // deleting gBuffers
+    glDeleteTextures(1, &colorBuffer);
+    glDeleteTextures(1, &normalsBuffer);
+    glDeleteTextures(1, &zBufferBuffer);
 }
 
 // --- Public interface

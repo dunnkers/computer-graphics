@@ -61,7 +61,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Texture
     GLuint texturePtr;
 
-    // Frame Buffers
+    // Frame Buffer Object
+    GLuint fbo;
+    // gBuffers
     GLuint colorTexture;
     GLuint normalsTexture;
     GLuint zBufferTexture;
@@ -124,7 +126,7 @@ private:
 
     // Generate frame buffers
     void createBuffers();
-    void createBuffer(GLuint locTexture, GLuint locBuffer);
+    void createBuffer(GLuint locTexture);
 
     void destroyModelBuffers();
 
