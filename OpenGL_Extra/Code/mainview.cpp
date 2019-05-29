@@ -186,7 +186,7 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 void MainView::createBuffers()
 {
     // @note shouldn't we glTextImage2D first, then bind? We bind first now.
-    // 12:21 Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
+    // [12:21] Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
 
     // Generate gBuffers
     createBuffer(colorTexture);
@@ -265,6 +265,7 @@ void MainView::paintGL() {
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texturePtr);
+//    glBindFramebuffer(GL_TEXTURE_2D, fbo);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
