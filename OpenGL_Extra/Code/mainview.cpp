@@ -87,11 +87,11 @@ void MainView::createShaderProgram()
     normalShaderProgram.link();
 
     // Create Deferred Shader program
-    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+    deferredShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
                                            ":/shaders/vertshader_deferred.glsl");
-    gouraudShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+    deferredShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            ":/shaders/fragshader_deferred.glsl");
-    gouraudShaderProgram.link();
+    deferredShaderProgram.link();
 
     // Create Phong Shader program
     phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
@@ -105,14 +105,14 @@ void MainView::createShaderProgram()
     uniformProjectionTransformNormal = normalShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformNormal     = normalShaderProgram.uniformLocation("normalTransform");
 
-    // Get the uniforms for the gouraud shader.
-    uniformModelViewTransformGouraud  = gouraudShaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransformGouraud = gouraudShaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransformGouraud     = gouraudShaderProgram.uniformLocation("normalTransform");
-//    uniformMaterialGouraud            = gouraudShaderProgram.uniformLocation("material");
-//    uniformLightPositionGouraud       = gouraudShaderProgram.uniformLocation("lightPosition");
-//    uniformLightColourGouraud         = gouraudShaderProgram.uniformLocation("lightColour");
-    uniformTextureSamplerGouraud      = gouraudShaderProgram.uniformLocation("textureSampler");
+    // Get the uniforms for the deferred shader.
+    uniformModelViewTransformDeferred  = deferredShaderProgram.uniformLocation("modelViewTransform");
+    uniformProjectionTransformDeferred = deferredShaderProgram.uniformLocation("projectionTransform");
+    uniformNormalTransformDeferred     = deferredShaderProgram.uniformLocation("normalTransform");
+//    uniformMaterialDeferred            = deferredShaderProgram.uniformLocation("material");
+//    uniformLightPositionDeferred       = deferredShaderProgram.uniformLocation("lightPosition");
+//    uniformLightColourDeferred         = deferredShaderProgram.uniformLocation("lightColour");
+    uniformTextureSamplerDeferred      = deferredShaderProgram.uniformLocation("textureSampler");
 
     // Get the uniforms for the phong shader.
     uniformModelViewTransformPhong  = phongShaderProgram.uniformLocation("modelViewTransform");
@@ -250,10 +250,10 @@ void MainView::paintGL() {
         shaderProgram->bind();
         updateNormalUniforms();
         break;
-    case GOURAUD:
-        shaderProgram = &gouraudShaderProgram;
+    case DEFERRED:
+        shaderProgram = &deferredShaderProgram;
         shaderProgram->bind();
-        updateGouraudUniforms();
+        updateDeferredUniforms();
         break;
     case PHONG:
         shaderProgram = &phongShaderProgram;
@@ -295,17 +295,17 @@ void MainView::updateNormalUniforms()
     glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
 }
 
-void MainView::updateGouraudUniforms()
+void MainView::updateDeferredUniforms()
 {
-    glUniformMatrix4fv(uniformProjectionTransformGouraud, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformGouraud, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformGouraud, 1, GL_FALSE, meshNormalTransform.data());
+    glUniformMatrix4fv(uniformProjectionTransformDeferred, 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformModelViewTransformDeferred, 1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransformDeferred, 1, GL_FALSE, meshNormalTransform.data());
 
-//    glUniform4fv(uniformMaterialGouraud, 1, &material[0]);
-//    glUniform3fv(uniformLightPositionGouraud, 1, &lightPosition[0]);
-//    glUniform3fv(uniformLightColourGouraud, 1, &lightColour[0]);
+//    glUniform4fv(uniformMaterialDeferred, 1, &material[0]);
+//    glUniform3fv(uniformLightPositionDeferred, 1, &lightPosition[0]);
+//    glUniform3fv(uniformLightColourDeferred, 1, &lightColour[0]);
 
-    //glUniform1i(uniformTextureSamplerGouraud, 0); // Redundant now, but useful when you have multiple textures.
+    //glUniform1i(uniformTextureSamplerDeferred, 0); // Redundant now, but useful when you have multiple textures.
 }
 
 void MainView::updatePhongUniforms()

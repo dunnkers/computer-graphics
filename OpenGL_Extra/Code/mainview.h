@@ -23,7 +23,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QTimer timer; // timer used for animation
 
     QOpenGLShaderProgram normalShaderProgram,
-                         gouraudShaderProgram,
+                         deferredShaderProgram,
                          phongShaderProgram;
 
     // Uniforms for the normal shader.
@@ -31,16 +31,16 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformProjectionTransformNormal;
     GLint uniformNormalTransformNormal;
 
-    // Uniforms for the gouraud shader.
-    GLint uniformModelViewTransformGouraud;
-    GLint uniformProjectionTransformGouraud;
-    GLint uniformNormalTransformGouraud;
+    // Uniforms for the deferred shader.
+    GLint uniformModelViewTransformDeferred;
+    GLint uniformProjectionTransformDeferred;
+    GLint uniformNormalTransformDeferred;
 
-    GLint uniformMaterialGouraud;
-    GLint uniformLightPositionGouraud;
-    GLint uniformLightColourGouraud;
+//    GLint uniformMaterialDeferred;
+//    GLint uniformLightPositionDeferred;
+//    GLint uniformLightColourDeferred;
 
-    GLint uniformTextureSamplerGouraud;
+    GLint uniformTextureSamplerDeferred;
 
     // Uniforms for the phong shader.
     GLint uniformModelViewTransformPhong;
@@ -86,7 +86,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 public:
     enum ShadingMode : GLuint
     {
-        PHONG = 0, NORMAL, GOURAUD
+        PHONG = 0, NORMAL, DEFERRED
     };
 
     MainView(QWidget *parent = 0);
@@ -134,7 +134,7 @@ private:
     void updateModelTransforms();
 
     void updateNormalUniforms();
-    void updateGouraudUniforms();
+    void updateDeferredUniforms();
     void updatePhongUniforms();
 
     // Useful utility method to convert image to bytes.
