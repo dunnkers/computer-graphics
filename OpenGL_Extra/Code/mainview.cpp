@@ -70,6 +70,7 @@ void MainView::initializeGL() {
     createShaderProgram();
     loadMesh();
     loadTextures();
+    createBuffers();
 
     // Initialize transformations
     updateProjectionTransform();
@@ -187,16 +188,20 @@ void MainView::createBuffers()
     createBuffer(colorTexture, colorBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
     createBuffer(normalsTexture, normalsBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, normalsTexture, 0);
 
     createBuffer(zBufferTexture, zBufferBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, zBufferTexture, 0);
 
-//    glGenFramebuffers(1, &colorTexture);
+    GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, drawBuffers);
 }
 
 void MainView::createBuffer(GLuint locTexture, GLuint locBuffer)
@@ -329,6 +334,14 @@ void MainView::destroyModelBuffers()
 {
     glDeleteBuffers(1, &meshVBO);
     glDeleteVertexArrays(1, &meshVAO);
+
+    // deleting texture buffers
+    glDeleteTextures(1, &texturePtr);
+
+    // deleting frame buffers
+    glDeleteFramebuffers(1, &colorBuffer);
+    glDeleteFramebuffers(1, &normalsBuffer);
+    glDeleteFramebuffers(1, &zBufferBuffer);
 }
 
 // --- Public interface
