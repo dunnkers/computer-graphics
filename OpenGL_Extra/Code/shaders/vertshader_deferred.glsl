@@ -22,6 +22,9 @@ uniform mat3 normalTransform;
 out vec2 texCoords;
 out vec3 normal;
 
+//const vec2 madd = vec2(0.5,0.5);
+//textureCoord = vertexIn.xy*madd+madd; // scale vertex attribute to [0-1] range
+
 void main()
 {
 //    // Ambient component.

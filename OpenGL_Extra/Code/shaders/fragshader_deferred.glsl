@@ -20,5 +20,5 @@ out vec3 fNormal;
 void main()
 {
   fColour = texture(textureSampler, texCoords).xyz;
-  fNormal = normal;
+  fNormal = normal; // @FIXME map to 0 to 1 range from -1 to 1
 }
