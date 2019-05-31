@@ -17,6 +17,9 @@ uniform sampler2D textureSampler;
 out vec3 fColour;
 out vec3 fNormal;
 
+//layout (location = 0) in vec3 fNormal;
+//layout (location = 1) in vec3 fColour;
+
 void main()
 {
   fColour = texture(textureSampler, texCoords).xyz;

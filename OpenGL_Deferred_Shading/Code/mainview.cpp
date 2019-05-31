@@ -246,7 +246,7 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
 
 void MainView::initializeTextures()
 {
-
+    // @FIXME update on resize.
 }
 
 //void MainView::createBuffer(GLuint locTexture)
@@ -269,23 +269,27 @@ void MainView::initializeTextures()
  */
 void MainView::paintGL() {
     qDebug() << "MainView::paintGL()";
+    // Clear the screen before rendering
+    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //    // bind to framebuffer and draw scene as we normally would to color texture
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     fb_status("paintGL func");
 
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     // make sure we clear the framebuffer's content
 //    glClearColor(1.0f, 0.1f, 0.1f, 0.0f);
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // ... some stuff
-//    glActiveTexture(GL_TEXTURE9);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
 
 
     // Clear the screen before rendering
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     // Choose the selected shader.
     QOpenGLShaderProgram *shaderProgram;
     switch (currentShader) {
