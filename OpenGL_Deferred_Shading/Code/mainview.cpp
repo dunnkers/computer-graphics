@@ -67,9 +67,13 @@ void MainView::initializeGL() {
     glDepthFunc(GL_LEQUAL);
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
+    qDebug() << "initializeGL :: createShaderProgram";
     createShaderProgram();
+    qDebug() << "initializeGL :: loadMesh";
     loadMesh();
+    qDebug() << "initializeGL :: loadTextures";
     loadTextures();
+    qDebug() << "initializeGL :: createBuffers";
     createBuffers();
 
     // Initialize transformations
@@ -187,13 +191,18 @@ void MainView::createBuffers()
 {
     // @note shouldn't we glTextImage2D first, then bind? We bind first now.
     // [12:21] Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
+    qDebug() << "createBuffers()";
 
     // Generate gBuffers
+    qDebug() << "createBuffer(colorTexture)...";
     createBuffer(colorTexture);
+    qDebug() << "createBuffer(normalsTexture)...";
     createBuffer(normalsTexture);
+    qDebug() << "createBuffer(zBufferTexture)...";
     createBuffer(zBufferTexture);
 
     // Initialize textures
+    qDebug() << "initializing textures using glTexImage2D()...";
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
@@ -201,20 +210,24 @@ void MainView::createBuffers()
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 150, 150, // @FIXME should be window size. @see resizeGL
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
     // Generate Frame Buffer Object
+    qDebug() << "glGen and glBind FBO...";
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
     // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
+    qDebug() << "associate gBuffers with FBO using glFramebufferTexture2D...";
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalsTexture, 0);
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
 
     // Specify which color attachments to draw to
+    qDebug() << "glDrawBuffers()...";
     GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, drawBuffers);
+    fb_status("createBuffers func");
 }
 
 void MainView::createBuffer(GLuint locTexture)
@@ -223,10 +236,8 @@ void MainView::createBuffer(GLuint locTexture)
     glGenTextures(1, &locTexture);
     glBindTexture(GL_TEXTURE_2D, locTexture);
     // disable linear interpolation
-    glTexParameteri(GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER ,
-        GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER ,
-        GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 // --- OpenGL drawing
@@ -238,8 +249,12 @@ void MainView::createBuffer(GLuint locTexture)
  *
  */
 void MainView::paintGL() {
+    qDebug() << "paintGL()";
 //    // bind to framebuffer and draw scene as we normally would to color texture
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    fb_status("paintGL func");
+
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     // make sure we clear the framebuffer's content
 //    glClearColor(1.0f, 0.1f, 0.1f, 0.0f);
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -402,3 +417,52 @@ void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
     qDebug() << " → Log:" << Message;
 }
 
+/**
+ * @brief MainView::fb_status
+ *
+ * Helper function for checking the framebuffer status.
+ *
+ * @see https://gist.github.com/wrl/5113212
+ *
+ * @param where Describe where the call came from.
+ */
+void MainView::fb_status(const char *where)
+{
+    switch (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER)) {
+    case GL_FRAMEBUFFER_COMPLETE:
+        qDebug() << " :: GL_FRAMEBUFFER_COMPLETE in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_UNDEFINED:
+        qDebug() << " :: GL_FRAMEBUFFER_UNDEFINED in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+        qDebug() << " :: GL_FRAMEBUFFER_UNSUPPORTED in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE in " << where;
+        break;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS in " << where;
+        break;
+    }
+}

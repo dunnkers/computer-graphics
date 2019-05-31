@@ -101,6 +101,7 @@ protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
     void paintGL();
+    void fb_status(const char *where);
 
     // Functions for keyboard input events
     void keyPressEvent(QKeyEvent *ev);
