@@ -238,14 +238,14 @@ void MainView::createBuffer(GLuint locTexture)
  *
  */
 void MainView::paintGL() {
-    // bind to framebuffer and draw scene as we normally would to color texture
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+//    // bind to framebuffer and draw scene as we normally would to color texture
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     // make sure we clear the framebuffer's content
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    glClearColor(1.0f, 0.1f, 0.1f, 0.0f);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // ... some stuff
-
+//    glActiveTexture(GL_TEXTURE9);
 
 
     // Clear the screen before rendering
@@ -273,10 +273,10 @@ void MainView::paintGL() {
     }
 
     // Set the texture and draw the mesh.
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, texturePtr);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
@@ -360,13 +360,13 @@ void MainView::destroyModelBuffers()
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
 
-    // deleting fbo
-    glDeleteFramebuffers(1, &fbo);
-
     // deleting gBuffers
     glDeleteTextures(1, &colorBuffer);
     glDeleteTextures(1, &normalsBuffer);
     glDeleteTextures(1, &zBufferBuffer);
+
+    // deleting fbo
+    glDeleteFramebuffers(1, &fbo);
 }
 
 // --- Public interface
