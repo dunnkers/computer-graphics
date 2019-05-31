@@ -83,6 +83,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D lightPosition = {1, 100, 1};
     QVector3D lightColour = {1, 1, 1};
 
+    // Window
+    int windowWidth;
+    int windowHeight;
 public:
     enum ShadingMode : GLuint
     {
@@ -126,8 +129,9 @@ private:
     void loadTexture(QString file, GLuint texturePtr);
 
     // Generate frame buffers
-    void createBuffers();
+    void createBuffers(int windowWidth, int windowHeight);
     void createBuffer(GLuint locTexture);
+    void initializeTextures();
 
     void destroyModelBuffers();
 

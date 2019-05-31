@@ -74,7 +74,7 @@ void MainView::initializeGL() {
     qDebug() << "initializeGL :: loadTextures";
     loadTextures();
     qDebug() << "initializeGL :: createBuffers";
-    createBuffers();
+    createBuffers(800, 600);
 
     // Initialize transformations
     updateProjectionTransform();
@@ -187,35 +187,49 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 }
 
 // Creating the framebuffer object.
-void MainView::createBuffers()
+void MainView::createBuffers(int windowWidth, int windowHeight)
 {
     // @note shouldn't we glTextImage2D first, then bind? We bind first now.
     // [12:21] Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
-    qDebug() << "createBuffers()";
-
-    // Generate gBuffers
-    qDebug() << "createBuffer(colorTexture)...";
-    createBuffer(colorTexture);
-    qDebug() << "createBuffer(normalsTexture)...";
-    createBuffer(normalsTexture);
-    qDebug() << "createBuffer(zBufferTexture)...";
-    createBuffer(zBufferTexture);
-
-    // Initialize textures
-    qDebug() << "initializing textures using glTexImage2D()...";
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 150, 150, // @FIXME should be window size. @see resizeGL
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 150, 150, // @FIXME should be window size. @see resizeGL
-                 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    qDebug() << "MainView::createBuffers()";
 
     // Generate Frame Buffer Object
-    qDebug() << "glGen and glBind FBO...";
+    qDebug() << "glGenFramebuffers FBO...";
     glGenFramebuffers(1, &fbo);
+    qDebug() << "glBind FBO...";
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+    // Generate gBuffers
+    // color gBuffer
+    qDebug() << "createBuffer(colorTexture)...";
+    glGenTextures(1, &colorTexture);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    // normals gBuffer
+    qDebug() << "createBuffer(normalsTexture)...";
+    glGenTextures(1, &normalsTexture);
+    glBindTexture(GL_TEXTURE_2D, normalsTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    // zBuffer gBuffer
+    qDebug() << "createBuffer(zBufferTexture)...";
+    glGenTextures(1, &zBufferTexture);
+    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight,
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    // disable linear interpolation
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+    // Initialize textures
+//    qDebug() << "initializing textures using glTexImage2D()...";
+
+
 
     // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
     qDebug() << "associate gBuffers with FBO using glFramebufferTexture2D...";
@@ -230,15 +244,20 @@ void MainView::createBuffers()
     fb_status("createBuffers func");
 }
 
-void MainView::createBuffer(GLuint locTexture)
+void MainView::initializeTextures()
 {
-    // Generate gBuffer
-    glGenTextures(1, &locTexture);
-    glBindTexture(GL_TEXTURE_2D, locTexture);
-    // disable linear interpolation
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 }
+
+//void MainView::createBuffer(GLuint locTexture)
+//{
+//    // Generate gBuffer
+//    glGenTextures(1, &locTexture);
+//    glBindTexture(GL_TEXTURE_2D, locTexture);
+//    // disable linear interpolation
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//}
 
 // --- OpenGL drawing
 
@@ -249,9 +268,9 @@ void MainView::createBuffer(GLuint locTexture)
  *
  */
 void MainView::paintGL() {
-    qDebug() << "paintGL()";
+    qDebug() << "MainView::paintGL()";
 //    // bind to framebuffer and draw scene as we normally would to color texture
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     fb_status("paintGL func");
 
 //    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -309,8 +328,9 @@ void MainView::paintGL() {
  */
 void MainView::resizeGL(int newWidth, int newHeight)
 {
-    Q_UNUSED(newWidth)
-    Q_UNUSED(newHeight)
+    qDebug() << "MainView::resizeGL(" << newWidth << ", " << newHeight << ")";
+    windowWidth = newWidth;
+    windowHeight = newHeight;
     updateProjectionTransform();
 }
 
