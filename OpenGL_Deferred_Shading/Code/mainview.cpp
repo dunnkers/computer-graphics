@@ -238,7 +238,13 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     qDebug() << "glDrawBuffers()...";
     GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, drawBuffers);
-    fb_status("createBuffers func");
+
+    // debug
+    fb_status("createBuffers func FBO");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    fb_status("createBuffers func FBO-0");
 }
 
 void MainView::initializeTextures()
@@ -302,6 +308,7 @@ void MainView::paintGL() {
         updatePhongUniforms();
         break;
     }
+
 
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
