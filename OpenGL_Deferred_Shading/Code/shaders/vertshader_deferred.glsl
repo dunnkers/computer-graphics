@@ -20,6 +20,7 @@ uniform mat3 normalTransform;
 // Specify the output of the vertex stage
 //out float ambient, diffuse, specular;
 out vec2 texCoords;
+out vec3 position;
 out vec3 normal;
 
 //const vec2 madd = vec2(0.5,0.5);
@@ -47,6 +48,33 @@ void main()
 //    specular = material.z * pow(specularIntensity, material.w);
 
     texCoords = texCoords_in;
+    position = vertCoordinates_in; // should be transformed by model...?
     normal = vertNormals_in;
     gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1);
 }
+
+// learnGL code
+//#version 330 core
+//layout (location = 0) in vec3 aPos;
+//layout (location = 1) in vec3 aNormal;
+//layout (location = 2) in vec2 aTexCoords;
+
+//out vec3 FragPos;
+//out vec2 TexCoords;
+//out vec3 Normal;
+
+//uniform mat4 model;
+//uniform mat4 view;
+//uniform mat4 projection;
+
+//void main()
+//{
+//    vec4 worldPos = model * vec4(aPos, 1.0);
+//    FragPos = worldPos.xyz;
+//    TexCoords = aTexCoords;
+
+//    mat3 normalMatrix = transpose(inverse(mat3(model)));
+//    Normal = normalMatrix * aNormal;
+
+//    gl_Position = projection * view * worldPos;
+//}

@@ -288,26 +288,36 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    // Choose the selected shader.
-    QOpenGLShaderProgram *shaderProgram;
-    switch (currentShader) {
-    case NORMAL:
-        shaderProgram = &normalShaderProgram;
-        shaderProgram->bind();
-        updateNormalUniforms();
-        break;
-    case DEFERRED:
+
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+        // render geometry in 1st pass
+        QOpenGLShaderProgram *shaderProgram;
         shaderProgram = &deferredShaderProgram;
         shaderProgram->bind();
         updateDeferredUniforms();
-        break;
-    case PHONG:
-        shaderProgram = &phongShaderProgram;
-        shaderProgram->bind();
-        updatePhongUniforms();
-        break;
-    }
+
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+
+    // Choose the selected shader.
+//    switch (currentShader) {
+//    case NORMAL:
+//        shaderProgram = &normalShaderProgram;
+//        shaderProgram->bind();
+//        updateNormalUniforms();
+//        break;
+//    case DEFERRED:
+//        shaderProgram = &deferredShaderProgram;
+//        shaderProgram->bind();
+//        updateDeferredUniforms();
+//        break;
+//    case PHONG:
+//        shaderProgram = &phongShaderProgram;
+//        shaderProgram->bind();
+//        updatePhongUniforms();
+//        break;
+//    }
 
 
     // Set the texture and draw the mesh.
