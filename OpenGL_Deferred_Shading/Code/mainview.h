@@ -43,6 +43,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformTextureSamplerDeferred;
 
     // Uniforms for the phong shader.
+    GLint uniformFPosition;
+    GLint uniformFNormal;
+    GLint uniformFColor;
+
     GLint uniformModelViewTransformPhong;
     GLint uniformProjectionTransformPhong;
     GLint uniformNormalTransformPhong;
@@ -67,9 +71,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint colorTexture;
     GLuint normalsTexture;
     GLuint zBufferTexture;
-    GLuint colorBuffer;
-    GLuint normalsBuffer;
-    GLuint zBufferBuffer;
+//    GLuint colorBuffer;
+//    GLuint normalsBuffer;
+//    GLuint zBufferBuffer;
 
     // Transforms
     float scale = 1.f;

@@ -110,6 +110,9 @@ void MainView::createShaderProgram()
     uniformNormalTransformNormal     = normalShaderProgram.uniformLocation("normalTransform");
 
     // Get the uniforms for the deferred shader.
+    uniformFPosition      = deferredShaderProgram.uniformLocation("fPosition");
+    uniformFNormal      = deferredShaderProgram.uniformLocation("fNormal");
+    uniformFColor      = deferredShaderProgram.uniformLocation("fColor");
     uniformModelViewTransformDeferred  = deferredShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformDeferred = deferredShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformDeferred     = deferredShaderProgram.uniformLocation("normalTransform");
@@ -171,6 +174,7 @@ void MainView::loadTextures()
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
 {
+    qDebug() << "MainView::loadTexture() texturePtr =" << texturePtr;
     // Set texture parameters.
     glBindTexture(GL_TEXTURE_2D, texturePtr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -201,6 +205,7 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     /* color gBuffer */
     qDebug() << "createBuffer(colorTexture)...";
     glGenTextures(1, &colorTexture);
+    qDebug() << "createBuffer(colorTexture) colorTexture =" << colorTexture;
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -213,6 +218,7 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     /* normals gBuffer */
     qDebug() << "createBuffer(normalsTexture)...";
     glGenTextures(1, &normalsTexture);
+    qDebug() << "createBuffer(normalsTexture) normalsTexture =" << normalsTexture;
     glBindTexture(GL_TEXTURE_2D, normalsTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -225,6 +231,7 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     /* depth gBuffer */
     qDebug() << "createBuffer(zBufferTexture)...";
     glGenTextures(1, &zBufferTexture);
+    qDebug() << "createBuffer(zBufferTexture) zBufferTexture =" << zBufferTexture;
     glBindTexture(GL_TEXTURE_2D, zBufferTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight,
                  0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -277,17 +284,17 @@ void MainView::paintGL() {
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 ////    // bind to framebuffer and draw scene as we normally would to color texture
 //    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-    fb_status("paintGL func");
+//    fb_status("paintGL func");
 
     // store current (default) framebuffer id, cause it's not always 0.
     GLint drawFboId = 0, readFboId = 0;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
     glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
-    qDebug() << "MainView::paintGL() draw buff =" << drawFboId << ", read buff =" << readFboId;
+//    qDebug() << "MainView::paintGL() draw buff =" << drawFboId << ", read buff =" << readFboId;
 
 //    // ... some stuff
 //    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, colorTexture);
+//    glBindTexture(GL_TEXTURE_2D, colorTexture);
 
 
     // Clear the screen before rendering
@@ -310,33 +317,48 @@ void MainView::paintGL() {
         glBindVertexArray(meshVAO);
         glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
+        shaderProgram->release();
+
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFboId);
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Choose the selected shader.
+    //    switch (currentShader) {
+    //    case NORMAL:
+    //        shaderProgram = &normalShaderProgram;
+    //        shaderProgram->bind();
+    //        updateNormalUniforms();
+    //        break;
+    //    case DEFERRED:
+    //        shaderProgram = &deferredShaderProgram;
+    //        shaderProgram->bind();
+    //        updateDeferredUniforms();
+    //        break;
+    //    case PHONG:
+    //        shaderProgram = &phongShaderProgram;
+    //        shaderProgram->bind();
+    //        updatePhongUniforms();
+    //        break;
+    //    }
+        shaderProgram = &phongShaderProgram;
+        shaderProgram->bind();
+        updatePhongUniforms();
 
-    // Choose the selected shader.
-//    switch (currentShader) {
-//    case NORMAL:
-//        shaderProgram = &normalShaderProgram;
-//        shaderProgram->bind();
-//        updateNormalUniforms();
-//        break;
-//    case DEFERRED:
-//        shaderProgram = &deferredShaderProgram;
-//        shaderProgram->bind();
-//        updateDeferredUniforms();
-//        break;
-//    case PHONG:
-//        shaderProgram = &phongShaderProgram;
-//        shaderProgram->bind();
-//        updatePhongUniforms();
-//        break;
-//    }
+
+        // starting from GL_TEXTURE1 cause the cat texture has GL_TEXTURE0.
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, normalsTexture);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, zBufferTexture);
 
 
+        renderQuad();
 
-    renderQuad();
+        shaderProgram->release();
 
-    shaderProgram->release();
+     // render finished.
 }
 
 // renderQuad() renders a 1x1 XY quad in NDC
@@ -408,9 +430,13 @@ void MainView::updateDeferredUniforms()
 
 void MainView::updatePhongUniforms()
 {
-    glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
+    glUniform1i(uniformFPosition, 0);
+    glUniform1i(uniformFNormal, 1);
+    glUniform1i(uniformFColor, 2);
+
+//    glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
+//    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
 
     glUniform4fv(uniformMaterialPhong, 1, &material[0]);
     glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
@@ -448,9 +474,9 @@ void MainView::destroyModelBuffers()
     glDeleteTextures(1, &texturePtr);
 
     // deleting gBuffers
-    glDeleteTextures(1, &colorBuffer);
-    glDeleteTextures(1, &normalsBuffer);
-    glDeleteTextures(1, &zBufferBuffer);
+    glDeleteTextures(1, &colorTexture);
+    glDeleteTextures(1, &normalsTexture);
+    glDeleteTextures(1, &zBufferTexture);
 
     // deleting fbo
     glDeleteFramebuffers(1, &fbo);
