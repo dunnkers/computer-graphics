@@ -225,12 +225,6 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-
-    // Initialize textures
-//    qDebug() << "initializing textures using glTexImage2D()...";
-
-
-
     // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
     qDebug() << "associate gBuffers with FBO using glFramebufferTexture2D...";
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
@@ -270,18 +264,14 @@ void MainView::initializeTextures()
 void MainView::paintGL() {
     qDebug() << "MainView::paintGL()";
     // Clear the screen before rendering
-    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//    // bind to framebuffer and draw scene as we normally would to color texture
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-    fb_status("paintGL func");
-
-    // make sure we clear the framebuffer's content
-//    glClearColor(1.0f, 0.1f, 0.1f, 0.0f);
+//    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+////    // bind to framebuffer and draw scene as we normally would to color texture
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+//    fb_status("paintGL func");
 
-    // ... some stuff
-    glActiveTexture(GL_TEXTURE1);
+//    // ... some stuff
+//    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
 
 
@@ -289,7 +279,7 @@ void MainView::paintGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     // Choose the selected shader.
     QOpenGLShaderProgram *shaderProgram;
     switch (currentShader) {
@@ -313,8 +303,6 @@ void MainView::paintGL() {
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texturePtr);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
