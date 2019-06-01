@@ -104,7 +104,7 @@ protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
     void paintGL();
-    void fb_status(const char *where);
+    void renderQuad();
 
     // Functions for keyboard input events
     void keyPressEvent(QKeyEvent *ev);
@@ -147,6 +147,9 @@ private:
 
     // The current shader to use.
     ShadingMode currentShader = PHONG;
+
+    // Helper function for checking the framebuffer status.
+    void fb_status(const char *where);
 };
 
 #endif // MAINVIEW_H

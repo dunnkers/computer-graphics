@@ -189,8 +189,6 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 // Creating the framebuffer object.
 void MainView::createBuffers(int windowWidth, int windowHeight)
 {
-    // @note shouldn't we glTextImage2D first, then bind? We bind first now.
-    // [12:21] Color for Gouraud & Phong gets black with white stripes when we Init first, then bind.
     qDebug() << "MainView::createBuffers()";
 
     // Generate Frame Buffer Object
@@ -200,35 +198,40 @@ void MainView::createBuffers(int windowWidth, int windowHeight)
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
     // Generate gBuffers
-    // color gBuffer
+    /* color gBuffer */
     qDebug() << "createBuffer(colorTexture)...";
     glGenTextures(1, &colorTexture);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    // disable linear interpolation
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
-    // normals gBuffer
+    /* normals gBuffer */
     qDebug() << "createBuffer(normalsTexture)...";
     glGenTextures(1, &normalsTexture);
     glBindTexture(GL_TEXTURE_2D, normalsTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    // disable linear interpolation
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalsTexture, 0);
 
-    // zBuffer gBuffer
+    /* depth gBuffer */
     qDebug() << "createBuffer(zBufferTexture)...";
     glGenTextures(1, &zBufferTexture);
     glBindTexture(GL_TEXTURE_2D, zBufferTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight,
                  0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
     // disable linear interpolation
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
     // Associate gBuffers with FBO on GL_DRAW_FRAMEBUFFER target.
-    qDebug() << "associate gBuffers with FBO using glFramebufferTexture2D...";
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalsTexture, 0);
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
 
     // Specify which color attachments to draw to
@@ -307,7 +310,40 @@ void MainView::paintGL() {
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
+    renderQuad();
+
     shaderProgram->release();
+}
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void MainView::renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
 /**
