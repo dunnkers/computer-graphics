@@ -57,6 +57,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     GLint uniformTextureSamplerPhong;
 
+    // Control var
+    GLint control_var;
+
     // Buffers
     GLuint meshVAO;
     GLuint meshVBO;
@@ -71,9 +74,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint colorTexture;
     GLuint normalsTexture;
     GLuint zBufferTexture;
-//    GLuint colorBuffer;
-//    GLuint normalsBuffer;
-//    GLuint zBufferBuffer;
 
     // Transforms
     float scale = 1.f;
@@ -91,9 +91,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     int windowWidth;
     int windowHeight;
 public:
-    enum ShadingMode : GLuint
+    enum CurrentTexture : GLuint
     {
-        PHONG = 0, NORMAL, DEFERRED
+        COLOR = 0, NORMALS, DEPTH
     };
 
     MainView(QWidget *parent = 0);
@@ -102,7 +102,7 @@ public:
     // Functions for widget input events
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
-    void setShadingMode(ShadingMode shading);
+    void setCurrentTexture(CurrentTexture currentTexture);
 
 protected:
     void initializeGL();
@@ -149,8 +149,8 @@ private:
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
 
-    // The current shader to use.
-    ShadingMode currentShader = PHONG;
+    // The current texture to display
+    CurrentTexture currentTexture = COLOR;
 
     // Helper function for checking the framebuffer status.
     void fb_status(const char *where);

@@ -60,29 +60,29 @@ void MainWindow::on_ScaleSlider_sliderMoved(int value)
     ui->mainView->setScale(value);
 }
 
-void MainWindow::on_PhongButton_toggled(bool checked)
+void MainWindow::on_ColorButton_toggled(bool checked)
 {
     if (checked)
     {
-        ui->mainView->setShadingMode(MainView::PHONG);
+        ui->mainView->setCurrentTexture(MainView::COLOR);
         ui->mainView->update();
     }
 }
 
-void MainWindow::on_NormalButton_toggled(bool checked)
+void MainWindow::on_NormalsButton_toggled(bool checked)
 {
     if (checked)
     {
-        ui->mainView->setShadingMode(MainView::NORMAL);
+        ui->mainView->setCurrentTexture(MainView::NORMALS);
         ui->mainView->update();
     }
 }
 
-void MainWindow::on_DeferredButton_toggled(bool checked)
+void MainWindow::on_DepthButton_toggled(bool checked)
 {
     if (checked)
     {
-        ui->mainView->setShadingMode(MainView::DEFERRED);
+        ui->mainView->setCurrentTexture(MainView::DEPTH);
         ui->mainView->update();
     }
 }

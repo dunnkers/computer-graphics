@@ -19,6 +19,9 @@ uniform vec3 lightColour;
 uniform sampler2D fPosition;
 uniform sampler2D fNormal;
 uniform sampler2D fColour;
+uniform sampler2D texture_depth;
+
+uniform int control_var; //control variable
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
@@ -27,8 +30,30 @@ uniform mat4 modelViewTransform;
 
 layout (location = 0) out vec4 vertColour;
 
+vec3 color()
+{
+    return texture(fPosition, texCoords).rgb;
+}
+
+vec3 normals()
+{
+    return texture(fNormal, texCoords).rgb;
+}
+
+vec3 depth()
+{
+    float t2 = pow(texture(fColour, texCoords).x, 256);
+    return vec3(t2,t2,t2);
+}
+
 void main()
 {
+    if(control_var==1) vertColour = vec4(color(), 1);
+    else if(control_var==2) vertColour = vec4(normals(), 1);
+    else if(control_var==3) vertColour = vec4(depth(),1);
+    return;
+
+
   // retrieve data from gbuffer
   vec3 vertPosition = texture(fPosition, texCoords).rgb;
   vec3 vertNormal = texture(fNormal, texCoords).rgb;

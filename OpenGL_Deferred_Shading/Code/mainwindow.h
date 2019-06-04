@@ -26,10 +26,9 @@ private slots:
     void on_ResetScaleButton_clicked(bool checked);
     void on_ScaleSlider_sliderMoved(int value);
 
-    void on_PhongButton_toggled(bool checked);
-    void on_NormalButton_toggled(bool checked);
-    void on_DeferredButton_toggled(bool checked);
-
+    void on_ColorButton_toggled(bool checked);
+    void on_NormalsButton_toggled(bool checked);
+    void on_DepthButton_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H
