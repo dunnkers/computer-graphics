@@ -24,7 +24,8 @@ uniform sampler2D fColour;
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
 uniform vec3 lightPosition;
 uniform mat4 modelViewTransform;
-out vec4 vertColour;
+
+layout (location = 0) out vec4 vertColour;
 
 void main()
 {
@@ -55,7 +56,7 @@ void main()
   colour += texColour * lightColour * material.z * pow(specularIntesity, material.w);
 
   vertColour = vec4(colour, 1);
-  vertColour = vec4(texCoords, 1.0, 1.0);
+  vertColour = vec4(vertPosition, 1.0);
 }
 
 // learnGL code

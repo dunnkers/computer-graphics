@@ -302,7 +302,7 @@ void MainView::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
         // render geometry in 1st pass
         QOpenGLShaderProgram *shaderProgram;
@@ -311,8 +311,8 @@ void MainView::paintGL() {
         updateDeferredUniforms();
 
         // Set the texture and draw the mesh.
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texturePtr);
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, texturePtr);
 
         glBindVertexArray(meshVAO);
         glDrawArrays(GL_TRIANGLES, 0, meshSize);
@@ -324,7 +324,6 @@ void MainView::paintGL() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shaderProgram = &phongShaderProgram;
         shaderProgram->bind();
-        updatePhongUniforms();
 
 
         // starting from GL_TEXTURE1 cause the cat texture has GL_TEXTURE0.
@@ -335,11 +334,22 @@ void MainView::paintGL() {
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, zBufferTexture);
 
+        updatePhongUniforms();
 
         renderQuad();
 
         shaderProgram->release();
 
+
+//        // 2.5. copy content of geometry's depth buffer to default framebuffer's depth buffer
+//        // ----------------------------------------------------------------------------------
+//        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+//        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+//        // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+//        // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the
+//        // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+//        glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
      // render finished.
 }
 
@@ -407,14 +417,14 @@ void MainView::updateDeferredUniforms()
 //    glUniform3fv(uniformLightPositionDeferred, 1, &lightPosition[0]);
 //    glUniform3fv(uniformLightColourDeferred, 1, &lightColour[0]);
 
-    //glUniform1i(uniformTextureSamplerDeferred, 0); // Redundant now, but useful when you have multiple textures.
+    glUniform1i(uniformTextureSamplerDeferred, 0); // Redundant now, but useful when you have multiple textures.
 }
 
 void MainView::updatePhongUniforms()
 {
-//    glUniform1i(uniformFPosition, 2);
-//    glUniform1i(uniformFNormal, 3);
-//    glUniform1i(uniformFColor, 4);
+    glUniform1i(uniformFPosition, 1);
+    glUniform1i(uniformFNormal, 2);
+    glUniform1i(uniformFColor, 3);
 
 //    glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
