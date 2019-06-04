@@ -49,7 +49,7 @@ void main()
 
     texCoords = texCoords_in;
     position = vertCoordinates_in; // should be transformed by model...?
-    normal = vertNormals_in;
+    normal = normalTransform * vertNormals_in;
     gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1);
 }
 

@@ -110,9 +110,6 @@ void MainView::createShaderProgram()
     uniformNormalTransformNormal     = normalShaderProgram.uniformLocation("normalTransform");
 
     // Get the uniforms for the deferred shader.
-    uniformFPosition      = deferredShaderProgram.uniformLocation("fPosition");
-    uniformFNormal      = deferredShaderProgram.uniformLocation("fNormal");
-    uniformFColor      = deferredShaderProgram.uniformLocation("fColor");
     uniformModelViewTransformDeferred  = deferredShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformDeferred = deferredShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformDeferred     = deferredShaderProgram.uniformLocation("normalTransform");
@@ -122,6 +119,9 @@ void MainView::createShaderProgram()
     uniformTextureSamplerDeferred      = deferredShaderProgram.uniformLocation("textureSampler");
 
     // Get the uniforms for the phong shader.
+    uniformFPosition      = phongShaderProgram.uniformLocation("fPosition");
+    uniformFNormal      = phongShaderProgram.uniformLocation("fNormal");
+    uniformFColor      = phongShaderProgram.uniformLocation("fColour");
     uniformModelViewTransformPhong  = phongShaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformPhong = phongShaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformPhong     = phongShaderProgram.uniformLocation("normalTransform");
@@ -302,7 +302,7 @@ void MainView::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
         // render geometry in 1st pass
         QOpenGLShaderProgram *shaderProgram;
@@ -322,24 +322,6 @@ void MainView::paintGL() {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFboId);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Choose the selected shader.
-    //    switch (currentShader) {
-    //    case NORMAL:
-    //        shaderProgram = &normalShaderProgram;
-    //        shaderProgram->bind();
-    //        updateNormalUniforms();
-    //        break;
-    //    case DEFERRED:
-    //        shaderProgram = &deferredShaderProgram;
-    //        shaderProgram->bind();
-    //        updateDeferredUniforms();
-    //        break;
-    //    case PHONG:
-    //        shaderProgram = &phongShaderProgram;
-    //        shaderProgram->bind();
-    //        updatePhongUniforms();
-    //        break;
-    //    }
         shaderProgram = &phongShaderProgram;
         shaderProgram->bind();
         updatePhongUniforms();
@@ -430,9 +412,9 @@ void MainView::updateDeferredUniforms()
 
 void MainView::updatePhongUniforms()
 {
-    glUniform1i(uniformFPosition, 0);
-    glUniform1i(uniformFNormal, 1);
-    glUniform1i(uniformFColor, 2);
+//    glUniform1i(uniformFPosition, 2);
+//    glUniform1i(uniformFNormal, 3);
+//    glUniform1i(uniformFColor, 4);
 
 //    glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
@@ -442,7 +424,7 @@ void MainView::updatePhongUniforms()
     glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
     glUniform3f(uniformLightColourPhong, lightColour.x(), lightColour.y(), lightColour.z());
 
-    glUniform1i(uniformTextureSamplerPhong, 0);
+//    glUniform1i(uniformTextureSamplerPhong, 0);
 }
 
 void MainView::updateProjectionTransform()

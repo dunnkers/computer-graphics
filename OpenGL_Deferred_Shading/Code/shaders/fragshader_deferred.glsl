@@ -15,7 +15,7 @@ uniform sampler2D textureSampler;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
-//out vec3 fColour;
+//out vec4 fColour;
 //out vec3 fNormal;
 
 //layout (location = 0) in vec3 fNormal;
@@ -24,9 +24,9 @@ uniform sampler2D textureSampler;
 void main()
 {
   fPosition = position;
-  fNormal = normalize(normal); // @FIXME map to 0 to 1 range from -1 to 1 // fixed with normalize?
+  fNormal = normalize(normal * 0.5 + 0.5); // map to 0-1 from -1 to 1
   fColour.rgb = texture(textureSampler, texCoords).xyz;
-  fColour.a = 1;
+  fColour.a = 1.0; // @FIXME use specular intensity instead.
 }
 
 // learnGL code
