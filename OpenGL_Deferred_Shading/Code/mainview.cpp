@@ -320,7 +320,7 @@ void MainView::paintGL() {
 
         shaderProgram->release();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shaderProgram = &phongShaderProgram;
@@ -348,10 +348,7 @@ void MainView::paintGL() {
                 break;
         }
 
-
         renderQuad();
-//        glBindVertexArray(meshVAO);
-//        glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
         shaderProgram->release();
 

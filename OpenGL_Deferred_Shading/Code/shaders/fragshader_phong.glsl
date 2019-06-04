@@ -19,7 +19,6 @@ uniform vec3 lightColour;
 uniform sampler2D fPosition;
 uniform sampler2D fNormal;
 uniform sampler2D fColour;
-uniform sampler2D texture_depth;
 
 uniform int control_var; //control variable
 

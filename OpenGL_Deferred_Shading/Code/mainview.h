@@ -15,6 +15,7 @@
 #include <QVector>
 #include <memory>
 #include <QMatrix4x4>
+#include <QOpenGLFramebufferObject>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -25,6 +26,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLShaderProgram normalShaderProgram,
                          deferredShaderProgram,
                          phongShaderProgram;
+
+    QOpenGLFramebufferObject fbo2;
 
     // Uniforms for the normal shader.
     GLint uniformModelViewTransformNormal;

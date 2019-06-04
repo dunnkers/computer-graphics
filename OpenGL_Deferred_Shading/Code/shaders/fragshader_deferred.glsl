@@ -1,8 +1,8 @@
 #version 330 core
 
-layout (location = 0) out vec3 fPosition;
+layout (location = 0) out vec3 fColour;
 layout (location = 1) out vec3 fNormal;
-layout (location = 2) out vec4 fColour;
+//layout (location = 2) out vec4 fColour;
 
 // Specify the inputs to the fragment shader
 // These must have the same type and name!
@@ -23,10 +23,10 @@ uniform sampler2D textureSampler;
 
 void main()
 {
-  fPosition = position;
+//  fPosition = position;
   fNormal = normalize(normal * 0.5 + 0.5); // map to 0-1 from -1 to 1
   fColour.rgb = texture(textureSampler, texCoords).xyz;
-  fColour.a = 1.0; // @FIXME use specular intensity instead.
+//  fColour.a = 1.0; // @FIXME use specular intensity instead.
 }
 
 // learnGL code
