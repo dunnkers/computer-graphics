@@ -25,15 +25,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += main.cpp\
+    framebuffer.cpp \
     mainwindow.cpp \
     mainview.cpp \
+    renderbuffer.cpp \
+    texture.cpp \
     user_input.cpp \
     model.cpp \
     utility.cpp
 
 HEADERS += mainwindow.h \
+    framebuffer.h \
     mainview.h \
     model.h \
+    renderbuffer.h \
+    texture.h \
     vertex.h
 
 FORMS    += mainwindow.ui

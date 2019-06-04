@@ -2,6 +2,7 @@
 #define MAINVIEW_H
 
 #include "model.h"
+#include "framebuffer.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -27,7 +28,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
                          deferredShaderProgram,
                          phongShaderProgram;
 
-    QOpenGLFramebufferObject fbo2;
+    // Frame buffer object
+//    QOpenGLFramebufferObject fbo;
 
     // Uniforms for the normal shader.
     GLint uniformModelViewTransformNormal;
@@ -38,10 +40,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformModelViewTransformDeferred;
     GLint uniformProjectionTransformDeferred;
     GLint uniformNormalTransformDeferred;
-
-//    GLint uniformMaterialDeferred;
-//    GLint uniformLightPositionDeferred;
-//    GLint uniformLightColourDeferred;
 
     GLint uniformTextureSamplerDeferred;
 
@@ -77,6 +75,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint colorTexture;
     GLuint normalsTexture;
     GLuint zBufferTexture;
+    // framebuffers
+    FramebufferPtr colorBuffer;
+    FramebufferPtr normalBuffer;
 
     // Transforms
     float scale = 1.f;
@@ -136,6 +137,7 @@ private:
     void loadTexture(QString file, GLuint texturePtr);
 
     // Generate frame buffers
+    void createFramebuffers();
     void createBuffers(int windowWidth, int windowHeight);
     void createBuffer(GLuint locTexture);
     void initializeTextures();
