@@ -26,28 +26,28 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // geometry shader
     QOpenGLShaderProgram geometryShaderProgram;
     GLint geometryShaderUniform_uVp;
+
     // directional light shader
     QOpenGLShaderProgram directionalLightShaderProgram;
     GLint directionalLightShaderUniform_uColorTex;
     GLint directionalLightShaderUniform_uNormalTex;
     GLint directionalLightShaderUniform_uPositionTex;
     GLint directionalLightShaderUniform_uCameraPos;
+
     // point light shader
     QOpenGLShaderProgram pointLightShaderProgram;
     GLint pointLightShaderUniform_uVp;
+    GLint pointLightShaderUniform_uColorTex;
+    GLint pointLightShaderUniform_uNormalTex;
+    GLint pointLightShaderUniform_uPositionTex;
+    GLint pointLightShaderUniform_uCameraPos;
+    GLint pointLightShaderUniform_uLightRadius;
+    GLint pointLightShaderUniform_uLightPosition;
+    GLint pointLightShaderUniform_uLightColor;
     // light sphere geometry:
     GLuint spherePositionVbo;
     GLuint sphereIndexVbo;
     GLuint sphereIndexCount;
-    // point light uniforms
-    GLint pointLightShaderUniform_uLightRadius;
-    GLint pointLightShaderUniform_uLightPosition;
-    GLint pointLightShaderUniform_uLightColor;
-
-    // Uniforms for the normal shader.
-    // GLint uniformModelViewTransformNormal;
-    // GLint uniformProjectionTransformNormal;
-    // GLint uniformNormalTransformNormal;
 
     // Meshes
     QVector<Mesh *> meshes;
@@ -59,12 +59,11 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
-    QMatrix3x3 meshNormalTransform;
     QMatrix4x4 meshTransform;
 
     // Window
-    int windowWidth;
-    int windowHeight;
+//    int windowWidth;
+//    int windowHeight;
 
     // Gbuffers.
     GLuint colorTexture;
@@ -73,7 +72,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint positionTexture;
     // FBO
     GLuint fbo;
-    int fbWidth, fbHeight;
 public:
     enum CurrentTexture : GLuint
     {
@@ -119,7 +117,6 @@ private:
 
     void updateProjectionTransform();
     void updateModelTransforms();
-    // void updateNormalUniforms();
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);

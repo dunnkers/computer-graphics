@@ -112,6 +112,14 @@ void MainView::createShaderProgram()
     pointLightShaderProgram.link();
     pointLightShaderUniform_uVp = pointLightShaderProgram
             .uniformLocation("uVp");
+    pointLightShaderUniform_uColorTex = pointLightShaderProgram
+            .uniformLocation("uColorTex");
+    pointLightShaderUniform_uNormalTex = pointLightShaderProgram
+            .uniformLocation("uNormalTex");
+    pointLightShaderUniform_uPositionTex = pointLightShaderProgram
+            .uniformLocation("uPositionTex");
+    directionalLightShaderUniform_uCameraPos = directionalLightShaderProgram
+            .uniformLocation("uCameraPos");
     pointLightShaderUniform_uLightRadius = pointLightShaderProgram
             .uniformLocation("uLightRadius");
     pointLightShaderUniform_uLightPosition = pointLightShaderProgram
@@ -124,10 +132,10 @@ void MainView::loadMeshes()
 {
     Mesh* cat = new Mesh(":/models/cat.obj");
     meshes.push_back(cat);
-//    Mesh* cube = new Mesh(":/models/cube.obj");
-//    meshes.push_back(cube);
-//    Mesh* sphere = new Mesh(":/models/sphere.obj");
-//    meshes.push_back(sphere);
+    Mesh* cube = new Mesh(":/models/cube.obj");
+    meshes.push_back(cube);
+    Mesh* sphere = new Mesh(":/models/sphere.obj");
+    meshes.push_back(sphere);
 }
 
 void MainView::loadTextures()
@@ -151,6 +159,9 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(),
                  0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+
+    // bind default again.
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 // --- OpenGL drawing
@@ -250,8 +261,8 @@ void MainView::paintGL() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
-    QVector3D color(1.0, 0.0, 0.0);
-    QVector3D pos(1.0, 0.0, 0.0);
+    QVector3D color(1.0, 1.0, 0.0);
+    QVector3D pos(0.0, 0.0, 4.0);
     renderPointLight(270.0f, pos, color);
 }
 
@@ -266,17 +277,10 @@ void MainView::paintGL() {
 void MainView::resizeGL(int newWidth, int newHeight)
 {
     qDebug() << "MainView::resizeGL(" << newWidth << ", " << newHeight << ")";
-    windowWidth = newWidth;
-    windowHeight = newHeight;
+//    windowWidth = newWidth;
+//    windowHeight = newHeight;
     updateProjectionTransform();
 }
-
-// void MainView::updateNormalUniforms()
-// {
-//     glUniformMatrix4fv(uniformProjectionTransformNormal, 1, GL_FALSE, projectionTransform.data());
-//     glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, meshTransform.data());
-//     glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
-// }
 
 void MainView::updateProjectionTransform()
 {
@@ -291,7 +295,6 @@ void MainView::updateModelTransforms()
     meshTransform.translate(0, 0, -4);
     meshTransform.scale(scale);
     meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
-    meshNormalTransform = meshTransform.normalMatrix();
 
     update();
 }
@@ -422,15 +425,15 @@ void MainView::setupDeferredDirectionalLightShader() {
 // configure a shader for usage in deferred rendering.
 void MainView::setupDeferredPointLightShader() {
     // bind gbuffer textures.
-    glUniform1i(directionalLightShaderUniform_uColorTex, 0);
+    glUniform1i(pointLightShaderUniform_uColorTex, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
 
-    glUniform1i(directionalLightShaderUniform_uNormalTex, 1);
+    glUniform1i(pointLightShaderUniform_uNormalTex, 1);
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, normalTexture);
 
-    glUniform1i(directionalLightShaderUniform_uPositionTex, 2);
+    glUniform1i(pointLightShaderUniform_uPositionTex, 2);
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, positionTexture);
 
