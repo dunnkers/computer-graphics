@@ -9,8 +9,7 @@ out vec4 geoData[3];
 
 void main()
 {
-    // seems like the textures in Sponza are flipped. So flip then.
-    vec4 diff = texture(uDiffTex, vec2(1.0, -1.0)*fsUv).rgba;
+    vec4 diff = texture(uDiffTex, fsUv).rgba;
     if (diff.a < 0.2) {
         discard;
     }
