@@ -67,14 +67,9 @@ void MainView::initializeGL() {
     glDepthFunc(GL_LEQUAL);
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
-    qDebug() << "initializeGL :: createShaderProgram";
     createShaderProgram();
-    qDebug() << "initializeGL :: loadMesh";
     loadMesh();
-    qDebug() << "initializeGL :: loadTextures";
     loadTextures();
-    qDebug() << "initializeGL :: createBuffers";
-    createBuffers(800, 600);
 
     // Initialize transformations
     updateProjectionTransform();
@@ -83,53 +78,13 @@ void MainView::initializeGL() {
 
 void MainView::createShaderProgram()
 {
-    // Create Normal Shader program
-    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_normal.glsl");
-    normalShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_normal.glsl");
-    normalShaderProgram.link();
-
-    // Create Deferred Shader program
-    deferredShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_deferred.glsl");
-    deferredShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_deferred.glsl");
-    deferredShaderProgram.link();
-
-    // Create Phong Shader program
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_phong.glsl");
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_phong.glsl");
-    phongShaderProgram.link();
-
-    // Get the uniforms for the normal shader.
-    uniformModelViewTransformNormal  = normalShaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransformNormal = normalShaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransformNormal     = normalShaderProgram.uniformLocation("normalTransform");
-
-    // Get the uniforms for the deferred shader.
-    uniformModelViewTransformDeferred  = deferredShaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransformDeferred = deferredShaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransformDeferred     = deferredShaderProgram.uniformLocation("normalTransform");
-//    uniformMaterialDeferred            = deferredShaderProgram.uniformLocation("material");
-//    uniformLightPositionDeferred       = deferredShaderProgram.uniformLocation("lightPosition");
-//    uniformLightColourDeferred         = deferredShaderProgram.uniformLocation("lightColour");
-    uniformTextureSamplerDeferred      = deferredShaderProgram.uniformLocation("textureSampler");
-
-    // Get the uniforms for the phong shader.
-    uniformFPosition      = phongShaderProgram.uniformLocation("fPosition");
-    uniformFNormal      = phongShaderProgram.uniformLocation("fNormal");
-    uniformFColor      = phongShaderProgram.uniformLocation("fColour");
-    control_var = phongShaderProgram.uniformLocation("control_var");
-    uniformModelViewTransformPhong  = phongShaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransformPhong = phongShaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransformPhong     = phongShaderProgram.uniformLocation("normalTransform");
-    uniformMaterialPhong            = phongShaderProgram.uniformLocation("material");
-    uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
-    uniformLightColourPhong         = phongShaderProgram.uniformLocation("lightColour");
-    uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
+    // Create Geometry Shader program
+    geometryShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_geometry.glsl");
+    geometryShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_geometry.glsl");
+    geometryShaderProgram.link();
+    geometryShaderUniform_uVp = geometryShaderProgram.uniformLocation("uVp");
 }
 
 void MainView::loadMesh()
@@ -191,85 +146,6 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
                  0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
 }
 
-// Creating the framebuffer object.
-void MainView::createBuffers(int windowWidth, int windowHeight)
-{
-    qDebug() << "MainView::createBuffers()";
-
-    // Generate Frame Buffer Object
-    qDebug() << "glGenFramebuffers FBO...";
-    glGenFramebuffers(1, &fbo);
-    qDebug() << "glBind FBO...";
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    // Generate gBuffers
-    /* color gBuffer */
-    qDebug() << "createBuffer(colorTexture)...";
-    glGenTextures(1, &colorTexture);
-    qDebug() << "createBuffer(colorTexture) colorTexture =" << colorTexture;
-    glBindTexture(GL_TEXTURE_2D, colorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    // disable linear interpolation
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // Associate gBuffers with FBO on GL_FRAMEBUFFER target.
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
-
-    /* normals gBuffer */
-    qDebug() << "createBuffer(normalsTexture)...";
-    glGenTextures(1, &normalsTexture);
-    qDebug() << "createBuffer(normalsTexture) normalsTexture =" << normalsTexture;
-    glBindTexture(GL_TEXTURE_2D, normalsTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    // disable linear interpolation
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // Associate gBuffers with FBO on GL_FRAMEBUFFER target.
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalsTexture, 0);
-
-    /* depth gBuffer */
-    qDebug() << "createBuffer(zBufferTexture)...";
-    glGenTextures(1, &zBufferTexture);
-    qDebug() << "createBuffer(zBufferTexture) zBufferTexture =" << zBufferTexture;
-    glBindTexture(GL_TEXTURE_2D, zBufferTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight,
-                 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    // disable linear interpolation
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // Associate gBuffers with FBO on GL_FRAMEBUFFER target.
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
-
-    // Specify which color attachments to draw to
-    qDebug() << "glDrawBuffers()...";
-    GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, drawBuffers);
-
-    // debug
-    fb_status("createBuffers func FBO");
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    fb_status("createBuffers func FBO-0");
-}
-
-void MainView::initializeTextures()
-{
-    // @FIXME update on resize.
-}
-
-//void MainView::createBuffer(GLuint locTexture)
-//{
-//    // Generate gBuffer
-//    glGenTextures(1, &locTexture);
-//    glBindTexture(GL_TEXTURE_2D, locTexture);
-//    // disable linear interpolation
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//}
-
 // --- OpenGL drawing
 
 /**
@@ -279,121 +155,26 @@ void MainView::initializeTextures()
  *
  */
 void MainView::paintGL() {
-//    qDebug() << "MainView::paintGL()";
-    // Clear the screen before rendering
-//    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-////    // bind to framebuffer and draw scene as we normally would to color texture
-//    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-//    fb_status("paintGL func");
-
-    // store current (default) framebuffer id, cause it's not always 0.
-    GLint drawFboId = 0, readFboId = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-//    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
-//    qDebug() << "MainView::paintGL() draw buff =" << drawFboId << ", read buff =" << readFboId;
-
-//    // ... some stuff
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_2D, colorTexture);
-
-
     // Clear the screen before rendering
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // render geometry in 1st pass
+    QOpenGLShaderProgram *shaderProgram;
+    shaderProgram = &geometryShaderProgram;
+    shaderProgram->bind();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE,
+                       (projectionTransform * meshTransform).data());
 
-        // render geometry in 1st pass
-        QOpenGLShaderProgram *shaderProgram;
-        shaderProgram = &deferredShaderProgram;
-        shaderProgram->bind();
-        updateDeferredUniforms();
+    // Set the texture and draw the mesh.
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
 
-        // Set the texture and draw the mesh.
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texturePtr);
+    glBindVertexArray(meshVAO);
+    glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-        glBindVertexArray(meshVAO);
-        glDrawArrays(GL_TRIANGLES, 0, meshSize);
-
-        shaderProgram->release();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        shaderProgram = &phongShaderProgram;
-        shaderProgram->bind();
-
-        // starting from GL_TEXTURE1 cause the cat texture has GL_TEXTURE0.
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, colorTexture);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, normalsTexture);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, zBufferTexture);
-
-        updatePhongUniforms();
-
-        switch(currentTexture) {
-            case COLOR:
-                glUniform1i(control_var, 1);
-                break;
-            case NORMALS:
-                glUniform1i(control_var, 2);
-                break;
-            case DEPTH:
-                glUniform1i(control_var, 3);
-                break;
-        }
-
-        renderQuad();
-
-        shaderProgram->release();
-
-
-//        // 2.5. copy content of geometry's depth buffer to default framebuffer's depth buffer
-//        // ----------------------------------------------------------------------------------
-//        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-//        glBindFramebuffer(GL_FRAMEBUFFER, 0); // write to default framebuffer
-//        // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
-//        // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the
-//        // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
-//        glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-     // render finished.
-}
-
-// renderQuad() renders a 1x1 XY quad in NDC
-// -----------------------------------------
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void MainView::renderQuad()
-{
-    if (quadVAO == 0)
-    {
-        float quadVertices[] = {
-            // positions        // texture Coords
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    shaderProgram->release();
 }
 
 /**
@@ -412,42 +193,12 @@ void MainView::resizeGL(int newWidth, int newHeight)
     updateProjectionTransform();
 }
 
-void MainView::updateNormalUniforms()
-{
-    glUniformMatrix4fv(uniformProjectionTransformNormal, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
-}
-
-void MainView::updateDeferredUniforms()
-{
-    glUniformMatrix4fv(uniformProjectionTransformDeferred, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformDeferred, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformDeferred, 1, GL_FALSE, meshNormalTransform.data());
-
-//    glUniform4fv(uniformMaterialDeferred, 1, &material[0]);
-//    glUniform3fv(uniformLightPositionDeferred, 1, &lightPosition[0]);
-//    glUniform3fv(uniformLightColourDeferred, 1, &lightColour[0]);
-
-    glUniform1i(uniformTextureSamplerDeferred, 0); // Redundant now, but useful when you have multiple textures.
-}
-
-void MainView::updatePhongUniforms()
-{
-    glUniform1i(uniformFPosition, 1);
-    glUniform1i(uniformFNormal, 2);
-    glUniform1i(uniformFColor, 3);
-
-//    glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
-//    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
-
-    glUniform4fv(uniformMaterialPhong, 1, &material[0]);
-    glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
-    glUniform3f(uniformLightColourPhong, lightColour.x(), lightColour.y(), lightColour.z());
-
-//    glUniform1i(uniformTextureSamplerPhong, 0);
-}
+// void MainView::updateNormalUniforms()
+// {
+//     glUniformMatrix4fv(uniformProjectionTransformNormal, 1, GL_FALSE, projectionTransform.data());
+//     glUniformMatrix4fv(uniformModelViewTransformNormal, 1, GL_FALSE, meshTransform.data());
+//     glUniformMatrix3fv(uniformNormalTransformNormal, 1, GL_FALSE, meshNormalTransform.data());
+// }
 
 void MainView::updateProjectionTransform()
 {
@@ -476,14 +227,6 @@ void MainView::destroyModelBuffers()
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
-
-    // deleting gBuffers
-    glDeleteTextures(1, &colorTexture);
-    glDeleteTextures(1, &normalsTexture);
-    glDeleteTextures(1, &zBufferTexture);
-
-    // deleting fbo
-    glDeleteFramebuffers(1, &fbo);
 }
 
 // --- Public interface
@@ -517,54 +260,4 @@ void MainView::setCurrentTexture(CurrentTexture texture)
  */
 void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
     qDebug() << " → Log:" << Message;
-}
-
-/**
- * @brief MainView::fb_status
- *
- * Helper function for checking the framebuffer status.
- *
- * @see https://gist.github.com/wrl/5113212
- *
- * @param where Describe where the call came from.
- */
-void MainView::fb_status(const char *where)
-{
-    switch (glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
-    case GL_FRAMEBUFFER_COMPLETE:
-        qDebug() << " :: GL_FRAMEBUFFER_COMPLETE in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_UNDEFINED:
-        qDebug() << " :: GL_FRAMEBUFFER_UNDEFINED in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_UNSUPPORTED:
-        qDebug() << " :: GL_FRAMEBUFFER_UNSUPPORTED in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE in " << where;
-        break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-        qDebug() << " :: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS in " << where;
-        break;
-    }
 }

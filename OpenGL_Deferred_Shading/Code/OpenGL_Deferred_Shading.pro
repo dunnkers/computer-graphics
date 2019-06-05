@@ -34,7 +34,8 @@ SOURCES += main.cpp\
 HEADERS += mainwindow.h \
     mainview.h \
     model.h \
-    vertex.h
+    vertex.h \
+    objectinstance.h
 
 FORMS    += mainwindow.ui
 

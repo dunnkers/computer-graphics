@@ -8,13 +8,11 @@
         <file>textures/rug_logo.png</file>
         <file>models/cat.obj</file>
         <file>models/sphere.obj</file>
-        <file>shaders/vertshader_phong.glsl</file>
-        <file>shaders/vertshader_normal.glsl</file>
-        <file>shaders/fragshader_phong.glsl</file>
-        <file>shaders/fragshader_normal.glsl</file>
-        <file>shaders/fragshader_deferred.glsl</file>
-        <file>shaders/vertshader_deferred.glsl</file>
-        <file>shaders/fragshader.glsl</file>
-        <file>shaders/vertshader.glsl</file>
+        <file>shaders/fragshader_directional_light.glsl</file>
+        <file>shaders/fragshader_geometry.glsl</file>
+        <file>shaders/fragshader_point_light.glsl</file>
+        <file>shaders/vertshader_directional_light.glsl</file>
+        <file>shaders/vertshader_geometry.glsl</file>
+        <file>shaders/vertshader_point_light.glsl</file>
     </qresource>
 </RCC>

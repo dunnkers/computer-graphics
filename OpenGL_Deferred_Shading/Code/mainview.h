@@ -23,45 +23,13 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLDebugLogger *debugLogger;
     QTimer timer; // timer used for animation
 
-    QOpenGLShaderProgram normalShaderProgram,
-                         deferredShaderProgram,
-                         phongShaderProgram;
-
-    QOpenGLFramebufferObject fbo2;
+    QOpenGLShaderProgram geometryShaderProgram;
+    GLint geometryShaderUniform_uVp;
 
     // Uniforms for the normal shader.
-    GLint uniformModelViewTransformNormal;
-    GLint uniformProjectionTransformNormal;
-    GLint uniformNormalTransformNormal;
-
-    // Uniforms for the deferred shader.
-    GLint uniformModelViewTransformDeferred;
-    GLint uniformProjectionTransformDeferred;
-    GLint uniformNormalTransformDeferred;
-
-//    GLint uniformMaterialDeferred;
-//    GLint uniformLightPositionDeferred;
-//    GLint uniformLightColourDeferred;
-
-    GLint uniformTextureSamplerDeferred;
-
-    // Uniforms for the phong shader.
-    GLint uniformFPosition;
-    GLint uniformFNormal;
-    GLint uniformFColor;
-
-    GLint uniformModelViewTransformPhong;
-    GLint uniformProjectionTransformPhong;
-    GLint uniformNormalTransformPhong;
-
-    GLint uniformMaterialPhong;
-    GLint uniformLightPositionPhong;
-    GLint uniformLightColourPhong;
-
-    GLint uniformTextureSamplerPhong;
-
-    // Control var
-    GLint control_var;
+    // GLint uniformModelViewTransformNormal;
+    // GLint uniformProjectionTransformNormal;
+    // GLint uniformNormalTransformNormal;
 
     // Buffers
     GLuint meshVAO;
@@ -71,24 +39,12 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Texture
     GLuint texturePtr;
 
-    // Frame Buffer Object
-    GLuint fbo;
-    // gBuffers
-    GLuint colorTexture;
-    GLuint normalsTexture;
-    GLuint zBufferTexture;
-
     // Transforms
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
     QMatrix3x3 meshNormalTransform;
     QMatrix4x4 meshTransform;
-
-    // Phong model constants.
-    QVector4D material = {0.5, 0.5, 1, 5};
-    QVector3D lightPosition = {1, 100, 1};
-    QVector3D lightColour = {1, 1, 1};
 
     // Window
     int windowWidth;
@@ -111,7 +67,6 @@ protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
     void paintGL();
-    void renderQuad();
 
     // Functions for keyboard input events
     void keyPressEvent(QKeyEvent *ev);
@@ -135,28 +90,17 @@ private:
     void loadTextures();
     void loadTexture(QString file, GLuint texturePtr);
 
-    // Generate frame buffers
-    void createBuffers(int windowWidth, int windowHeight);
-    void createBuffer(GLuint locTexture);
-    void initializeTextures();
-
     void destroyModelBuffers();
 
     void updateProjectionTransform();
     void updateModelTransforms();
-
-    void updateNormalUniforms();
-    void updateDeferredUniforms();
-    void updatePhongUniforms();
+    // void updateNormalUniforms();
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
 
     // The current texture to display
     CurrentTexture currentTexture = COLOR;
-
-    // Helper function for checking the framebuffer status.
-    void fb_status(const char *where);
 };
 
 #endif // MAINVIEW_H
