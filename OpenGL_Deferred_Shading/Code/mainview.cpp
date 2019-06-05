@@ -71,6 +71,7 @@ void MainView::initializeGL() {
     loadMeshes();
     loadTextures();
     setupFBO();
+    createSphere(); // create the light sphere geometry.
 
     // Initialize transformations
     updateProjectionTransform();
@@ -102,6 +103,21 @@ void MainView::createShaderProgram()
             .uniformLocation("uPositionTex");
     directionalLightShaderUniform_uCameraPos = directionalLightShaderProgram
             .uniformLocation("uCameraPos");
+
+    // Create Point Light Shader Program
+    pointLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_point_light.glsl");
+    pointLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_point_light.glsl");
+    pointLightShaderProgram.link();
+    pointLightShaderUniform_uVp = pointLightShaderProgram
+            .uniformLocation("uVp");
+    pointLightShaderUniform_uLightRadius = pointLightShaderProgram
+            .uniformLocation("uLightRadius");
+    pointLightShaderUniform_uLightPosition = pointLightShaderProgram
+            .uniformLocation("uLightPosition");
+    pointLightShaderUniform_uLightColor = pointLightShaderProgram
+            .uniformLocation("uLightColor");
 }
 
 void MainView::loadMeshes()
@@ -197,10 +213,9 @@ void MainView::paintGL() {
     // first, we render a single directional light, with a fullscreen pass.
     //
 
-//    glUseProgram(directionalLightShader);
     shaderProgram = &directionalLightShaderProgram;
     shaderProgram->bind();
-    SetupDeferredShader();
+    setupDeferredDirectionalLightShader();
     // we use attribute-less rendering to render a full-screen triangle.
     // so the triangle vertices are basically stored in the vertex shader.
     // see the vertex shader for more details.
@@ -208,6 +223,35 @@ void MainView::paintGL() {
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
+//    //
+//    // Next, we render all the point light soures.
+//    // We will be doing our own depth testing in frag shader, so disable depth testing.
+//    // Enable alpha blending. So that the rendered point lights are added to the framebuffer.
+//    //
+//    glDisable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_ONE, GL_ONE);
+
+//    // We render only the inner faces of the light sphere.
+//    // In other words, we render the back-faces and not the front-faces of the sphere.
+//    // If we render the front-faces, the lighting of the light sphere disappears if
+//    // we are inside the sphere, which is weird. But by rendering the back-faces instead,
+//    // we solve this problem.
+//    glFrontFace(GL_CW);
+
+//    shaderProgram = &pointLightShaderProgram;
+//    shaderProgram->bind();
+//    setupDeferredPointLightShader();
+//    glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
+//                       (projectionTransform * meshTransform).data());
+//    glEnableVertexAttribArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
+
+//    QVector3D color(1.0, 0.0, 0.0);
+//    QVector3D pos(1.0, 0.0, 0.0);
+//    renderPointLight(270.0f, pos, color);
 }
 
 /**
@@ -357,7 +401,7 @@ void MainView::setupFBO()
 }
 
 // configure a shader for usage in deferred rendering.
-void MainView::SetupDeferredShader() {
+void MainView::setupDeferredDirectionalLightShader() {
     // bind gbuffer textures.
     glUniform1i(directionalLightShaderUniform_uColorTex, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -372,4 +416,85 @@ void MainView::SetupDeferredShader() {
     glBindTexture(GL_TEXTURE_2D, positionTexture);
 
 //    glUniform3f(directionalLightShaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+}
+
+// configure a shader for usage in deferred rendering.
+void MainView::setupDeferredPointLightShader() {
+    // bind gbuffer textures.
+    glUniform1i(directionalLightShaderUniform_uColorTex, 0);
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
+
+    glUniform1i(directionalLightShaderUniform_uNormalTex, 1);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, normalTexture);
+
+    glUniform1i(directionalLightShaderUniform_uPositionTex, 2);
+    glActiveTexture(GL_TEXTURE0 + 2);
+    glBindTexture(GL_TEXTURE_2D, positionTexture);
+
+//    glUniform3f(directionalLightShaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+}
+
+
+// create simple UV-sphere.
+void MainView::createSphere() {
+    int stacks = 20;
+    int slices = 20;
+    const float PI = 3.14f;
+
+    std::vector<float> positions;
+    std::vector<GLuint> indices;
+
+    // loop through stacks.
+    for (int i = 0; i <= stacks; ++i){
+
+        float V = (float)i / (float)stacks;
+        float phi = V * PI;
+
+        // loop through the slices.
+        for (int j = 0; j <= slices; ++j){
+
+            float U = (float)j / (float)slices;
+            float theta = U * (PI * 2);
+
+            // use spherical coordinates to calculate the positions.
+            float x = cos(theta) * sin(phi);
+            float y = cos(phi);
+            float z = sin(theta) * sin(phi);
+
+            positions.push_back(x);
+            positions.push_back(y);
+            positions.push_back(z);
+        }
+    }
+
+    // Calc The Index Positions
+    for (int i = 0; i < slices * stacks + slices; ++i){
+        indices.push_back(GLuint(i));
+        indices.push_back(GLuint(i + slices + 1));
+        indices.push_back(GLuint(i + slices));
+
+        indices.push_back(GLuint(i + slices + 1));
+        indices.push_back(GLuint(i));
+        indices.push_back(GLuint(i + 1));
+    }
+
+    // upload geometry to GPU.
+    glGenBuffers(1, &spherePositionVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*positions.size(), positions.data(), GL_STATIC_DRAW);
+
+    glGenBuffers(1, &sphereIndexVbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*indices.size(), indices.data(), GL_STATIC_DRAW);
+
+    sphereIndexCount = static_cast<GLuint>(indices.size());
+}
+
+void MainView::renderPointLight(float radius, const QVector3D position, const QVector3D color) {
+    glUniform1f(pointLightShaderUniform_uLightRadius, radius);
+    glUniform3f(pointLightShaderUniform_uLightPosition, position.x(), position.y(), position.z());
+    glUniform3f(pointLightShaderUniform_uLightColor, color.x(), color.y(), color.z());
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sphereIndexCount), GL_UNSIGNED_INT, nullptr);
 }

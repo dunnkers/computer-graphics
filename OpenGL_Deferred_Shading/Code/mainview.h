@@ -32,6 +32,17 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint directionalLightShaderUniform_uNormalTex;
     GLint directionalLightShaderUniform_uPositionTex;
     GLint directionalLightShaderUniform_uCameraPos;
+    // point light shader
+    QOpenGLShaderProgram pointLightShaderProgram;
+    GLint pointLightShaderUniform_uVp;
+    // light sphere geometry:
+    GLuint spherePositionVbo;
+    GLuint sphereIndexVbo;
+    GLuint sphereIndexCount;
+    // point light uniforms
+    GLint pointLightShaderUniform_uLightRadius;
+    GLint pointLightShaderUniform_uLightPosition;
+    GLint pointLightShaderUniform_uLightColor;
 
     // Uniforms for the normal shader.
     // GLint uniformModelViewTransformNormal;
@@ -117,7 +128,10 @@ private:
     CurrentTexture currentTexture = COLOR;
 
     void setupFBO();
-    void SetupDeferredShader();
+    void setupDeferredDirectionalLightShader();
+    void setupDeferredPointLightShader();
+    void createSphere();
+    void renderPointLight(float radius, const QVector3D position, const QVector3D color);
 };
 
 #endif // MAINVIEW_H
