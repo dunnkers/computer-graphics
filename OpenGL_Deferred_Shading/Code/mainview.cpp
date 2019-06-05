@@ -122,12 +122,12 @@ void MainView::createShaderProgram()
 
 void MainView::loadMeshes()
 {
-//    Mesh* cat = new Mesh(":/models/cat.obj");
-//    meshes.push_back(cat);
+    Mesh* cat = new Mesh(":/models/cat.obj");
+    meshes.push_back(cat);
 //    Mesh* cube = new Mesh(":/models/cube.obj");
 //    meshes.push_back(cube);
-    Mesh* sphere = new Mesh(":/models/sphere.obj");
-    meshes.push_back(sphere);
+//    Mesh* sphere = new Mesh(":/models/sphere.obj");
+//    meshes.push_back(sphere);
 }
 
 void MainView::loadTextures()
@@ -138,7 +138,6 @@ void MainView::loadTextures()
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
 {
-    qDebug() << "MainView::loadTexture() texturePtr =" << texturePtr;
     // Set texture parameters.
     glBindTexture(GL_TEXTURE_2D, texturePtr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -200,7 +199,7 @@ void MainView::paintGL() {
 
     shaderProgram->release();
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // stop writing to gbuffer.
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject()); // stop writing to gbuffer.
 
     //
     // Now comes the Deferred shading!
@@ -223,35 +222,37 @@ void MainView::paintGL() {
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
-//    //
-//    // Next, we render all the point light soures.
-//    // We will be doing our own depth testing in frag shader, so disable depth testing.
-//    // Enable alpha blending. So that the rendered point lights are added to the framebuffer.
-//    //
-//    glDisable(GL_DEPTH_TEST);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_ONE, GL_ONE);
+    // skip point light source rendering for now.
+    return;
+    //
+    // Next, we render all the point light soures.
+    // We will be doing our own depth testing in frag shader, so disable depth testing.
+    // Enable alpha blending. So that the rendered point lights are added to the framebuffer.
+    //
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
 
-//    // We render only the inner faces of the light sphere.
-//    // In other words, we render the back-faces and not the front-faces of the sphere.
-//    // If we render the front-faces, the lighting of the light sphere disappears if
-//    // we are inside the sphere, which is weird. But by rendering the back-faces instead,
-//    // we solve this problem.
-//    glFrontFace(GL_CW);
+    // We render only the inner faces of the light sphere.
+    // In other words, we render the back-faces and not the front-faces of the sphere.
+    // If we render the front-faces, the lighting of the light sphere disappears if
+    // we are inside the sphere, which is weird. But by rendering the back-faces instead,
+    // we solve this problem.
+    glFrontFace(GL_CW);
 
-//    shaderProgram = &pointLightShaderProgram;
-//    shaderProgram->bind();
-//    setupDeferredPointLightShader();
-//    glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
-//                       (projectionTransform * meshTransform).data());
-//    glEnableVertexAttribArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
+    shaderProgram = &pointLightShaderProgram;
+    shaderProgram->bind();
+    setupDeferredPointLightShader();
+    glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
+                       (projectionTransform * meshTransform).data());
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
-//    QVector3D color(1.0, 0.0, 0.0);
-//    QVector3D pos(1.0, 0.0, 0.0);
-//    renderPointLight(270.0f, pos, color);
+    QVector3D color(1.0, 0.0, 0.0);
+    QVector3D pos(1.0, 0.0, 0.0);
+    renderPointLight(270.0f, pos, color);
 }
 
 /**
