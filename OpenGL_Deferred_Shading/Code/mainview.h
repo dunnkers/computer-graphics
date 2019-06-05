@@ -23,8 +23,15 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLDebugLogger *debugLogger;
     QTimer timer; // timer used for animation
 
+    // geometry shader
     QOpenGLShaderProgram geometryShaderProgram;
     GLint geometryShaderUniform_uVp;
+    // directional light shader
+    QOpenGLShaderProgram directionalLightShaderProgram;
+    GLint directionalLightShaderUniform_uColorTex;
+    GLint directionalLightShaderUniform_uNormalTex;
+    GLint directionalLightShaderUniform_uPositionTex;
+    GLint directionalLightShaderUniform_uCameraPos;
 
     // Uniforms for the normal shader.
     // GLint uniformModelViewTransformNormal;
@@ -47,6 +54,15 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Window
     int windowWidth;
     int windowHeight;
+
+    // Gbuffers.
+    GLuint colorTexture;
+    GLuint depthRenderbuffer;
+    GLuint normalTexture;
+    GLuint positionTexture;
+    // FBO
+    GLuint fbo;
+    int fbWidth, fbHeight;
 public:
     enum CurrentTexture : GLuint
     {
@@ -99,6 +115,9 @@ private:
 
     // The current texture to display
     CurrentTexture currentTexture = COLOR;
+
+    void setupFBO();
+    void SetupDeferredShader();
 };
 
 #endif // MAINVIEW_H
