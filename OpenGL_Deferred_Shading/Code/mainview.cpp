@@ -93,7 +93,7 @@ void MainView::loadMesh()
     model.unitize();
     QVector<float> meshData = model.getVNTInterleaved();
 
-    this->meshSize = model.getVertices().size();
+    this->meshSize = static_cast<GLuint>(model.getVertices().size());
 
     // Generate VAO
     glGenVertexArrays(1, &meshVAO);
@@ -104,10 +104,10 @@ void MainView::loadMesh()
     glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
 
     // Write the data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(meshData.size()) * sizeof(float), meshData.data(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
     // Set vertex normals to location 1
@@ -172,7 +172,7 @@ void MainView::paintGL() {
     glBindTexture(GL_TEXTURE_2D, texturePtr);
 
     glBindVertexArray(meshVAO);
-    glDrawArrays(GL_TRIANGLES, 0, meshSize);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(meshSize));
 
     shaderProgram->release();
 }
@@ -204,7 +204,7 @@ void MainView::updateProjectionTransform()
 {
     float aspect_ratio = static_cast<float>(width()) / static_cast<float>(height());
     projectionTransform.setToIdentity();
-    projectionTransform.perspective(60, aspect_ratio, 0.2, 20);
+    projectionTransform.perspective(60, aspect_ratio, static_cast<float>(0.2), 20);
 }
 
 void MainView::updateModelTransforms()
