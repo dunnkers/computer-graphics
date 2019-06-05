@@ -68,7 +68,7 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    loadMesh();
+    loadMeshes();
     loadTextures();
 
     // Initialize transformations
@@ -87,39 +87,14 @@ void MainView::createShaderProgram()
     geometryShaderUniform_uVp = geometryShaderProgram.uniformLocation("uVp");
 }
 
-void MainView::loadMesh()
+void MainView::loadMeshes()
 {
-    Model model(":/models/cat.obj");
-    model.unitize();
-    QVector<float> meshData = model.getVNTInterleaved();
-
-    this->meshSize = static_cast<GLuint>(model.getVertices().size());
-
-    // Generate VAO
-    glGenVertexArrays(1, &meshVAO);
-    glBindVertexArray(meshVAO);
-
-    // Generate VBO
-    glGenBuffers(1, &meshVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
-
-    // Write the data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(meshData.size()) * sizeof(float), meshData.data(), GL_STATIC_DRAW);
-
-    // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    // Set vertex normals to location 1
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Set vertex texture coordinates to location 2
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+//    Mesh* cat = new Mesh(":/models/cat.obj");
+//    meshes.push_back(cat);
+//    Mesh* cube = new Mesh(":/models/cube.obj");
+//    meshes.push_back(cube);
+    Mesh* sphere = new Mesh(":/models/sphere.obj");
+    meshes.push_back(sphere);
 }
 
 void MainView::loadTextures()
@@ -171,8 +146,9 @@ void MainView::paintGL() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texturePtr);
 
-    glBindVertexArray(meshVAO);
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(meshSize));
+    for (Mesh* mesh : meshes) {
+        mesh->draw();
+    }
 
     shaderProgram->release();
 }
@@ -222,8 +198,9 @@ void MainView::updateModelTransforms()
 
 void MainView::destroyModelBuffers()
 {
-    glDeleteBuffers(1, &meshVBO);
-    glDeleteVertexArrays(1, &meshVAO);
+    for (Mesh* mesh : meshes) {
+        mesh->destroy();
+    }
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);

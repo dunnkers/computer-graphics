@@ -2,6 +2,7 @@
 #define MAINVIEW_H
 
 #include "model.h"
+#include "mesh.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -15,7 +16,6 @@
 #include <QVector>
 #include <memory>
 #include <QMatrix4x4>
-#include <QOpenGLFramebufferObject>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -31,10 +31,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // GLint uniformProjectionTransformNormal;
     // GLint uniformNormalTransformNormal;
 
-    // Buffers
-    GLuint meshVAO;
-    GLuint meshVBO;
-    GLuint meshSize;
+    // Meshes
+    QVector<Mesh *> meshes;
 
     // Texture
     GLuint texturePtr;
@@ -55,7 +53,7 @@ public:
         COLOR = 0, NORMALS, DEPTH
     };
 
-    MainView(QWidget *parent = 0);
+    MainView(QWidget *parent = nullptr);
     ~MainView();
 
     // Functions for widget input events
@@ -84,7 +82,7 @@ private slots:
 
 private:
     void createShaderProgram();
-    void loadMesh();
+    void loadMeshes();
 
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();

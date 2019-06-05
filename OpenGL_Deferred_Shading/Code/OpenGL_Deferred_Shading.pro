@@ -27,12 +27,14 @@ CONFIG += c++11
 SOURCES += main.cpp\
     mainwindow.cpp \
     mainview.cpp \
+    mesh.cpp \
     user_input.cpp \
     model.cpp \
     utility.cpp
 
 HEADERS += mainwindow.h \
     mainview.h \
+    mesh.h \
     model.h \
     vertex.h \
     objectinstance.h
