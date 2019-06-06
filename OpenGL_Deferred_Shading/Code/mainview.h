@@ -55,6 +55,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
     QMatrix4x4 meshTransform;
+    QMatrix4x4 viewMatrix;
+    QVector3D cameraPosition;
 
     // FBO
     FramebufferObjectInstance *fbo;
@@ -103,6 +105,7 @@ private:
 
     void updateProjectionTransform();
     void updateModelTransforms();
+    void updateViewMatrix();
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);

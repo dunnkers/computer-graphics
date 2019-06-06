@@ -77,6 +77,7 @@ void MainView::initializeGL() {
     // Initialize transformations
     updateProjectionTransform();
     updateModelTransforms();
+    updateViewMatrix();
 }
 
 void MainView::createShaderProgram()
@@ -183,7 +184,7 @@ void MainView::paintGL() {
     shaderProgram->bind();
 
     glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE,
-                       (projectionTransform * meshTransform).data());
+                       (projectionTransform * viewMatrix).data());
 
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
@@ -240,7 +241,7 @@ void MainView::paintGL() {
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
-                       (projectionTransform * meshTransform).data());
+                       (projectionTransform * viewMatrix).data());
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -284,6 +285,29 @@ void MainView::updateModelTransforms()
     update();
 }
 
+void MainView::updateViewMatrix() {
+    // calculate the actual view scale;
+    float minscale = 0.002f;
+    float maxscale = 0.05f;
+    float a = (maxscale - minscale) / 1.99f;
+    float b = minscale - (maxscale - minscale) / 199.0f;
+    float viewScale = a * scale + b;
+
+    // Change the view matrix
+    viewMatrix.setToIdentity();
+    viewMatrix.translate(0, 0, -1);
+    viewMatrix.scale(viewScale);
+    viewMatrix.rotate(rotation.x(), { -1, 0, 0 });
+    viewMatrix.rotate(rotation.y(), {  0, 1, 0 });
+
+    // Change the camera position
+    QVector4D pos(0, 0, 0, 1);
+    pos = viewMatrix.inverted() * pos;
+    cameraPosition = QVector3D(pos.x(), pos.y(), pos.z());
+
+    update();
+}
+
 // --- OpenGL cleanup helpers
 
 void MainView::destroyModelBuffers()
@@ -301,13 +325,15 @@ void MainView::destroyModelBuffers()
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 {
     rotation = { static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ) };
-    updateModelTransforms();
+//    updateModelTransforms();
+    updateViewMatrix();
 }
 
 void MainView::setScale(int newScale)
 {
     scale = static_cast<float>(newScale) / 100.f;
-    updateModelTransforms();
+//    updateModelTransforms();
+    updateViewMatrix();
 }
 
 void MainView::setCurrentTexture(CurrentTexture texture)
