@@ -45,11 +45,17 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint sphereIndexVbo;
     GLuint sphereIndexCount;
 
+    // Meshes
+    Mesh *mesh_cat;
+    Mesh *mesh_cube;
+    Mesh *mesh_sphere;
+
+    // Textures
+    GLuint texturePtr;
+    GLuint texture_rug;
+
     // Objects
     QVector<Object *> objects;
-
-    // Texture
-    GLuint texturePtr;
 
     // Transforms
     float scale = 1.f;
@@ -95,11 +101,13 @@ private slots:
 
 private:
     void createShaderProgram();
-    void loadObjects();
 
+    void loadMeshes();
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();
     void loadTexture(QString file, GLuint texturePtr);
+
+    void createObjects();
 
     void updateProjectionTransform();
     void updateModelTransforms();

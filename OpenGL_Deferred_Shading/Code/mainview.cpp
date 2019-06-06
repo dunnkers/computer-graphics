@@ -68,8 +68,10 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    loadObjects();
+    loadMeshes();
     loadTextures();
+
+    createObjects();
     createSphere(); // create the light sphere geometry.
 
     fbo = new FramebufferObjectInstance(width(), height());
@@ -113,25 +115,20 @@ void MainView::createShaderProgram()
             .uniformLocation("uLightColor");
 }
 
-void MainView::loadObjects()
+void MainView::loadMeshes()
 {
-    Object* cat = new Object(":/models/cat.obj");
-    cat->setTranslation(3, 0, 3);
-    objects.push_back(cat);
-
-    Object* cube = new Object(":/models/cube.obj");
-    cube->setTranslation(0, 0, 0);
-    objects.push_back(cube);
-
-    Object* sphere = new Object(":/models/sphere.obj");
-    sphere->setTranslation(6, 0, 0);
-    objects.push_back(sphere);
+    mesh_cat = new Mesh(":/models/cat.obj");
+    mesh_cube = new Mesh(":/models/cube.obj");
+    mesh_sphere = new Mesh(":/models/sphere.obj");
 }
 
 void MainView::loadTextures()
 {
     glGenTextures(1, &texturePtr);
     loadTexture(":/textures/cat_diff.png", texturePtr);
+
+    glGenTextures(1, &texture_rug);
+    loadTexture(":/textures/rug_logo.png", texture_rug);
 }
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
@@ -152,6 +149,28 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 
     // bind default again.
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void MainView::createObjects()
+{
+    int w = 10;
+    int h = 10;
+    int dist = 1;
+    for (int i = 0; i < w; ++i) {
+        for (int j = 0; j < h; ++j) {
+            Object* cat = new Object(mesh_cat);
+            cat->setTranslation((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
+            objects.push_back(cat);
+        }
+    }
+
+    Object* cube = new Object(mesh_cube);
+    cube->setTranslation(9, 5, 0);
+    objects.push_back(cube);
+
+    Object* sphere = new Object(mesh_sphere);
+    sphere->setTranslation(0, 5, 0);
+    objects.push_back(sphere);
 }
 
 // --- OpenGL drawing
@@ -197,6 +216,8 @@ void MainView::paintGL() {
         glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE, mvp.data());
         object->draw();
     }
+
+
 
     shaderProgram->release();
 
