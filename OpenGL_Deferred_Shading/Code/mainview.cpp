@@ -216,6 +216,8 @@ void MainView::paintGL() {
     shaderProgram = &directionalLightShaderProgram;
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
+    updateCameraUniform(shaderProgram);
+
     // we use attribute-less rendering to render a full-screen triangle.
     // so the triangle vertices are basically stored in the vertex shader.
     // see the vertex shader for more details.
@@ -244,6 +246,7 @@ void MainView::paintGL() {
     shaderProgram = &pointLightShaderProgram;
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
+    updateCameraUniform(shaderProgram);
     glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
                        (projectionTransform * viewMatrix).data());
     glEnableVertexAttribArray(0);
@@ -251,7 +254,7 @@ void MainView::paintGL() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
-    QVector3D color(1.0, 1.0, 0.0);
+    QVector3D color(1.0, 0.0, 0.0);
     QVector3D pos(0.0, 0.0, 4.0);
     renderPointLight(270.0f, pos, color);
 }
@@ -298,6 +301,12 @@ void MainView::updateViewMatrix() {
     cameraPosition = QVector3D(pos.x(), pos.y(), pos.z());
 
     update();
+}
+
+void MainView::updateCameraUniform(QOpenGLShaderProgram *shader)
+{
+    GLint shaderUniform_uCameraPos = shader->uniformLocation("uCameraPos");
+    glUniform3f(shaderUniform_uCameraPos, cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
 }
 
 // --- OpenGL cleanup helpers

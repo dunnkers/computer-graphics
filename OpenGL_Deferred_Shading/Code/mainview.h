@@ -101,11 +101,13 @@ private:
     void loadTextures();
     void loadTexture(QString file, GLuint texturePtr);
 
-    void destroyModelBuffers();
-
     void updateProjectionTransform();
     void updateModelTransforms();
     void updateViewMatrix();
+
+    void updateCameraUniform(QOpenGLShaderProgram *shader);
+
+    void destroyModelBuffers();
 
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
