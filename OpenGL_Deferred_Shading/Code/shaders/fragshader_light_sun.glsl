@@ -1,31 +1,31 @@
 #version 330
-in vec2 fsUv;
 
-out vec4 outColor;
+in vec2 fragTexCoords;
 
-uniform sampler2D uColorTex;
-uniform sampler2D uNormalTex;
-uniform sampler2D uPositionTex;
+out vec4 fragColor;
 
-uniform vec3 uCameraPos;
+uniform vec3 uniform_cameraPosition; // camera position
+
+uniform sampler2D uniform_colorTexture;
+uniform sampler2D uniform_normalTexture;
+uniform sampler2D uniform_positionTexture;
 
 void main()
 {
-  vec3 albedo = texture(uColorTex, fsUv).xyz;
-  vec3 n = normalize(texture(uNormalTex, fsUv).xyz);
-  vec3 pos = texture(uPositionTex, fsUv).xyz;
+  vec3 color =      texture(uniform_colorTexture, fragTexCoords).xyz;
+  vec3 normal = normalize(
+                    texture(uniform_normalTexture, fragTexCoords).xyz
+              );
+  vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
 
-  vec3 l = normalize(vec3(-0.7, 0.3, 0.1));
-  vec3 v = normalize(uCameraPos - pos);
+  vec3 l = normalize(vec3(-0.6, 0.35, 0.2));
+  vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.75; // diffuse
+
+  vec3 v = normalize(uniform_cameraPosition - position);
   vec3 h = normalize(l + v);
+  float spec = pow(max(0.0, dot(h, normal)), 16.0) * 0.3; // specular
 
-  vec3 color =
-        // diffuse
-        0.7 * albedo.xyz * max(0.0, dot(n.xyz, l)) +
-        // specular
-        0.4 * pow(max(0.0, dot(h, n)), 32.0) +
-        // ambient.
-        0.2 * albedo.xyz;
+  vec3 ambi = color.xyz * 0.25; // ambient
 
-  outColor = vec4(color, 1.0);
+  fragColor = vec4(vec3(diff + spec + ambi), 1.0);
 }

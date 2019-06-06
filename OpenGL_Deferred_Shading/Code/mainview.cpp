@@ -336,8 +336,8 @@ void MainView::updateViewMatrix() {
 
 void MainView::updateCameraUniform(QOpenGLShaderProgram *shader)
 {
-    GLint shaderUniform_uCameraPos = shader->uniformLocation("uCameraPos");
-    glUniform3f(shaderUniform_uCameraPos, cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
+    GLint uniform_cameraPosition = shader->uniformLocation("uniform_cameraPosition");
+    glUniform3f(uniform_cameraPosition, cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
 }
 
 // --- OpenGL cleanup helpers
@@ -350,6 +350,9 @@ void MainView::destroyModelBuffers()
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
+    glDeleteTextures(1, &texture_earth);
+    glDeleteTextures(1, &texture_jupiter);
+    glDeleteTextures(1, &texture_rug);
 
     // destroy fbo
     fbo->destroy();

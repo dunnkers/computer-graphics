@@ -1,8 +1,8 @@
 #version 330
 
-uniform sampler2D uColorTex;
-uniform sampler2D uNormalTex;
-uniform sampler2D uPositionTex;
+uniform sampler2D uniform_colorTexture;
+uniform sampler2D uniform_normalTexture;
+uniform sampler2D uniform_positionTexture;
 
 
 out vec4 outColor;
@@ -23,9 +23,9 @@ void main() {
     vec2 uv = (fsPos.xy / fsPos.w) * 0.5 + 0.5;
 
     // now we can sample from the gbuffer for every fragment the light sphere covers.
-    vec3 albedo = texture(uColorTex, uv).xyz;
-    vec3 n = normalize(texture(uNormalTex, uv).xyz);
-    vec3 pos = texture(uPositionTex, uv).xyz;
+    vec3 albedo = texture(uniform_colorTexture, uv).xyz;
+    vec3 n = normalize(texture(uniform_normalTexture, uv).xyz);
+    vec3 pos = texture(uniform_positionTexture, uv).xyz;
 
     vec3 lightToPosVector = pos.xyz - uLightPosition;
     float lightDist = length(lightToPosVector);  // position from light.
