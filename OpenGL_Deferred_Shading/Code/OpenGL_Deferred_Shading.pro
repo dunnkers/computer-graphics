@@ -29,6 +29,7 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     mainview.cpp \
     mesh.cpp \
+    object.cpp \
     user_input.cpp \
     model.cpp \
     utility.cpp
@@ -38,6 +39,7 @@ HEADERS += mainwindow.h \
     mainview.h \
     mesh.h \
     model.h \
+    object.h \
     vertex.h \
     objectinstance.h
 

@@ -4,6 +4,7 @@
 #include "model.h"
 #include "mesh.h"
 #include "framebufferobject.h"
+#include "object.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -44,8 +45,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint sphereIndexVbo;
     GLuint sphereIndexCount;
 
-    // Meshes
-    QVector<Mesh *> meshes;
+    // Objects
+    QVector<Object *> objects;
 
     // Texture
     GLuint texturePtr;
@@ -54,7 +55,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     float scale = 1.f;
     QVector3D rotation;
     QMatrix4x4 projectionTransform;
-    QMatrix4x4 meshTransform;
     QMatrix4x4 viewMatrix;
     QVector3D cameraPosition;
 
@@ -95,7 +95,7 @@ private slots:
 
 private:
     void createShaderProgram();
-    void loadMeshes();
+    void loadObjects();
 
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();

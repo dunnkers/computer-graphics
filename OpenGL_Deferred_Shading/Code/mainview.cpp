@@ -68,7 +68,7 @@ void MainView::initializeGL() {
     glClearColor(0.0, 1.0, 0.0, 1.0);
 
     createShaderProgram();
-    loadMeshes();
+    loadObjects();
     loadTextures();
     createSphere(); // create the light sphere geometry.
 
@@ -76,7 +76,6 @@ void MainView::initializeGL() {
 
     // Initialize transformations
     updateProjectionTransform();
-    updateModelTransforms();
     updateViewMatrix();
 }
 
@@ -114,14 +113,19 @@ void MainView::createShaderProgram()
             .uniformLocation("uLightColor");
 }
 
-void MainView::loadMeshes()
+void MainView::loadObjects()
 {
-    Mesh* cat = new Mesh(":/models/cat.obj");
-    meshes.push_back(cat);
-//    Mesh* cube = new Mesh(":/models/cube.obj");
-//    meshes.push_back(cube);
-//    Mesh* sphere = new Mesh(":/models/sphere.obj");
-//    meshes.push_back(sphere);
+    Object* cat = new Object(":/models/cat.obj");
+    cat->setTranslation(3, 0, 3);
+    objects.push_back(cat);
+
+    Object* cube = new Object(":/models/cube.obj");
+    cube->setTranslation(0, 0, 0);
+    objects.push_back(cube);
+
+    Object* sphere = new Object(":/models/sphere.obj");
+    sphere->setTranslation(6, 0, 0);
+    objects.push_back(sphere);
 }
 
 void MainView::loadTextures()
@@ -183,15 +187,15 @@ void MainView::paintGL() {
     shaderProgram = &geometryShaderProgram;
     shaderProgram->bind();
 
-    glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE,
-                       (projectionTransform * viewMatrix).data());
 
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texturePtr);
 
-    for (Mesh* mesh : meshes) {
-        mesh->draw();
+    for (Object* object : objects) {
+        QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
+        glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE, mvp.data());
+        object->draw();
     }
 
     shaderProgram->release();
@@ -263,8 +267,6 @@ void MainView::paintGL() {
 void MainView::resizeGL(int newWidth, int newHeight)
 {
     qDebug() << "MainView::resizeGL(" << newWidth << ", " << newHeight << ")";
-//    windowWidth = newWidth;
-//    windowHeight = newHeight;
     updateProjectionTransform();
 }
 
@@ -273,16 +275,6 @@ void MainView::updateProjectionTransform()
     float aspect_ratio = static_cast<float>(width()) / static_cast<float>(height());
     projectionTransform.setToIdentity();
     projectionTransform.perspective(60, aspect_ratio, static_cast<float>(0.2), 20);
-}
-
-void MainView::updateModelTransforms()
-{
-    meshTransform.setToIdentity();
-    meshTransform.translate(0, 0, -4);
-    meshTransform.scale(scale);
-    meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
-
-    update();
 }
 
 void MainView::updateViewMatrix() {
@@ -312,8 +304,8 @@ void MainView::updateViewMatrix() {
 
 void MainView::destroyModelBuffers()
 {
-    for (Mesh* mesh : meshes) {
-        mesh->destroy();
+    for (Object* object : objects) {
+        object->destroy();
     }
 
     // deleting texture buffers
