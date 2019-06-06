@@ -15,7 +15,6 @@ uniform vec3 lightPos;
 uniform vec3 lightCol;
 
 void main() {
-
     // light sphere screen space retrieval. map to correct range.
     vec2 fragTexCoords = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
 

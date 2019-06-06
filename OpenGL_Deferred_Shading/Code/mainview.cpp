@@ -281,12 +281,12 @@ void MainView::paintGL() {
     {
         QVector3D color(1.0f, 0.0, 0.0);
         QVector3D pos(-20.0, 4.0, 0.0);
-        renderPointLight(color, 27.0f, pos);
+        renderPointLight(color, 270.0f, pos);
     }
     {
         QVector3D color(0.0, 1.0f, 0.0);
         QVector3D pos(9.0, 10.0, 0.0);
-        renderPointLight(color, 27.0f, pos);
+        renderPointLight(color, 2700.0f, pos);
     }
 }
 
