@@ -165,6 +165,7 @@ void MainView::createObjects()
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
             Object* cat = new Object(mesh_cat);
+            cat->setTexture(&texturePtr);
             cat->setTranslation((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
             objects.push_back(cat);
         }
@@ -172,22 +173,26 @@ void MainView::createObjects()
 
     {
         Object* cube = new Object(mesh_cube);
+        cube->setTexture(&texture_rug);
         cube->setTranslation(9.0f, 10.0f, 0.0);
         objects.push_back(cube);
     }
     {
         Object* cube = new Object(mesh_cube);
+        cube->setTexture(&texture_rug);
         cube->setTranslation(-20.0f, 4.0f, 0.0);
         objects.push_back(cube);
     }
 
-    Object* sphere = new Object(mesh_sphere);
-    sphere->setTranslation(0, 5, 0);
-    objects.push_back(sphere);
+    Object* earth = new Object(mesh_sphere);
+    earth->setTexture(&texture_earth);
+    earth->setTranslation(0, 5, 0);
+    objects.push_back(earth);
 
-    Object* sphere2 = new Object(mesh_sphere);
-    sphere2->setTranslation(0, 2, 0);
-    objects.push_back(sphere2);
+    Object* jupiter = new Object(mesh_sphere);
+    jupiter->setTexture(&texture_jupiter);
+    jupiter->setTranslation(5, 0, 0);
+    objects.push_back(jupiter);
 }
 
 // --- OpenGL drawing
@@ -225,16 +230,15 @@ void MainView::paintGL() {
 
 
     // Set the texture and draw the mesh.
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_jupiter);
-
     for (Object* object : objects) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, *object->getTexture());
+        glUniform1i(shaderProgram->uniformLocation("uDiffTex"), 0);
+
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
         glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE, mvp.data());
         object->draw();
     }
-
-
 
     shaderProgram->release();
 
@@ -263,6 +267,7 @@ void MainView::paintGL() {
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
+//    return;
     //
     // Next, we render all the point light soures.
     // We will be doing our own depth testing in frag shader, so disable depth testing.
