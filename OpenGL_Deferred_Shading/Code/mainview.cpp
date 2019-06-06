@@ -129,6 +129,12 @@ void MainView::loadTextures()
 
     glGenTextures(1, &texture_rug);
     loadTexture(":/textures/rug_logo.png", texture_rug);
+
+    glGenTextures(1, &texture_earth);
+    loadTexture(":/textures/earth.png", texture_earth);
+
+    glGenTextures(1, &texture_jupiter);
+    loadTexture(":/textures/jupiter.png", texture_jupiter);
 }
 
 void MainView::loadTexture(QString file, GLuint texturePtr)
@@ -153,9 +159,9 @@ void MainView::loadTexture(QString file, GLuint texturePtr)
 
 void MainView::createObjects()
 {
-    int w = 10;
-    int h = 10;
-    int dist = 1;
+    int w = 20;
+    int h = 20;
+    int dist = 2;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
             Object* cat = new Object(mesh_cat);
@@ -166,18 +172,22 @@ void MainView::createObjects()
 
     {
         Object* cube = new Object(mesh_cube);
-        cube->setTranslation(9.0f, 5.0f, 0.0);
+        cube->setTranslation(9.0f, 10.0f, 0.0);
         objects.push_back(cube);
     }
     {
         Object* cube = new Object(mesh_cube);
-        cube->setTranslation(-9.0f, 4.0f, 0.0);
+        cube->setTranslation(-20.0f, 4.0f, 0.0);
         objects.push_back(cube);
     }
 
     Object* sphere = new Object(mesh_sphere);
     sphere->setTranslation(0, 5, 0);
     objects.push_back(sphere);
+
+    Object* sphere2 = new Object(mesh_sphere);
+    sphere2->setTranslation(0, 2, 0);
+    objects.push_back(sphere2);
 }
 
 // --- OpenGL drawing
@@ -216,7 +226,7 @@ void MainView::paintGL() {
 
     // Set the texture and draw the mesh.
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texturePtr);
+    glBindTexture(GL_TEXTURE_2D, texture_jupiter);
 
     for (Object* object : objects) {
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
@@ -253,8 +263,6 @@ void MainView::paintGL() {
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
-    // skip point light source rendering for now.
-//    return;
     //
     // Next, we render all the point light soures.
     // We will be doing our own depth testing in frag shader, so disable depth testing.
@@ -284,13 +292,13 @@ void MainView::paintGL() {
 
 
     {
-        QVector3D color(0.6f, 0.0, 0.0);
-        QVector3D pos(-9.0, 4.0, 0.0);
+        QVector3D color(0.8f, 0.0, 0.0);
+        QVector3D pos(-20.0, 4.0, 0.0);
         renderPointLight(27.0f, pos, color);
     }
     {
         QVector3D color(0.0, 1.0f, 0.0);
-        QVector3D pos(9.0, 5.0, 0.0);
+        QVector3D pos(9.0, 10.0, 0.0);
         renderPointLight(27.0f, pos, color);
     }
 }
@@ -324,14 +332,14 @@ void MainView::updateViewMatrix() {
     float b = minscale - (maxscale - minscale) / 199.0f;
     float viewScale = a * scale + b;
 
-    // Change the view matrix
+    // View matrix
     viewMatrix.setToIdentity();
     viewMatrix.translate(0, 0, -1);
     viewMatrix.scale(viewScale);
     viewMatrix.rotate(rotation.x(), { -1, 0, 0 });
     viewMatrix.rotate(rotation.y(), {  0, 1, 0 });
 
-    // Change the camera position
+    // Camera position
     QVector4D pos(0, 0, 0, 1);
     pos = viewMatrix.inverted() * pos;
     cameraPosition = QVector3D(pos.x(), pos.y(), pos.z());
@@ -365,14 +373,12 @@ void MainView::destroyModelBuffers()
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 {
     rotation = { static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ) };
-//    updateModelTransforms();
     updateViewMatrix();
 }
 
 void MainView::setScale(int newScale)
 {
     scale = static_cast<float>(newScale) / 100.f;
-//    updateModelTransforms();
     updateViewMatrix();
 }
 

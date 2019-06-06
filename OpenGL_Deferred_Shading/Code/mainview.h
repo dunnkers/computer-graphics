@@ -53,6 +53,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Textures
     GLuint texturePtr;
     GLuint texture_rug;
+    GLuint texture_earth;
+    GLuint texture_jupiter;
 
     // Objects
     QVector<Object *> objects;

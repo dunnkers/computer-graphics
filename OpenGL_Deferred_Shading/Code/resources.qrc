@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>models/cube.obj</file>
-        <file>models/flat_surface.obj</file>
         <file>textures/cat_diff.png</file>
         <file>textures/cat_norm.png</file>
         <file>textures/cat_spec.png</file>
@@ -14,5 +13,11 @@
         <file>shaders/vertshader_directional_light.glsl</file>
         <file>shaders/vertshader_geometry.glsl</file>
         <file>shaders/vertshader_point_light.glsl</file>
+        <file>models/cottage.obj</file>
+        <file>models/grid.obj</file>
+        <file>models/buildings.obj</file>
+        <file>models/stadium.obj</file>
+        <file>textures/earth.png</file>
+        <file>textures/jupiter.png</file>
     </qresource>
 </RCC>
