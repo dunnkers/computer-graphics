@@ -35,7 +35,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // light shader - point lights
     QOpenGLShaderProgram lightPointShaderProgram;
-    GLint lightPointShaderUniform_uVp;
+    GLint lightPointShaderUniform_vpTransform;
     GLint lightPointShaderUniform_uLightRadius;
     GLint lightPointShaderUniform_uLightPosition;
     GLint lightPointShaderUniform_uLightColor;

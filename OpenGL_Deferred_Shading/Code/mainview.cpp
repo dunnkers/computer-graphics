@@ -107,8 +107,8 @@ void MainView::createShaderProgram()
     lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            ":/shaders/fragshader_light_point.glsl");
     lightPointShaderProgram.link();
-    lightPointShaderUniform_uVp = lightPointShaderProgram
-            .uniformLocation("uVp");
+    lightPointShaderUniform_vpTransform = lightPointShaderProgram
+            .uniformLocation("vpTransform");
     lightPointShaderUniform_uLightRadius = lightPointShaderProgram
             .uniformLocation("uLightRadius");
     lightPointShaderUniform_uLightPosition = lightPointShaderProgram
@@ -270,7 +270,7 @@ void MainView::paintGL() {
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
-    glUniformMatrix4fv(lightPointShaderUniform_uVp, 1, GL_FALSE,
+    glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
                        (viewMatrix * projectionTransform).data());
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);

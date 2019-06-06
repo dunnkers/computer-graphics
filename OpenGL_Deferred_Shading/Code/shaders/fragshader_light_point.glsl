@@ -7,7 +7,7 @@ uniform sampler2D uniform_positionTexture;
 
 out vec4 outColor;
 
-in vec4 fsPos;
+in vec4 fragPosition;
 
 uniform float uLightRadius;
 uniform vec3 uLightPosition;
@@ -20,7 +20,7 @@ void main() {
 
     // get screen-space position of light sphere
     // (remember to do perspective division.)
-    vec2 uv = (fsPos.xy / fsPos.w) * 0.5 + 0.5;
+    vec2 uv = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
 
     // now we can sample from the gbuffer for every fragment the light sphere covers.
     vec3 albedo = texture(uniform_colorTexture, uv).xyz;
