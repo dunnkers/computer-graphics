@@ -30,17 +30,15 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint geometryShaderUniform_mvpTransform;
     GLint geometryShaderUniform_textureDiff;
 
-    // directional light shader
-    QOpenGLShaderProgram directionalLightShaderProgram;
-    GLint directionalLightShaderUniform_uCameraPos;
+    // light shader - sun lights (directional)
+    QOpenGLShaderProgram lightSunShaderProgram;
 
-    // point light shader
-    QOpenGLShaderProgram pointLightShaderProgram;
-    GLint pointLightShaderUniform_uVp;
-    GLint pointLightShaderUniform_uCameraPos;
-    GLint pointLightShaderUniform_uLightRadius;
-    GLint pointLightShaderUniform_uLightPosition;
-    GLint pointLightShaderUniform_uLightColor;
+    // light shader - point lights
+    QOpenGLShaderProgram lightPointShaderProgram;
+    GLint lightPointShaderUniform_uVp;
+    GLint lightPointShaderUniform_uLightRadius;
+    GLint lightPointShaderUniform_uLightPosition;
+    GLint lightPointShaderUniform_uLightColor;
     // light sphere geometry:
     GLuint spherePositionVbo;
     GLuint sphereIndexVbo;

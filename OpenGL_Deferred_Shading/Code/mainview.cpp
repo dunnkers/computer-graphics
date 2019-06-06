@@ -94,26 +94,26 @@ void MainView::createShaderProgram()
     geometryShaderUniform_textureDiff = geometryShaderProgram
             .uniformLocation("textureDiff");
 
-    // Create Directional Light Shader program
-    directionalLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_directional_light.glsl");
-    directionalLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_directional_light.glsl");
-    directionalLightShaderProgram.link();
+    // Create Sun Light Shader program (directional lighting)
+    lightSunShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_light_sun.glsl");
+    lightSunShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_light_sun.glsl");
+    lightSunShaderProgram.link();
 
     // Create Point Light Shader Program
-    pointLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_point_light.glsl");
-    pointLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_point_light.glsl");
-    pointLightShaderProgram.link();
-    pointLightShaderUniform_uVp = pointLightShaderProgram
+    lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_light_point.glsl");
+    lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_light_point.glsl");
+    lightPointShaderProgram.link();
+    lightPointShaderUniform_uVp = lightPointShaderProgram
             .uniformLocation("uVp");
-    pointLightShaderUniform_uLightRadius = pointLightShaderProgram
+    lightPointShaderUniform_uLightRadius = lightPointShaderProgram
             .uniformLocation("uLightRadius");
-    pointLightShaderUniform_uLightPosition = pointLightShaderProgram
+    lightPointShaderUniform_uLightPosition = lightPointShaderProgram
             .uniformLocation("uLightPosition");
-    pointLightShaderUniform_uLightColor = pointLightShaderProgram
+    lightPointShaderUniform_uLightColor = lightPointShaderProgram
             .uniformLocation("uLightColor");
 }
 
@@ -237,7 +237,7 @@ void MainView::paintGL() {
     // first, we render a single directional light, with a fullscreen pass.
     //
 
-    shaderProgram = &directionalLightShaderProgram;
+    shaderProgram = &lightSunShaderProgram;
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
@@ -266,11 +266,11 @@ void MainView::paintGL() {
     // we solve this problem.
     glFrontFace(GL_CW);
 
-    shaderProgram = &pointLightShaderProgram;
+    shaderProgram = &lightPointShaderProgram;
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
-    glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
+    glUniformMatrix4fv(lightPointShaderUniform_uVp, 1, GL_FALSE,
                        (viewMatrix * projectionTransform).data());
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
@@ -444,8 +444,8 @@ void MainView::createSphere() {
 }
 
 void MainView::renderPointLight(float radius, const QVector3D position, const QVector3D color) {
-    glUniform1f(pointLightShaderUniform_uLightRadius, radius);
-    glUniform3f(pointLightShaderUniform_uLightPosition, position.x(), position.y(), position.z());
-    glUniform3f(pointLightShaderUniform_uLightColor, color.x(), color.y(), color.z());
+    glUniform1f(lightPointShaderUniform_uLightRadius, radius);
+    glUniform3f(lightPointShaderUniform_uLightPosition, position.x(), position.y(), position.z());
+    glUniform3f(lightPointShaderUniform_uLightColor, color.x(), color.y(), color.z());
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sphereIndexCount), GL_UNSIGNED_INT, nullptr);
 }
