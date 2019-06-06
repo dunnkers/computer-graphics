@@ -271,7 +271,7 @@ void MainView::paintGL() {
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
     glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
-                       (viewMatrix * projectionTransform).data());
+                       (projectionTransform * viewMatrix).data());
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -279,14 +279,14 @@ void MainView::paintGL() {
 
 
     {
-        QVector3D color(1.0f, 0.0, 0.0);
-        QVector3D pos(-20.0, 4.0, 0.0);
-        renderPointLight(color, 270.0f, pos);
+        QVector3D color(0.0f, 0.0, 1.0f);
+        QVector3D pos(20.0, 10.0, 0.0);
+        renderPointLight(color, 27.0f, pos);
     }
     {
         QVector3D color(0.0, 1.0f, 0.0);
         QVector3D pos(9.0, 10.0, 0.0);
-        renderPointLight(color, 2700.0f, pos);
+        renderPointLight(color, 27.0f, pos);
     }
 }
 
