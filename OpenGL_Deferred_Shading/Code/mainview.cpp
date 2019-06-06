@@ -70,8 +70,9 @@ void MainView::initializeGL() {
     createShaderProgram();
     loadMeshes();
     loadTextures();
-    setupFBO();
     createSphere(); // create the light sphere geometry.
+
+    fbo = new FramebufferObjectInstance(width(), height());
 
     // Initialize transformations
     updateProjectionTransform();
@@ -95,14 +96,6 @@ void MainView::createShaderProgram()
     directionalLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            ":/shaders/fragshader_directional_light.glsl");
     directionalLightShaderProgram.link();
-    directionalLightShaderUniform_uColorTex = directionalLightShaderProgram
-            .uniformLocation("uColorTex");
-    directionalLightShaderUniform_uNormalTex = directionalLightShaderProgram
-            .uniformLocation("uNormalTex");
-    directionalLightShaderUniform_uPositionTex = directionalLightShaderProgram
-            .uniformLocation("uPositionTex");
-    directionalLightShaderUniform_uCameraPos = directionalLightShaderProgram
-            .uniformLocation("uCameraPos");
 
     // Create Point Light Shader Program
     pointLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
@@ -112,14 +105,6 @@ void MainView::createShaderProgram()
     pointLightShaderProgram.link();
     pointLightShaderUniform_uVp = pointLightShaderProgram
             .uniformLocation("uVp");
-    pointLightShaderUniform_uColorTex = pointLightShaderProgram
-            .uniformLocation("uColorTex");
-    pointLightShaderUniform_uNormalTex = pointLightShaderProgram
-            .uniformLocation("uNormalTex");
-    pointLightShaderUniform_uPositionTex = pointLightShaderProgram
-            .uniformLocation("uPositionTex");
-    directionalLightShaderUniform_uCameraPos = directionalLightShaderProgram
-            .uniformLocation("uCameraPos");
     pointLightShaderUniform_uLightRadius = pointLightShaderProgram
             .uniformLocation("uLightRadius");
     pointLightShaderUniform_uLightPosition = pointLightShaderProgram
@@ -132,10 +117,10 @@ void MainView::loadMeshes()
 {
     Mesh* cat = new Mesh(":/models/cat.obj");
     meshes.push_back(cat);
-    Mesh* cube = new Mesh(":/models/cube.obj");
-    meshes.push_back(cube);
-    Mesh* sphere = new Mesh(":/models/sphere.obj");
-    meshes.push_back(sphere);
+//    Mesh* cube = new Mesh(":/models/cube.obj");
+//    meshes.push_back(cube);
+//    Mesh* sphere = new Mesh(":/models/sphere.obj");
+//    meshes.push_back(sphere);
 }
 
 void MainView::loadTextures()
@@ -184,7 +169,7 @@ void MainView::paintGL() {
     //
     // In the first pass, we just write to the gbuffer.
     //
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo); // bind g buffer for writing.
+    fbo->bind();
 
 
     // Clear the screen before rendering
@@ -210,7 +195,7 @@ void MainView::paintGL() {
 
     shaderProgram->release();
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject()); // stop writing to gbuffer.
+    fbo->unbind(defaultFramebufferObject());
 
     //
     // Now comes the Deferred shading!
@@ -225,7 +210,7 @@ void MainView::paintGL() {
 
     shaderProgram = &directionalLightShaderProgram;
     shaderProgram->bind();
-    setupDeferredDirectionalLightShader();
+    fbo->setupDeferredShader(shaderProgram);
     // we use attribute-less rendering to render a full-screen triangle.
     // so the triangle vertices are basically stored in the vertex shader.
     // see the vertex shader for more details.
@@ -253,7 +238,7 @@ void MainView::paintGL() {
 
     shaderProgram = &pointLightShaderProgram;
     shaderProgram->bind();
-    setupDeferredPointLightShader();
+    fbo->setupDeferredShader(shaderProgram);
     glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
                        (projectionTransform * meshTransform).data());
     glEnableVertexAttribArray(0);
@@ -343,103 +328,6 @@ void MainView::setCurrentTexture(CurrentTexture texture)
 void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
     qDebug() << " → Log:" << Message;
 }
-
-void MainView::setupFBO()
-{
-    // create the gbuffer. first create fbo:
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    // RGBA8 color texture-p
-    glGenTextures(1, &colorTexture);
-    glBindTexture(GL_TEXTURE_2D, colorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                GL_TEXTURE_2D, colorTexture, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //  RGBA16F normal texture.
-    glGenTextures(1, &normalTexture);
-    glBindTexture(GL_TEXTURE_2D, normalTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width(), height(), 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
-                                GL_TEXTURE_2D, normalTexture, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //  RGBA16F position texture.
-    glGenTextures(1, &positionTexture);
-    glBindTexture(GL_TEXTURE_2D, positionTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width(), height(), 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2,
-                                GL_TEXTURE_2D, positionTexture, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // we need a z-buffer for the gbuffer. but we don't need to read from it.
-    // so instead create a renderbuffer.
-    glGenRenderbuffers(1, &depthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width(), height());
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
-
-    // specify that we can render to all three attachments.
-    // this is very important! It won't work otherwise.
-    GLenum tgts[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, tgts);
-
-    // make sure nothing went wrong:
-    GLenum status;
-    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer not complete. Status: %d", status);
-        exit(1);
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // gbuffer done!
-}
-
-// configure a shader for usage in deferred rendering.
-void MainView::setupDeferredDirectionalLightShader() {
-    // bind gbuffer textures.
-    glUniform1i(directionalLightShaderUniform_uColorTex, 0);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, colorTexture);
-
-    glUniform1i(directionalLightShaderUniform_uNormalTex, 1);
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, normalTexture);
-
-    glUniform1i(directionalLightShaderUniform_uPositionTex, 2);
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, positionTexture);
-
-//    glUniform3f(directionalLightShaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-}
-
-// configure a shader for usage in deferred rendering.
-void MainView::setupDeferredPointLightShader() {
-    // bind gbuffer textures.
-    glUniform1i(pointLightShaderUniform_uColorTex, 0);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, colorTexture);
-
-    glUniform1i(pointLightShaderUniform_uNormalTex, 1);
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, normalTexture);
-
-    glUniform1i(pointLightShaderUniform_uPositionTex, 2);
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, positionTexture);
-
-//    glUniform3f(directionalLightShaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-}
-
 
 // create simple UV-sphere.
 void MainView::createSphere() {

@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += main.cpp\
+    framebufferobject.cpp \
     mainwindow.cpp \
     mainview.cpp \
     mesh.cpp \
@@ -33,6 +34,7 @@ SOURCES += main.cpp\
     utility.cpp
 
 HEADERS += mainwindow.h \
+    framebufferobject.h \
     mainview.h \
     mesh.h \
     model.h \

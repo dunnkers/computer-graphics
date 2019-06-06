@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include "mesh.h"
+#include "framebufferobject.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -29,17 +30,11 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // directional light shader
     QOpenGLShaderProgram directionalLightShaderProgram;
-    GLint directionalLightShaderUniform_uColorTex;
-    GLint directionalLightShaderUniform_uNormalTex;
-    GLint directionalLightShaderUniform_uPositionTex;
     GLint directionalLightShaderUniform_uCameraPos;
 
     // point light shader
     QOpenGLShaderProgram pointLightShaderProgram;
     GLint pointLightShaderUniform_uVp;
-    GLint pointLightShaderUniform_uColorTex;
-    GLint pointLightShaderUniform_uNormalTex;
-    GLint pointLightShaderUniform_uPositionTex;
     GLint pointLightShaderUniform_uCameraPos;
     GLint pointLightShaderUniform_uLightRadius;
     GLint pointLightShaderUniform_uLightPosition;
@@ -61,17 +56,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QMatrix4x4 projectionTransform;
     QMatrix4x4 meshTransform;
 
-    // Window
-//    int windowWidth;
-//    int windowHeight;
-
-    // Gbuffers.
-    GLuint colorTexture;
-    GLuint depthRenderbuffer;
-    GLuint normalTexture;
-    GLuint positionTexture;
     // FBO
-    GLuint fbo;
+    FramebufferObjectInstance *fbo;
 public:
     enum CurrentTexture : GLuint
     {
@@ -124,9 +110,6 @@ private:
     // The current texture to display
     CurrentTexture currentTexture = COLOR;
 
-    void setupFBO();
-    void setupDeferredDirectionalLightShader();
-    void setupDeferredPointLightShader();
     void createSphere();
     void renderPointLight(float radius, const QVector3D position, const QVector3D color);
 };
