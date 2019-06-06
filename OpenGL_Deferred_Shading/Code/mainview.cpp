@@ -72,6 +72,7 @@ void MainView::initializeGL() {
     loadTextures();
 
     createObjects();
+    createLights();
     createSphere(); // create the light sphere geometry.
 
     fbo = new FramebufferObjectInstance(width(), height());
@@ -141,6 +142,7 @@ void MainView::loadTextures()
 
 void MainView::createObjects()
 {
+    // create an infamous cat-grid :)
     int w = 20;
     int h = 20;
     int dist = 2;
@@ -165,16 +167,25 @@ void MainView::createObjects()
         cube->setTranslation(-20.0f, 4.0f, 0.0);
         objects.push_back(cube);
     }
+}
 
-    Object* earth = new Object(mesh_sphere);
-    earth->setTexture(&texture_earth);
-    earth->setTranslation(0, 5, 0);
-    objects.push_back(earth);
+void MainView::createLights()
+{
+    createLight(QVector3D(0, 5.0, 0));
+    createLight(QVector3D(5.0, 5.0, 0));
+    createLight(QVector3D(0, 5.0, 5.0));
+}
 
-    Object* jupiter = new Object(mesh_sphere);
-    jupiter->setTexture(&texture_jupiter);
-    jupiter->setTranslation(5, 0, 0);
-    objects.push_back(jupiter);
+void MainView::createLight(QVector3D position)
+{
+    LightPoint* light = new LightPoint(position);
+    lights.push_back(light);
+    qDebug() << " lightcolor:"<<light->getColor();
+
+    Object* cube = new Object(mesh_cube);
+    cube->setTranslation(position.x(), position.y(), position.z());
+    cube->setTexture(&texture_jupiter);
+    objects.push_back(cube);
 }
 
 // --- OpenGL drawing
@@ -277,16 +288,8 @@ void MainView::paintGL() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
-
-    {
-        QVector3D color(0.0f, 0.0, 1.0f);
-        QVector3D pos(20.0, 10.0, 0.0);
-        renderPointLight(color, 27.0f, pos);
-    }
-    {
-        QVector3D color(0.0, 1.0f, 0.0);
-        QVector3D pos(9.0, 10.0, 0.0);
-        renderPointLight(color, 27.0f, pos);
+    for (LightPoint* lightPoint : lights) {
+        lightPoint->draw(shaderProgram, sphereIndexCount);
     }
 }
 
@@ -308,7 +311,7 @@ void MainView::updateProjectionTransform()
 {
     float aspect_ratio = static_cast<float>(width()) / static_cast<float>(height());
     projectionTransform.setToIdentity();
-    projectionTransform.perspective(60, aspect_ratio, static_cast<float>(0.2), 20);
+    projectionTransform.perspective(60, aspect_ratio, static_cast<float>(0.2), 3000);
 }
 
 void MainView::updateViewMatrix() {
@@ -393,9 +396,9 @@ void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
 
 // create simple UV-sphere.
 void MainView::createSphere() {
-    int stacks = 20;
-    int slices = 20;
-    const float PI = 3.14f;
+    int stacks = 200;
+    int slices = 200;
+    const float PI = 3.141592f;
 
     std::vector<float> positions;
     std::vector<GLuint> indices;
@@ -444,11 +447,4 @@ void MainView::createSphere() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*indices.size(), indices.data(), GL_STATIC_DRAW);
 
     sphereIndexCount = static_cast<GLuint>(indices.size());
-}
-
-void MainView::renderPointLight(const QVector3D color, float radius, const QVector3D position) {
-    glUniform1f(lightPointShaderUniform_lightRad, radius);
-    glUniform3f(lightPointShaderUniform_lightPos, position.x(), position.y(), position.z());
-    glUniform3f(lightPointShaderUniform_lightCol, color.x(), color.y(), color.z());
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sphereIndexCount), GL_UNSIGNED_INT, nullptr);
 }

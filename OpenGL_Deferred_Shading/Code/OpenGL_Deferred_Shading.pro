@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
     framebufferobject.cpp \
+    lightpoint.cpp \
     mainwindow.cpp \
     mainview.cpp \
     mesh.cpp \
@@ -36,6 +37,7 @@ SOURCES += main.cpp\
 
 HEADERS += mainwindow.h \
     framebufferobject.h \
+    lightpoint.h \
     mainview.h \
     mesh.h \
     model.h \

@@ -5,6 +5,7 @@
 #include "mesh.h"
 #include "framebufferobject.h"
 #include "object.h"
+#include "lightpoint.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -67,6 +68,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // FBO
     FramebufferObjectInstance *fbo;
+
+    // Lights
+    QVector<LightPoint *> lights;
 public:
     enum CurrentTexture : GLuint
     {
@@ -109,6 +113,9 @@ private:
     void loadTexture(QString file, GLuint texturePtr);
 
     void createObjects();
+    void createLights();
+    void createLight(QVector3D position);
+    void createSphere();
 
     void updateProjectionTransform();
     void updateModelTransforms();
@@ -123,9 +130,6 @@ private:
 
     // The current texture to display
     CurrentTexture currentTexture = COLOR;
-
-    void createSphere();
-    void renderPointLight(const QVector3D color, float radius, const QVector3D position);
 };
 
 #endif // MAINVIEW_H
