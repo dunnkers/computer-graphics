@@ -89,8 +89,10 @@ void MainView::createShaderProgram()
     geometryShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            ":/shaders/fragshader_geometry.glsl");
     geometryShaderProgram.link();
-    geometryShaderUniform_uVp = geometryShaderProgram
-            .uniformLocation("uVp");
+    geometryShaderUniform_mvpTransform = geometryShaderProgram
+            .uniformLocation("mvpTransform");
+    geometryShaderUniform_textureDiff = geometryShaderProgram
+            .uniformLocation("textureDiff");
 
     // Create Directional Light Shader program
     directionalLightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
@@ -213,10 +215,10 @@ void MainView::paintGL() {
     for (Object* object : objects) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, *object->getTexture());
-        glUniform1i(shaderProgram->uniformLocation("uDiffTex"), 0);
+        glUniform1i(geometryShaderUniform_textureDiff, 0);
 
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
-        glUniformMatrix4fv(geometryShaderUniform_uVp, 1, GL_FALSE, mvp.data());
+        glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
         object->draw();
     }
 
@@ -269,7 +271,7 @@ void MainView::paintGL() {
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
     glUniformMatrix4fv(pointLightShaderUniform_uVp, 1, GL_FALSE,
-                       (projectionTransform * viewMatrix).data());
+                       (viewMatrix * projectionTransform).data());
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -277,7 +279,7 @@ void MainView::paintGL() {
 
 
     {
-        QVector3D color(0.8f, 0.0, 0.0);
+        QVector3D color(1.0f, 0.0, 0.0);
         QVector3D pos(-20.0, 4.0, 0.0);
         renderPointLight(27.0f, pos, color);
     }

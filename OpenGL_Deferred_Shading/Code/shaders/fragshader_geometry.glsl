@@ -1,21 +1,21 @@
 #version 330
-in vec3 fsPos;
-in vec3 fsNormal;
-in vec2 fsUv;
+in vec3 fragPosition;
+in vec3 fragNormal;
+in vec2 fragTexCoords;
 
-uniform sampler2D uDiffTex;
+uniform sampler2D textureDiff;
 
 out vec4 geoData[3];
 
 void main()
 {
-    vec4 diff = texture(uDiffTex, fsUv).rgba;
+    vec4 diff = texture(textureDiff, fragTexCoords).rgba;
     if (diff.a < 0.2) {
         discard;
     }
 
     // output geometry.
     geoData[0] = vec4(diff.rgb, 1);
-    geoData[1] = vec4(fsNormal, 1);
-    geoData[2] = vec4(fsPos, 1);
+    geoData[1] = vec4(fragNormal, 1);
+    geoData[2] = vec4(fragPosition, 1);
 }

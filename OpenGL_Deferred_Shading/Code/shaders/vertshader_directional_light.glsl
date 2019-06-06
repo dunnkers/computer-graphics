@@ -9,10 +9,4 @@ void main()
 {
   fsUv = uvs[gl_VertexID];
   gl_Position = vec4( verts[gl_VertexID], 0.0, 1.0);
-
-//  float x = -1.0 + float((gl_VertexID & 1) << 2);
-//  float y = -1.0 + float((gl_VertexID & 2) << 1);
-//  fsUv.x = (x+1.0)*0.5;
-//  fsUv.y = (y+1.0)*0.5;
-//  gl_Position = vec4(x, y, 0, 1);
 }

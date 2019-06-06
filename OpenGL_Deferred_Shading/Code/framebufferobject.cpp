@@ -82,7 +82,6 @@ void FramebufferObjectInstance::setupDeferredShader(QOpenGLShaderProgram *shader
     GLint shaderUniform_uColorTex = shader->uniformLocation("uColorTex");
     GLint shaderUniform_uNormalTex = shader->uniformLocation("uNormalTex");
     GLint shaderUniform_uPositionTex = shader->uniformLocation("uPositionTex");
-//    GLint shaderUniform_uCameraPos = shader->uniformLocation("uCameraPos");
 
     // bind gbuffer textures.
     glUniform1i(shaderUniform_uColorTex, 0);
@@ -96,8 +95,6 @@ void FramebufferObjectInstance::setupDeferredShader(QOpenGLShaderProgram *shader
     glUniform1i(shaderUniform_uPositionTex, 2);
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, positionTexture);
-
-//    glUniform3f(shaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 }
 
 void FramebufferObjectInstance::destroy()
