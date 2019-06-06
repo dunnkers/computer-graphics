@@ -26,26 +26,27 @@ void main() {
                 );
     vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
 
-    vec3 lightToPosVector = position.xyz - lightPos;
-    float lightDist = length(lightToPosVector);  // position from light.
-    vec3 l = -lightToPosVector / (lightDist);
+    // compute new light position
+    vec3 vector_lightToPosition = position.xyz - lightPos;
+    float lightDistance = length(vector_lightToPosition);  // position from the light
 
-    // light attenuation.
-    float d = lightDist / lightRad;
-    float attenuation = 1.0 - d;
+    vec3 l = -vector_lightToPosition / lightDistance;
+    vec3 diff = lightCol * color.xyz * max(0.0, dot(normal.xyz, l)); // diffuse
+
     vec3 v = normalize(uniform_cameraPosition - position);
     vec3 h = normalize(l + v);
-
-    vec3 outColor =
-        // diffuse
-        lightCol * color.xyz * max(0.0, dot(normal.xyz, l)) +
-        // specular
-        lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 12.0);
-
+    vec3 spec = lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 12.0); // specular
 
     // do some depth test.
-    float ztest = step(0.0, lightRad - lightDist); // set 0 when too far from light centre
+    float ztest = step(0.0, lightRad - lightDistance); // set 0 when too far from light centre
+
+    // light attenuation.
+    float d = lightDistance / lightRad;
+    float attenuation = 1.0 - d;
+
+    // final color
+    vec3 outColor = diff + spec;
     outColor *= ztest * attenuation; // plus attenuation
 
-    fragColor = vec4(outColor, 1.0); // done!
+    fragColor = vec4(outColor, 1.0);
 }
