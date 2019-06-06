@@ -13,10 +13,6 @@
         <file>shaders/vertshader_directional_light.glsl</file>
         <file>shaders/vertshader_geometry.glsl</file>
         <file>shaders/vertshader_point_light.glsl</file>
-        <file>models/cottage.obj</file>
-        <file>models/grid.obj</file>
-        <file>models/buildings.obj</file>
-        <file>models/stadium.obj</file>
         <file>textures/earth.png</file>
         <file>textures/jupiter.png</file>
     </qresource>

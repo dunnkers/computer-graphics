@@ -1,5 +1,25 @@
 #include "mainview.h"
 
+void MainView::loadTexture(QString file, GLuint texturePtr)
+{
+    // Set texture parameters.
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // Push image data to texture.
+    QImage image(file);
+    QVector<quint8> imageData = imageToBytes(image);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+
+    // bind default again.
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 QVector<quint8> MainView::imageToBytes(QImage image) {
     // needed since (0,0) is bottom left in OpenGL
     QImage im = image.mirrored();

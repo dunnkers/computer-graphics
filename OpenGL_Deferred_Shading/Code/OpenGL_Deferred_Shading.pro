@@ -30,9 +30,9 @@ SOURCES += main.cpp\
     mainview.cpp \
     mesh.cpp \
     object.cpp \
+    texture.cpp \
     user_input.cpp \
-    model.cpp \
-    utility.cpp
+    model.cpp
 
 HEADERS += mainwindow.h \
     framebufferobject.h \
@@ -40,8 +40,7 @@ HEADERS += mainwindow.h \
     mesh.h \
     model.h \
     object.h \
-    vertex.h \
-    objectinstance.h
+    vertex.h
 
 FORMS    += mainwindow.ui
 
