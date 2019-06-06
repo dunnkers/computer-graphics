@@ -164,9 +164,16 @@ void MainView::createObjects()
         }
     }
 
-    Object* cube = new Object(mesh_cube);
-    cube->setTranslation(9, 5, 0);
-    objects.push_back(cube);
+    {
+        Object* cube = new Object(mesh_cube);
+        cube->setTranslation(9.0f, 5.0f, 0.0);
+        objects.push_back(cube);
+    }
+    {
+        Object* cube = new Object(mesh_cube);
+        cube->setTranslation(-9.0f, 4.0f, 0.0);
+        objects.push_back(cube);
+    }
 
     Object* sphere = new Object(mesh_sphere);
     sphere->setTranslation(0, 5, 0);
@@ -247,7 +254,7 @@ void MainView::paintGL() {
     shaderProgram->release();
 
     // skip point light source rendering for now.
-    return;
+//    return;
     //
     // Next, we render all the point light soures.
     // We will be doing our own depth testing in frag shader, so disable depth testing.
@@ -275,9 +282,17 @@ void MainView::paintGL() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
-    QVector3D color(1.0, 0.0, 0.0);
-    QVector3D pos(0.0, 0.0, 4.0);
-    renderPointLight(270.0f, pos, color);
+
+    {
+        QVector3D color(0.6f, 0.0, 0.0);
+        QVector3D pos(-9.0, 4.0, 0.0);
+        renderPointLight(27.0f, pos, color);
+    }
+    {
+        QVector3D color(0.0, 1.0f, 0.0);
+        QVector3D pos(9.0, 5.0, 0.0);
+        renderPointLight(27.0f, pos, color);
+    }
 }
 
 /**
