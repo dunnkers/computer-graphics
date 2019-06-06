@@ -36,9 +36,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // light shader - point lights
     QOpenGLShaderProgram lightPointShaderProgram;
     GLint lightPointShaderUniform_vpTransform;
-    GLint lightPointShaderUniform_uLightRadius;
-    GLint lightPointShaderUniform_uLightPosition;
-    GLint lightPointShaderUniform_uLightColor;
+    GLint lightPointShaderUniform_lightRad;
+    GLint lightPointShaderUniform_lightPos;
+    GLint lightPointShaderUniform_lightCol;
     // light sphere geometry:
     GLuint spherePositionVbo;
     GLuint sphereIndexVbo;
@@ -125,7 +125,7 @@ private:
     CurrentTexture currentTexture = COLOR;
 
     void createSphere();
-    void renderPointLight(float radius, const QVector3D position, const QVector3D color);
+    void renderPointLight(const QVector3D color, float radius, const QVector3D position);
 };
 
 #endif // MAINVIEW_H

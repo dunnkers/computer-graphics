@@ -6,12 +6,12 @@ out vec4 fragPosition;
 
 uniform mat4 vpTransform;
 
-uniform float uLightRadius;
-uniform vec3 uLightPosition;
+uniform float lightRad;
+uniform vec3 lightPos;
 
 void main()
 {
-  vec4 position = vpTransform * vec4((vertPosition * uLightRadius) + uLightPosition, 1.0);
+  vec4 position = vpTransform * vec4((vertPosition * lightRad) + lightPos, 1.0);
 
   gl_Position = position;
   fragPosition = position;

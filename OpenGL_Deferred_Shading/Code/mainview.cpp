@@ -109,12 +109,12 @@ void MainView::createShaderProgram()
     lightPointShaderProgram.link();
     lightPointShaderUniform_vpTransform = lightPointShaderProgram
             .uniformLocation("vpTransform");
-    lightPointShaderUniform_uLightRadius = lightPointShaderProgram
-            .uniformLocation("uLightRadius");
-    lightPointShaderUniform_uLightPosition = lightPointShaderProgram
-            .uniformLocation("uLightPosition");
-    lightPointShaderUniform_uLightColor = lightPointShaderProgram
-            .uniformLocation("uLightColor");
+    lightPointShaderUniform_lightRad = lightPointShaderProgram
+            .uniformLocation("lightRad");
+    lightPointShaderUniform_lightPos = lightPointShaderProgram
+            .uniformLocation("lightPos");
+    lightPointShaderUniform_lightCol = lightPointShaderProgram
+            .uniformLocation("lightCol");
 }
 
 void MainView::loadMeshes()
@@ -281,12 +281,12 @@ void MainView::paintGL() {
     {
         QVector3D color(1.0f, 0.0, 0.0);
         QVector3D pos(-20.0, 4.0, 0.0);
-        renderPointLight(27.0f, pos, color);
+        renderPointLight(color, 27.0f, pos);
     }
     {
         QVector3D color(0.0, 1.0f, 0.0);
         QVector3D pos(9.0, 10.0, 0.0);
-        renderPointLight(27.0f, pos, color);
+        renderPointLight(color, 27.0f, pos);
     }
 }
 
@@ -446,9 +446,9 @@ void MainView::createSphere() {
     sphereIndexCount = static_cast<GLuint>(indices.size());
 }
 
-void MainView::renderPointLight(float radius, const QVector3D position, const QVector3D color) {
-    glUniform1f(lightPointShaderUniform_uLightRadius, radius);
-    glUniform3f(lightPointShaderUniform_uLightPosition, position.x(), position.y(), position.z());
-    glUniform3f(lightPointShaderUniform_uLightColor, color.x(), color.y(), color.z());
+void MainView::renderPointLight(const QVector3D color, float radius, const QVector3D position) {
+    glUniform1f(lightPointShaderUniform_lightRad, radius);
+    glUniform3f(lightPointShaderUniform_lightPos, position.x(), position.y(), position.z());
+    glUniform3f(lightPointShaderUniform_lightCol, color.x(), color.y(), color.z());
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sphereIndexCount), GL_UNSIGNED_INT, nullptr);
 }

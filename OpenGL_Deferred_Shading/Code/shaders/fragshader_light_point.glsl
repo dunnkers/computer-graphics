@@ -1,53 +1,51 @@
 #version 330
 
+uniform vec3 uniform_cameraPosition; // camera position
+
 uniform sampler2D uniform_colorTexture;
 uniform sampler2D uniform_normalTexture;
 uniform sampler2D uniform_positionTexture;
 
-
-out vec4 outColor;
+out vec4 fragColor;
 
 in vec4 fragPosition;
 
-uniform float uLightRadius;
-uniform vec3 uLightPosition;
-uniform vec3 uLightColor;
-
-uniform vec3 uCameraPos;
-
+uniform float lightRad;
+uniform vec3 lightPos;
+uniform vec3 lightCol;
 
 void main() {
 
-    // get screen-space position of light sphere
-    // (remember to do perspective division.)
-    vec2 uv = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
+    // light sphere screen space retrieval. map to correct range.
+    vec2 fragTexCoords = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
 
-    // now we can sample from the gbuffer for every fragment the light sphere covers.
-    vec3 albedo = texture(uniform_colorTexture, uv).xyz;
-    vec3 n = normalize(texture(uniform_normalTexture, uv).xyz);
-    vec3 pos = texture(uniform_positionTexture, uv).xyz;
+    // retrieve data from gbuffers
+    vec3 color =      texture(uniform_colorTexture, fragTexCoords).xyz;
+    vec3 normal = normalize(
+                      texture(uniform_normalTexture, fragTexCoords).xyz
+                );
+    vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
 
-    vec3 lightToPosVector = pos.xyz - uLightPosition;
+    vec3 lightToPosVector = position.xyz - lightPos;
     float lightDist = length(lightToPosVector);  // position from light.
     vec3 l = -lightToPosVector / (lightDist);
 
-    // implement fake z-test. If too far from light center, then 0.
-    float ztest = step(0.0, uLightRadius - lightDist);
-
     // light attenuation.
-    float d = lightDist / uLightRadius;
+    float d = lightDist / lightRad;
     float attenuation = 1.0 - d;
-    vec3 v = normalize(uCameraPos - pos);
+    vec3 v = normalize(uniform_cameraPosition - position);
     vec3 h = normalize(l + v);
 
-    vec3 color =
+    vec3 outColor =
         // diffuse
-        uLightColor * albedo.xyz * max(0.0, dot(n.xyz, l)) +
+        lightCol * color.xyz * max(0.0, dot(normal.xyz, l)) +
         // specular
-        uLightColor * 0.4 * pow(max(0.0, dot(h, n)), 12.0); 
+        lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 12.0);
 
-    // finally ztest and attenuation.
-    color *= ztest * attenuation;
 
-    outColor = vec4(color, 1.0); // done!
+    // do some depth test.
+    float ztest = step(0.0, lightRad - lightDist); // set 0 when too far from light centre
+    outColor *= ztest * attenuation; // plus attenuation
+
+    fragColor = vec4(outColor, 1.0); // done!
 }

@@ -12,6 +12,7 @@ uniform sampler2D uniform_positionTexture;
 
 void main()
 {
+  // retrieve data from gbuffers
   vec3 color =      texture(uniform_colorTexture, fragTexCoords).xyz;
   vec3 normal = normalize(
                     texture(uniform_normalTexture, fragTexCoords).xyz
