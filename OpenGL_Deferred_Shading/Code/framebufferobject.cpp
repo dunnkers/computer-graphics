@@ -99,3 +99,16 @@ void FramebufferObjectInstance::setupDeferredShader(QOpenGLShaderProgram *shader
 
 //    glUniform3f(shaderUniform_uCameraPos, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 }
+
+void FramebufferObjectInstance::destroy()
+{
+    glDeleteTextures(1, &colorTexture);
+    glDeleteTextures(1, &normalTexture);
+    glDeleteTextures(1, &positionTexture);
+    glDeleteFramebuffers(1, &fbo);
+}
+
+FramebufferObjectInstance::~FramebufferObjectInstance()
+{
+    destroy();
+}

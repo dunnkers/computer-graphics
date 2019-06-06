@@ -13,6 +13,8 @@ public:
     void bind();
     void unbind(GLuint framebuffer);
     void setupDeferredShader(QOpenGLShaderProgram *shader);
+    void destroy();
+    ~FramebufferObjectInstance();
 private:
     // Gbuffers.
     GLuint colorTexture;

@@ -318,6 +318,9 @@ void MainView::destroyModelBuffers()
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
+
+    // destroy fbo
+    fbo->destroy();
 }
 
 // --- Public interface
