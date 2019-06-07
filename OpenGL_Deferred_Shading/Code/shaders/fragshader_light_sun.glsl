@@ -10,6 +10,9 @@ uniform sampler2D uniform_colorTexture;
 uniform sampler2D uniform_normalTexture;
 uniform sampler2D uniform_positionTexture;
 
+// settings
+uniform int uniform_enableSun;
+
 void main()
 {
   // retrieve data from gbuffers
@@ -29,4 +32,7 @@ void main()
   vec3 ambi = color.xyz * 0.25; // ambient
 
   fragColor = vec4(vec3(diff + spec + ambi), 1.0);
+//  fragColor = vec4(normal * 0.5 + 0.5, 1.0);
+
+  if (uniform_enableSun == 0) fragColor = vec4(0, 0, 0, 0);
 }

@@ -252,6 +252,7 @@ void MainView::paintGL() {
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
 
     // we use attribute-less rendering to render a full-screen triangle.
     // so the triangle vertices are basically stored in the vertex shader.
@@ -280,6 +281,7 @@ void MainView::paintGL() {
     shaderProgram->bind();
     fbo->setupDeferredShader(shaderProgram);
     updateCameraUniform(shaderProgram);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
     glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
                        (projectionTransform * viewMatrix).data());
     glEnableVertexAttribArray(0);
