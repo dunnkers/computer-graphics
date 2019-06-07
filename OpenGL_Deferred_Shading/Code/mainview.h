@@ -125,6 +125,8 @@ private:
     void updateViewMatrix();
 
     void updateCameraUniform(QOpenGLShaderProgram *shader);
+    void updateSettingsUniforms(QOpenGLShaderProgram *shader);
+    void updateShaderUniforms(QOpenGLShaderProgram *shader);
 
     void destroyModelBuffers();
 

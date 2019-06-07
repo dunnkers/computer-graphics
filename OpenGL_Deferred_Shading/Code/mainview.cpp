@@ -253,10 +253,8 @@ void MainView::paintGL() {
 
     // Update uniforms
     fbo->updateShaderUniforms(shaderProgram);
-    updateCameraUniform(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
-    glUniform1i(shaderProgram->uniformLocation("uniform_currentTexture"),
-                static_cast<GLint>(currentTexture));
+    updateShaderUniforms(shaderProgram);
 
     // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -276,10 +274,8 @@ void MainView::paintGL() {
 
     // Update uniforms
     fbo->updateShaderUniforms(shaderProgram);
-    updateCameraUniform(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
-    glUniform1i(shaderProgram->uniformLocation("uniform_currentTexture"),
-                static_cast<GLint>(currentTexture));
+    updateShaderUniforms(shaderProgram);
 
     // update transform uniform
     glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
@@ -345,6 +341,19 @@ void MainView::updateCameraUniform(QOpenGLShaderProgram *shader)
     GLint uniform_cameraPosition = shader->uniformLocation("uniform_cameraPosition");
     glUniform3f(uniform_cameraPosition, cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
 }
+
+void MainView::updateSettingsUniforms(QOpenGLShaderProgram *shader)
+{
+    glUniform1i(shader->uniformLocation("uniform_currentTexture"),
+                static_cast<GLint>(currentTexture));
+}
+
+void MainView::updateShaderUniforms(QOpenGLShaderProgram *shader)
+{
+    updateCameraUniform(shader);
+    updateSettingsUniforms(shader);
+}
+
 
 // --- OpenGL cleanup helpers
 
