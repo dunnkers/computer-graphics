@@ -80,6 +80,9 @@ void MainView::initializeGL() {
     // Initialize transformations
     updateProjectionTransform();
     updateViewMatrix();
+
+    // timer
+    frameTimer.start();
 }
 
 void MainView::createShaderProgram()
@@ -171,31 +174,19 @@ void MainView::createObjects()
 
 void MainView::createLights()
 {
-//    createLight(QVector3D(0, 5.0, 0));
-//    createLight(QVector3D(5.0, 5.0, 0));
-//    createLight(QVector3D(0, 5.0, 5.0));
-//    createLight(QVector3D(1.0, 0.0, 0.0));
-//    createLight(QVector3D(3.0, 0.0, 0.0));
-//    createLight(QVector3D(5.0, 0.0, 0.0));
-//    createLight(QVector3D(0, 0.0, 3.0));
-//    createLight(QVector3D(0, 0.0, 5.0));
-//    createLight(QVector3D(0, 0.0, 7.0));
-//    createLight(QVector3D(0, 0.0, 11.0));
-//    createLight(QVector3D(0, 0.0, 15.0));
-//    createLight(QVector3D(0, 0.0, 19.0));
-    int w = 10;
-    int h = 10;
+    int w = 20;
+    int h = 20;
     int dist = 8;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
-            createLight(QVector3D((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist));
+            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
         }
     }
 }
 
 void MainView::createLight(QVector3D position)
 {
-    LightPoint* light = new LightPoint(position, 20.0f);
+    LightPoint* light = new LightPoint(position, 15.0f);
     lights.push_back(light);
     qDebug() << " lightcolor:"<<light->getColor();
 
@@ -307,6 +298,16 @@ void MainView::paintGL() {
     for (LightPoint* lightPoint : lights) {
         lightPoint->draw(shaderProgram, sphereIndexCount);
     }
+
+
+    // Performance
+    frameCount ++;
+   if (frameTimer.elapsed() >= 1000) {
+        double fps = frameCount / ((double)frameTimer.elapsed() / 1000.0);
+        qDebug() << "frames per second = " << fps;
+        frameTimer.restart();
+        frameCount = 0;
+   }
 }
 
 /**

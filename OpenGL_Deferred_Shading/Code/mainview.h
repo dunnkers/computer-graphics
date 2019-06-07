@@ -14,6 +14,7 @@
 #include <QOpenGLDebugLogger>
 #include <QOpenGLShaderProgram>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVector3D>
 #include <QImage>
 #include <QVector>
@@ -24,7 +25,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
     QOpenGLDebugLogger *debugLogger;
-    QTimer timer; // timer used for animation
+    QTimer timer;
+    QElapsedTimer frameTimer; // used for computing performance
+    int frameCount = 0;
 
     // geometry shader
     QOpenGLShaderProgram geometryShaderProgram;

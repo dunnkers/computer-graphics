@@ -45,7 +45,7 @@ Lighting pass. We are using two separate shaders for lighting. I have one shader
 
 ![shader sunlight](./Screenshots/lighting-sun-light.png)
 
-The second shader computes light from a point light source. I added lots of different point light sources to best illustrate the benefit of deferred shading. This type of shading looks as follows:
+The second shader computes light from a point light source. I added lots of different point light sources to best illustrate the benefit of deferred shading. A grid of 20 by 20 (=400) light points are generated, hovering slightly above the cats. The colors are generated at random in the `lightpoint.cpp` class. This type of shading looks as follows:
 
 ![shader point light](./Screenshots/lighting-point-lights.png)
 
