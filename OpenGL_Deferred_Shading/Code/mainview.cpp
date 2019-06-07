@@ -200,97 +200,95 @@ void MainView::paintGL() {
     // setup GL state.
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
-    glDisable(GL_BLEND);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
     glFrontFace(GL_CCW);
 
-    //
-    // In the first pass, we just write to the gbuffer.
-    //
+    /**
+     * FIRST PASS - RENDER GEOMETRY
+     */
     fbo->bind();
-
 
     // Clear the screen before rendering
     glViewport(0, 0, width(), height());
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // render geometry in 1st pass
+    // Geometry shader
     QOpenGLShaderProgram *shaderProgram;
     shaderProgram = &geometryShaderProgram;
     shaderProgram->bind();
 
-
-    // Set the texture and draw the mesh.
     for (Object* object : objects) {
+        // set texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, *object->getTexture());
         glUniform1i(geometryShaderUniform_textureDiff, 0);
 
+        // update transform uniform
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
         glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
+
+        // draw mesh
         object->draw();
     }
 
     shaderProgram->release();
 
+    /**
+     * SECOND PASS - LIGHTING
+     */
     fbo->unbind(defaultFramebufferObject());
 
-    //
-    // Now comes the Deferred shading!
-    //
+    /* SUN LIGHT */
+    // Clear the screen before rendering
     glViewport(0, 0, width(), height());
     glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //
-    // first, we render a single directional light, with a fullscreen pass.
-    //
-
+    // Sun light shader
     shaderProgram = &lightSunShaderProgram;
     shaderProgram->bind();
-    fbo->setupDeferredShader(shaderProgram);
+
+    // Update uniforms
+    fbo->updateShaderUniforms(shaderProgram);
     updateCameraUniform(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
     glUniform1i(shaderProgram->uniformLocation("uniform_currentTexture"),
                 static_cast<GLint>(currentTexture));
 
-    // we use attribute-less rendering to render a full-screen triangle.
-    // so the triangle vertices are basically stored in the vertex shader.
-    // see the vertex shader for more details.
-
+    // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
-    //
-    // Next, we render all the point light soures.
-    // We will be doing our own depth testing in frag shader, so disable depth testing.
-    // Enable alpha blending. So that the rendered point lights are added to the framebuffer.
-    //
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
+
+    /* POINT LIGHTS */
+    // opengl options
+    glDisable(GL_DEPTH_TEST); // we do this ourselves in the fragshader
+    glEnable(GL_BLEND); // enable alpha blending
     glBlendFunc(GL_ONE, GL_ONE);
+    glFrontFace(GL_CW); // configure which faces to render. render backfaces.
 
-    // We render only the inner faces of the light sphere.
-    // In other words, we render the back-faces and not the front-faces of the sphere.
-    // If we render the front-faces, the lighting of the light sphere disappears if
-    // we are inside the sphere, which is weird. But by rendering the back-faces instead,
-    // we solve this problem.
-    glFrontFace(GL_CW);
-
+    // Point light shader
     shaderProgram = &lightPointShaderProgram;
     shaderProgram->bind();
-    fbo->setupDeferredShader(shaderProgram);
+
+    // Update uniforms
+    fbo->updateShaderUniforms(shaderProgram);
     updateCameraUniform(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
     glUniform1i(shaderProgram->uniformLocation("uniform_currentTexture"),
                 static_cast<GLint>(currentTexture));
+
+    // update transform uniform
     glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
                        (projectionTransform * viewMatrix).data());
+
+    // draw light spheres
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
 
     for (LightPoint* lightPoint : lights) {
