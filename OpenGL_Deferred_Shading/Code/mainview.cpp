@@ -320,6 +320,7 @@ void MainView::paintGL() {
 void MainView::resizeGL(int newWidth, int newHeight)
 {
     qDebug() << "MainView::resizeGL(" << newWidth << ", " << newHeight << ")";
+    fbo->initTextures(newWidth, newHeight);
     updateProjectionTransform();
 }
 
