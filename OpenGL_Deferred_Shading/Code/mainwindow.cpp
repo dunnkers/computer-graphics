@@ -60,6 +60,15 @@ void MainWindow::on_ScaleSlider_sliderMoved(int value)
     ui->mainView->setScale(value);
 }
 
+void MainWindow::on_AllButton_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->mainView->setCurrentTexture(MainView::ALL);
+        ui->mainView->update();
+    }
+}
+
 void MainWindow::on_ColorButton_toggled(bool checked)
 {
     if (checked)
@@ -78,6 +87,15 @@ void MainWindow::on_NormalsButton_toggled(bool checked)
     }
 }
 
+void MainWindow::on_PositionButton_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->mainView->setCurrentTexture(MainView::POSITION);
+        ui->mainView->update();
+    }
+}
+
 void MainWindow::on_DepthButton_toggled(bool checked)
 {
     if (checked)
@@ -85,4 +103,16 @@ void MainWindow::on_DepthButton_toggled(bool checked)
         ui->mainView->setCurrentTexture(MainView::DEPTH);
         ui->mainView->update();
     }
+}
+
+void MainWindow::on_enableSun_toggled(bool checked)
+{
+    ui->mainView->toggleSun(checked);
+    ui->mainView->update();
+}
+
+void MainWindow::on_enableLights_toggled(bool checked)
+{
+    ui->mainView->toggleLights(checked);
+    ui->mainView->update();
 }

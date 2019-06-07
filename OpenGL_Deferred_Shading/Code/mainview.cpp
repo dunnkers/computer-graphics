@@ -260,7 +260,6 @@ void MainView::paintGL() {
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
 
-//    return;
     //
     // Next, we render all the point light soures.
     // We will be doing our own depth testing in frag shader, so disable depth testing.
@@ -381,6 +380,18 @@ void MainView::setCurrentTexture(CurrentTexture texture)
     currentTexture = texture;
 }
 
+void MainView::toggleSun(bool enabled)
+{
+    qDebug() << "Toggling sun enabled to" << enabled;
+    enableSun = enabled;
+}
+
+void MainView::toggleLights(bool enabled)
+{
+    qDebug() << "Toggling lights enabled to" << enabled;
+    enableLights = enabled;
+}
+
 // --- Private helpers
 
 /**
@@ -393,4 +404,3 @@ void MainView::setCurrentTexture(CurrentTexture texture)
 void MainView::onMessageLogged( QOpenGLDebugMessage Message ) {
     qDebug() << " → Log:" << Message;
 }
-

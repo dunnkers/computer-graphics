@@ -31,6 +31,7 @@ SOURCES += main.cpp\
     mainview.cpp \
     mesh.cpp \
     object.cpp \
+    sphere.cpp \
     texture.cpp \
     user_input.cpp \
     model.cpp

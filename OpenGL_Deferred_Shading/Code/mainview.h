@@ -71,10 +71,12 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Lights
     QVector<LightPoint *> lights;
+
+
 public:
     enum CurrentTexture : GLuint
     {
-        COLOR = 0, NORMALS, DEPTH
+        ALL = 0, COLOR, NORMALS, POSITION, DEPTH
     };
 
     MainView(QWidget *parent = nullptr);
@@ -84,7 +86,8 @@ public:
     void setRotation(int rotateX, int rotateY, int rotateZ);
     void setScale(int scale);
     void setCurrentTexture(CurrentTexture currentTexture);
-
+    void toggleSun(bool enabled);
+    void toggleLights(bool enabled);
 protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
@@ -128,8 +131,10 @@ private:
     // Useful utility method to convert image to bytes.
     QVector<quint8> imageToBytes(QImage image);
 
-    // The current texture to display
-    CurrentTexture currentTexture = COLOR;
+    // UI settings variables
+    CurrentTexture currentTexture = ALL; // The current texture to display
+    bool enableSun = true;
+    bool enableLights = true;
 };
 
 #endif // MAINVIEW_H

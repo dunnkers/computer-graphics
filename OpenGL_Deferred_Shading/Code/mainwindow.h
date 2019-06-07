@@ -29,6 +29,10 @@ private slots:
     void on_ColorButton_toggled(bool checked);
     void on_NormalsButton_toggled(bool checked);
     void on_DepthButton_toggled(bool checked);
+    void on_AllButton_toggled(bool checked);
+    void on_PositionButton_toggled(bool checked);
+    void on_enableSun_toggled(bool checked);
+    void on_enableLights_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H
