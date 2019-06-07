@@ -12,15 +12,16 @@ public:
     void setup(GLsizei width, GLsizei height);
     void bind();
     void unbind(GLuint framebuffer);
-    void setupDeferredShader(QOpenGLShaderProgram *shader);
+    void updateShaderUniforms(QOpenGLShaderProgram *shader);
     void destroy();
     ~FramebufferObjectInstance();
 private:
     // Gbuffers.
     GLuint colorTexture;
-    GLuint depthRenderbuffer;
     GLuint normalTexture;
     GLuint positionTexture;
+    GLuint depthTexture;
+    GLuint depthRenderbuffer;
     // FBO
     GLuint fbo;
 };

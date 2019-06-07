@@ -9,11 +9,11 @@ void FramebufferObjectInstance::setup(GLsizei width, GLsizei height)
 {
     initializeOpenGLFunctions();
 
-    // create the gbuffer. first create fbo:
+    // fbo
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    // RGBA8 color texture-p
+    // color gbuffer // using RGBA8
     glGenTextures(1, &colorTexture);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -23,7 +23,7 @@ void FramebufferObjectInstance::setup(GLsizei width, GLsizei height)
                                 GL_TEXTURE_2D, colorTexture, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    //  RGBA16F normal texture.
+    //  normal gbuffer // using RGBA16F
     glGenTextures(1, &normalTexture);
     glBindTexture(GL_TEXTURE_2D, normalTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -33,7 +33,7 @@ void FramebufferObjectInstance::setup(GLsizei width, GLsizei height)
                                 GL_TEXTURE_2D, normalTexture, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    //  RGBA16F position texture.
+    //  position gbuffer // using RGBA16F
     glGenTextures(1, &positionTexture);
     glBindTexture(GL_TEXTURE_2D, positionTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -43,24 +43,26 @@ void FramebufferObjectInstance::setup(GLsizei width, GLsizei height)
                                 GL_TEXTURE_2D, positionTexture, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // we need a z-buffer for the gbuffer. but we don't need to read from it.
-    // so instead create a renderbuffer.
-    glGenRenderbuffers(1, &depthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    // depth gbuffer // using GL_DEPTH_COMPONENT
+    glGenTextures(1, &depthTexture);
+    glBindTexture(GL_TEXTURE_2D, depthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                GL_TEXTURE_2D, depthTexture, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // specify that we can render to all three attachments.
     // this is very important! It won't work otherwise.
-    GLenum drawBuffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    GLenum drawBuffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                              GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, drawBuffers);
 
     // make sure nothing went wrong:
-    GLenum status;
-    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer not complete. Status: %d", status);
+    GLenum err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (err != GL_FRAMEBUFFER_COMPLETE) {
+        qDebug() << "Something went wrong with framebuffer! Error:" << err;
         exit(1);
     }
 
@@ -70,17 +72,16 @@ void FramebufferObjectInstance::setup(GLsizei width, GLsizei height)
 
 void FramebufferObjectInstance::bind()
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo); // bind g buffer for writing.
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 }
 
 void FramebufferObjectInstance::unbind(GLuint framebuffer)
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer); // stop writing to gbuffer.
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 }
 
-// configure a shader for usage in deferred rendering.
-void FramebufferObjectInstance::setupDeferredShader(QOpenGLShaderProgram *shader) {
-    // bind gbuffer textures.
+// update texture uniforms of given shader
+void FramebufferObjectInstance::updateShaderUniforms(QOpenGLShaderProgram *shader) {
     glUniform1i(shader->uniformLocation("uniform_colorTexture"), 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
@@ -92,6 +93,10 @@ void FramebufferObjectInstance::setupDeferredShader(QOpenGLShaderProgram *shader
     glUniform1i(shader->uniformLocation("uniform_positionTexture"), 2);
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, positionTexture);
+
+    glUniform1i(shader->uniformLocation("uniform_depthTexture"), 3);
+    glActiveTexture(GL_TEXTURE0 + 3);
+    glBindTexture(GL_TEXTURE_2D, depthTexture);
 }
 
 void FramebufferObjectInstance::destroy()
@@ -99,6 +104,7 @@ void FramebufferObjectInstance::destroy()
     glDeleteTextures(1, &colorTexture);
     glDeleteTextures(1, &normalTexture);
     glDeleteTextures(1, &positionTexture);
+    glDeleteTextures(1, &depthTexture);
     glDeleteFramebuffers(1, &fbo);
 }
 

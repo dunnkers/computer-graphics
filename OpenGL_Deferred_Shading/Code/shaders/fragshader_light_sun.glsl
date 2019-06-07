@@ -9,6 +9,7 @@ uniform vec3 uniform_cameraPosition; // camera position
 uniform sampler2D uniform_colorTexture;
 uniform sampler2D uniform_normalTexture;
 uniform sampler2D uniform_positionTexture;
+uniform sampler2D uniform_depthTexture;
 
 // settings
 uniform int uniform_enableSun;
@@ -22,6 +23,7 @@ void main()
                     texture(uniform_normalTexture, fragTexCoords).xyz
               );
   vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
+  vec3 depth =      texture(uniform_depthTexture, fragTexCoords).xyz;
 
   vec3 l = normalize(vec3(-0.6, 0.35, 0.2));
   vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.75; // diffuse
@@ -37,5 +39,6 @@ void main()
   if (uniform_currentTexture == 1) fragColor = vec4(color, 1.0);
   if (uniform_currentTexture == 2) fragColor = vec4(normal, 1.0); // map? (* 0.5 + 0.5)
   if (uniform_currentTexture == 3) fragColor = vec4(position, 1.0);
+  if (uniform_currentTexture == 4) fragColor = vec4(depth, 1.0);
   if (uniform_enableSun == 0) fragColor = vec4(0, 0, 0, 0);
 }
