@@ -1,6 +1,10 @@
 # Deferred Shading
 > An additional assignment in the CG 2018-2019 programme
 
+## Usage
+
+Program was tested on the RUG LWP Ubuntu computers.
+
 ## gBuffers
 
 Upon intialization of the main view we first create a framebuffer object and then create all gBuffers required, storing them in a texture. We create gBuffers to store color, normals, position and depth. All this is done in the `FramebufferObjectInstance` class.

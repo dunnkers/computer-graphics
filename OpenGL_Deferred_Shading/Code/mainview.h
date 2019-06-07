@@ -26,8 +26,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     QOpenGLDebugLogger *debugLogger;
     QTimer timer;
-    QElapsedTimer frameTimer; // used for computing performance
-    int frameCount = 0;
 
     // geometry shader
     QOpenGLShaderProgram geometryShaderProgram;
@@ -75,7 +73,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // Lights
     QVector<LightPoint *> lights;
 
-
+    // Performance
+    QElapsedTimer frameTimer; // used for computing performance
+    int frameCount = 0;
 public:
     enum CurrentTexture : GLuint
     {
