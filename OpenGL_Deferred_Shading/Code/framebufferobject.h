@@ -21,7 +21,6 @@ private:
     GLuint normalTexture;
     GLuint positionTexture;
     GLuint depthTexture;
-    GLuint depthRenderbuffer;
     // FBO
     GLuint fbo;
 };

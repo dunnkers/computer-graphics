@@ -1,4 +1,5 @@
 #include "mainview.h"
+#include <math.h>
 
 // create simple UV-sphere.
 void MainView::createSphere() {
