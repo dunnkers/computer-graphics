@@ -3,17 +3,67 @@
 
 ## gBuffers
 
-I created gBuffers as was explained in the PDF.
+Upon intialization of the main view we first create a framebuffer object and then create all gBuffers required, storing them in a texture. We create gBuffers to store color, normals, position and depth. All this is done in the `FramebufferObjectInstance` class.
+
+Instead of just using a `RGBA` type format for the textures, I decided to use a `RGA8` internalFormat for my color texture, and a `GL_RGBA16F` for my normals and position texture. For the depth texture we are (obviously) using a `GL_DEPTH_COMPONENT` format.
+
+I created a little control panel in the UI for selecting a gBuffer to be rendered.
+
+![ui-texture-panel](./Screenshots/ui-texture-panel.png)
+
+In this way, we can visualize all gBuffers.
+
+Color texture:
+
+![color texture](./Screenshots/texture-color.png)
+
+Normals texture:
+
+![normals texture](./Screenshots/texture-normals.png)
+
+Position texture:
+
+![position texture](./Screenshots/texture-position.png)
+
+Depth texture:
+
+![depth texture](./Screenshots/texture-depth.png)
+
+We send all gBuffer textures by hooking a uniform for every texture. We allocate a separate texture location for every gBuffer, ranging from `GL_TEXTURE0` to `GL_TEXTURE3`. Upload performed in `FramebufferObjectInstance::updateShaderUniforms`.
+
+## (Deferred) Rendering
+
+### First pass
+We first cycle through the rendering once, simply rendering the geometry without any lighting calculations. We bind the fbo before rendering thus rendering into our (non-default) fbo. I created a simple shader for simply rendering objects: `vertshader_geometry` and `fragshader_geometry`. We render all objects in this pass (in this case, a lot of cats).
+
+We switch back to the normal fbo by binding `defaultFramebufferObject()`: 
+
+`glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject);`
+
+### Second pass
+Lighting pass. We are using two separate shaders for lighting. I have one shader which computes a directional light, simulating sunlight, appropriately calling the shader `vertshader_light_sun` and `fragshader_light_sun`. As you can see light falls on the models from a specific direction:
+
+![shader sunlight](./Screenshots/lighting-sun-light.png)
+
+The second shader computes light from a point light source. I added lots of different point light sources to best illustrate the benefit of deferred shading. This type of shading looks as follows:
+
+![shader point light](./Screenshots/lighting-point-lights.png)
+
+Using both shaders:
+
+![shaders both](./Screenshots/lighting-both.png)
+
+Both shaders can be turned on or off individually using the UI.
+
+![shader settings](./Screenshots/shader-settings.png)
+
+### Performance
 
 
-## Controls
+### Controls
 
-You can use the mousewheel to zoom in and out.
+You can use the mousewheel to scale (zoom in and out).
 
-## Screenshots...
-
-
-
-## About
+### About
 
 By Jeroen Overschie, Computing Science student at RUG.
