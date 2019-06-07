@@ -171,14 +171,31 @@ void MainView::createObjects()
 
 void MainView::createLights()
 {
-    createLight(QVector3D(0, 5.0, 0));
-    createLight(QVector3D(5.0, 5.0, 0));
-    createLight(QVector3D(0, 5.0, 5.0));
+//    createLight(QVector3D(0, 5.0, 0));
+//    createLight(QVector3D(5.0, 5.0, 0));
+//    createLight(QVector3D(0, 5.0, 5.0));
+//    createLight(QVector3D(1.0, 0.0, 0.0));
+//    createLight(QVector3D(3.0, 0.0, 0.0));
+//    createLight(QVector3D(5.0, 0.0, 0.0));
+//    createLight(QVector3D(0, 0.0, 3.0));
+//    createLight(QVector3D(0, 0.0, 5.0));
+//    createLight(QVector3D(0, 0.0, 7.0));
+//    createLight(QVector3D(0, 0.0, 11.0));
+//    createLight(QVector3D(0, 0.0, 15.0));
+//    createLight(QVector3D(0, 0.0, 19.0));
+    int w = 10;
+    int h = 10;
+    int dist = 8;
+    for (int i = 0; i < w; ++i) {
+        for (int j = 0; j < h; ++j) {
+            createLight(QVector3D((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist));
+        }
+    }
 }
 
 void MainView::createLight(QVector3D position)
 {
-    LightPoint* light = new LightPoint(position);
+    LightPoint* light = new LightPoint(position, 20.0f);
     lights.push_back(light);
     qDebug() << " lightcolor:"<<light->getColor();
 
