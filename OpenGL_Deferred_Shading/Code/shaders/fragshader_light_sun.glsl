@@ -12,6 +12,7 @@ uniform sampler2D uniform_positionTexture;
 
 // settings
 uniform int uniform_enableSun;
+uniform int uniform_currentTexture;
 
 void main()
 {
@@ -32,7 +33,9 @@ void main()
   vec3 ambi = color.xyz * 0.25; // ambient
 
   fragColor = vec4(vec3(diff + spec + ambi), 1.0);
-//  fragColor = vec4(normal * 0.5 + 0.5, 1.0);
 
+  if (uniform_currentTexture == 1) fragColor = vec4(color, 1.0);
+  if (uniform_currentTexture == 2) fragColor = vec4(normal, 1.0); // map? (* 0.5 + 0.5)
+  if (uniform_currentTexture == 3) fragColor = vec4(position, 1.0);
   if (uniform_enableSun == 0) fragColor = vec4(0, 0, 0, 0);
 }

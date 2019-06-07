@@ -76,7 +76,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 public:
     enum CurrentTexture : GLuint
     {
-        ALL = 0, COLOR, NORMALS, POSITION, DEPTH
+        ALL = 0, COLOR = 1, NORMALS = 2, POSITION = 3, DEPTH = 4
     };
 
     MainView(QWidget *parent = nullptr);

@@ -16,6 +16,7 @@ uniform vec3 lightCol;
 
 // settings
 uniform int uniform_enableLights;
+uniform int uniform_currentTexture;
 
 void main() {
     // light sphere screen space retrieval. map to correct range.
@@ -51,7 +52,7 @@ void main() {
     outColor *= ztest * attenuation; // plus attenuation
 
     fragColor = vec4(outColor, 1.0);
-//    fragColor = vec4(normal * 0.5 + 0.5, 1.0);
 
+    if (uniform_currentTexture != 0) fragColor = vec4(0, 0, 0, 0);
     if (uniform_enableLights == 0) fragColor = vec4(0, 0, 0, 0);
 }

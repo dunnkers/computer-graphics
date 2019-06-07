@@ -241,7 +241,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="DepthButton">
+           <widget class="QRadioButton" name="ColorButton">
             <property name="text">
              <string>&amp;Color</string>
             </property>
@@ -265,7 +265,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="ColorButton">
+           <widget class="QRadioButton" name="DepthButton">
             <property name="text">
              <string>&amp;Depth</string>
             </property>
