@@ -5,7 +5,7 @@ in vec2 fragTexCoords;
 
 uniform sampler2D textureDiff;
 
-out vec4 geoData[3];
+out vec4 gBufferOutputs[3];
 
 void main()
 {
@@ -15,7 +15,7 @@ void main()
     }
 
     // output geometry.
-    geoData[0] = vec4(diff.rgb, 1);
-    geoData[1] = vec4(fragNormal, 1);
-    geoData[2] = vec4(fragPosition, 1);
+    gBufferOutputs[0] = vec4(diff.rgb, 1);
+    gBufferOutputs[1] = vec4(fragNormal, 1);
+    gBufferOutputs[2] = vec4(fragPosition, 1);
 }
