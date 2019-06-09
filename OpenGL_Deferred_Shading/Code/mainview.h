@@ -75,7 +75,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Performance
     QElapsedTimer frameTimer; // used for computing performance
-    int frameCount = 0;
+    int frameCount = 0; // fps
+    bool runningAnalysis = false;
 public:
     enum CurrentTexture : GLuint
     {
@@ -91,6 +92,7 @@ public:
     void setCurrentTexture(CurrentTexture currentTexture);
     void toggleSun(bool enabled);
     void toggleLights(bool enabled);
+    void perfAnalysis(bool start);
 protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);

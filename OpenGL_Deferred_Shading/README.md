@@ -69,6 +69,17 @@ Both shaders can be turned on or off individually using the UI.
 
 ### Performance
 
+Pressing the `run performance test` button will rotate the screen and measure average FPS. Test will last 30 seconds or can be stopped earlier by pressing the button.
+
+![performance button](./Screenshots/performance-button.png)
+
+When test is stopped the average fps is printed onto the console.
+
+![performance result](./Screenshots/performance-result.png)
+
+The test will update rotation on every frame, so slow performance means slow rotation, whilst fast performance will rotate the screen faster.
+
+![performance rotation](./Screenshots/performance-rotation-ex.gif)
 
 ### Controls
 

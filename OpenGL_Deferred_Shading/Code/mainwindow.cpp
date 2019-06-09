@@ -116,3 +116,19 @@ void MainWindow::on_enableLights_toggled(bool checked)
     ui->mainView->toggleLights(checked);
     ui->mainView->update();
 }
+
+void MainWindow::on_perfAnalysisButton_toggled(bool checked)
+{
+    // first, reset projection
+    if (checked) {
+        on_ResetScaleButton_clicked(true);
+        on_ResetRotationButton_clicked(true);
+        ui->perfAnalysisButton->setText("Stop performance test");
+    } else {
+
+        ui->perfAnalysisButton->setText("Start performance test");
+    }
+
+    // run performance analysis
+    ui->mainView->perfAnalysis(checked);
+}

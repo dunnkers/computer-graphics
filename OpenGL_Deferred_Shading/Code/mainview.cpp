@@ -80,9 +80,6 @@ void MainView::initializeGL() {
     // Initialize transformations
     updateProjectionTransform();
     updateViewMatrix();
-
-    // timer
-    frameTimer.start();
 }
 
 void MainView::createShaderProgram()
@@ -300,13 +297,17 @@ void MainView::paintGL() {
     }
 
 
-    // Performance
+    // Performance analysis
     frameCount ++;
-   if (frameTimer.elapsed() >= 1000) {
-        double fps = frameCount / ((double)frameTimer.elapsed() / 1000.0);
-        qDebug() << "frames per second = " << fps;
-        frameTimer.restart();
-        frameCount = 0;
+   if (runningAnalysis) {
+       setRotation(static_cast<int>(rotation.x()),
+                   static_cast<int>(rotation.y() + 1),
+                   static_cast<int>(rotation.z()));
+
+       // run analysis for 30 seconds.
+       if (frameTimer.elapsed() >= 30000) {
+           perfAnalysis(false);
+       }
    }
 }
 
@@ -422,6 +423,21 @@ void MainView::toggleLights(bool enabled)
 {
     qDebug() << "Toggling lights enabled to" << enabled;
     enableLights = enabled;
+}
+
+void MainView::perfAnalysis(bool start)
+{
+    if (start) {
+        frameTimer.start(); // timer
+    } else { // stop
+        // Print average FPS.
+        double fps = frameCount / (static_cast<double>(frameTimer.elapsed()) / 1000.0);
+        qDebug() << "frames per second = " << fps;
+        frameTimer.restart();
+        frameCount = 0;
+    }
+
+    runningAnalysis = start;
 }
 
 // --- Private helpers
