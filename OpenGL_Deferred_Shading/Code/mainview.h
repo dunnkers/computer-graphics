@@ -48,8 +48,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Meshes
     Mesh *mesh_cat;
-    Mesh *mesh_cube;
-    Mesh *mesh_sphere;
+//    Mesh *mesh_cube;
+//    Mesh *mesh_sphere;
 
     // Textures
     GLuint texturePtr;
@@ -140,6 +140,7 @@ private:
     CurrentTexture currentTexture = ALL; // The current texture to display
     bool enableSun = true;
     bool enableLights = true;
+    bool enableDeferred = true;
 };
 
 #endif // MAINVIEW_H

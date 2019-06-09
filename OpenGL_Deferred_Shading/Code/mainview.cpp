@@ -124,8 +124,8 @@ void MainView::createShaderProgram()
 void MainView::loadMeshes()
 {
     mesh_cat = new Mesh(":/models/cat.obj");
-    mesh_cube = new Mesh(":/models/cube.obj");
-    mesh_sphere = new Mesh(":/models/sphere.obj");
+//    mesh_cube = new Mesh(":/models/cube.obj");
+//    mesh_sphere = new Mesh(":/models/sphere.obj");
 }
 
 void MainView::loadTextures()
@@ -133,14 +133,15 @@ void MainView::loadTextures()
     glGenTextures(1, &texturePtr);
     loadTexture(":/textures/cat_diff.png", texturePtr);
 
-    glGenTextures(1, &texture_rug);
-    loadTexture(":/textures/rug_logo.png", texture_rug);
+    // not really using multiple textures, but support is there
+//    glGenTextures(1, &texture_rug);
+//    loadTexture(":/textures/rug_logo.png", texture_rug);
 
-    glGenTextures(1, &texture_earth);
-    loadTexture(":/textures/earth.png", texture_earth);
+//    glGenTextures(1, &texture_earth);
+//    loadTexture(":/textures/earth.png", texture_earth);
 
-    glGenTextures(1, &texture_jupiter);
-    loadTexture(":/textures/jupiter.png", texture_jupiter);
+//    glGenTextures(1, &texture_jupiter);
+//    loadTexture(":/textures/jupiter.png", texture_jupiter);
 }
 
 void MainView::createObjects()
@@ -158,18 +159,12 @@ void MainView::createObjects()
         }
     }
 
-    {
-        Object* cube = new Object(mesh_cube);
-        cube->setTexture(&texture_rug);
-        cube->setTranslation(9.0f, 10.0f, 0.0);
-        objects.push_back(cube);
-    }
-    {
-        Object* cube = new Object(mesh_cube);
-        cube->setTexture(&texture_rug);
-        cube->setTranslation(-20.0f, 4.0f, 0.0);
-        objects.push_back(cube);
-    }
+//    {
+//        Object* cube = new Object(mesh_sphere);
+//        cube->setTexture(&texture_earth);
+//        cube->setTranslation(3.0f, 3.0f, 2.0f);
+//        objects.push_back(cube);
+//    }
 }
 
 void MainView::createLights()
@@ -177,6 +172,7 @@ void MainView::createLights()
     int w = 20;
     int h = 20;
     int dist = 8;
+    // create a grid of point lights hovering just above the cat-grid
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
             createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
@@ -188,12 +184,12 @@ void MainView::createLight(QVector3D position)
 {
     LightPoint* light = new LightPoint(position, 15.0f);
     lights.push_back(light);
-    qDebug() << " lightcolor:"<<light->getColor();
+    qDebug() << "[" << position << "] Light color:" << light->getColor();
 
-    Object* cube = new Object(mesh_cube);
-    cube->setTranslation(position.x(), position.y(), position.z());
-    cube->setTexture(&texture_jupiter);
-    objects.push_back(cube);
+//    Object* cube = new Object(mesh_cube);
+//    cube->setTranslation(position.x(), position.y(), position.z());
+//    cube->setTexture(&texture_jupiter);
+//    objects.push_back(cube);
 }
 
 // --- OpenGL drawing
@@ -205,6 +201,8 @@ void MainView::createLight(QVector3D position)
  *
  */
 void MainView::paintGL() {
+    QOpenGLShaderProgram *shaderProgram;
+
     // setup GL state.
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
@@ -216,33 +214,34 @@ void MainView::paintGL() {
     /**
      * FIRST PASS - RENDER GEOMETRY
      */
-    fbo->bind();
+    if (enableDeferred) {
+        fbo->bind();
 
-    // Clear the screen before rendering
-    glViewport(0, 0, width(), height());
-    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Clear the screen before rendering
+        glViewport(0, 0, width(), height());
+        glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Geometry shader
-    QOpenGLShaderProgram *shaderProgram;
-    shaderProgram = &geometryShaderProgram;
-    shaderProgram->bind();
+        // Geometry shader
+        shaderProgram = &geometryShaderProgram;
+        shaderProgram->bind();
 
-    for (Object* object : objects) {
-        // set texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, *object->getTexture());
-        glUniform1i(geometryShaderUniform_textureDiff, 0);
+        for (Object* object : objects) {
+            // set texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, *object->getTexture());
+            glUniform1i(geometryShaderUniform_textureDiff, 0);
 
-        // update transform uniform
-        QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
-        glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
+            // update transform uniform
+            QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
+            glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
 
-        // draw mesh
-        object->draw();
+            // draw mesh
+            object->draw();
+        }
+
+        shaderProgram->release();
     }
-
-    shaderProgram->release();
 
     /**
      * SECOND PASS - LIGHTING
@@ -300,7 +299,7 @@ void MainView::paintGL() {
     }
 
 
-    // Performance
+    // Performance analysis
     frameCount ++;
    if (frameTimer.elapsed() >= 1000) {
         double fps = frameCount / ((double)frameTimer.elapsed() / 1000.0);
@@ -334,18 +333,18 @@ void MainView::updateProjectionTransform()
 
 void MainView::updateViewMatrix() {
     // calculate the actual view scale;
-    float minscale = 0.002f;
-    float maxscale = 0.05f;
-    float a = (maxscale - minscale) / 1.99f;
-    float b = minscale - (maxscale - minscale) / 199.0f;
+    float minscale = 0.003f;
+    float maxscale = 0.050f;
+    float a = (maxscale - minscale) / 2.00f;
+    float b = minscale - (maxscale - minscale) / 200.0f;
     float viewScale = a * scale + b;
 
     // View matrix
     viewMatrix.setToIdentity();
     viewMatrix.translate(0, 0, -1);
-    viewMatrix.scale(viewScale);
     viewMatrix.rotate(rotation.x(), { -1, 0, 0 });
     viewMatrix.rotate(rotation.y(), {  0, 1, 0 });
+    viewMatrix.scale(viewScale);
 
     // Camera position
     QVector4D pos(0, 0, 0, 1);
