@@ -334,18 +334,18 @@ void MainView::updateProjectionTransform()
 
 void MainView::updateViewMatrix() {
     // calculate the actual view scale;
-    float minscale = 0.002f;
-    float maxscale = 0.05f;
-    float a = (maxscale - minscale) / 1.99f;
-    float b = minscale - (maxscale - minscale) / 199.0f;
+    float minscale = 0.003f;
+    float maxscale = 0.050f;
+    float a = (maxscale - minscale) / 2.00f;
+    float b = minscale - (maxscale - minscale) / 200.0f;
     float viewScale = a * scale + b;
 
     // View matrix
     viewMatrix.setToIdentity();
     viewMatrix.translate(0, 0, -1);
-    viewMatrix.scale(viewScale);
     viewMatrix.rotate(rotation.x(), { -1, 0, 0 });
     viewMatrix.rotate(rotation.y(), {  0, 1, 0 });
+    viewMatrix.scale(viewScale);
 
     // Camera position
     QVector4D pos(0, 0, 0, 1);
