@@ -10,9 +10,11 @@
         <file>shaders/fragshader_light_sun.glsl</file>
         <file>shaders/fragshader_geometry.glsl</file>
         <file>shaders/fragshader_light_point.glsl</file>
+        <file>shaders/fragshader_light_sun_non-opt.glsl</file>
         <file>shaders/vertshader_light_sun.glsl</file>
         <file>shaders/vertshader_geometry.glsl</file>
         <file>shaders/vertshader_light_point.glsl</file>
+        <file>shaders/vertshader_light_sun_non-opt.glsl</file>
         <file>textures/earth.png</file>
         <file>textures/jupiter.png</file>
     </qresource>

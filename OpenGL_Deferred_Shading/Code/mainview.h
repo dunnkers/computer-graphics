@@ -34,6 +34,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // light shader - sun lights (directional)
     QOpenGLShaderProgram lightSunShaderProgram;
+    // non-opt
+    QOpenGLShaderProgram lightSunNonOptShaderProgram;
 
     // light shader - point lights
     QOpenGLShaderProgram lightPointShaderProgram;
@@ -77,6 +79,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QElapsedTimer frameTimer; // used for computing performance
     int frameCount = 0; // fps
     bool runningAnalysis = false;
+    bool deferred = true;
 public:
     enum CurrentTexture : GLuint
     {

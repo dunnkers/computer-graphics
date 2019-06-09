@@ -25,7 +25,7 @@ void main()
   vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
   vec3 depth =      texture(uniform_depthTexture, fragTexCoords).xyz;
 
-  vec3 l = normalize(vec3(-0.6, 0.35, 0.2));
+  vec3 l = normalize(vec3(-0.65, 0.40, 0.25));
   vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.75; // diffuse
 
   vec3 v = normalize(uniform_cameraPosition - position);

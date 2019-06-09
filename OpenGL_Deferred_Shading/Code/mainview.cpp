@@ -102,6 +102,13 @@ void MainView::createShaderProgram()
                                            ":/shaders/fragshader_light_sun.glsl");
     lightSunShaderProgram.link();
 
+    // Non-deferred shading implementation
+    lightSunNonOptShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_light_sun_non-opt.glsl");
+    lightSunNonOptShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_light_sun_non-opt.glsl");
+    lightSunNonOptShaderProgram.link();
+
     // Create Point Light Shader Program
     lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
                                            ":/shaders/vertshader_light_point.glsl");
@@ -202,6 +209,8 @@ void MainView::createLight(QVector3D position)
  *
  */
 void MainView::paintGL() {
+    QOpenGLShaderProgram *shaderProgram;
+
     // setup GL state.
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
@@ -213,38 +222,39 @@ void MainView::paintGL() {
     /**
      * FIRST PASS - RENDER GEOMETRY
      */
-    fbo->bind();
+    if (deferred) {
+        fbo->bind();
 
-    // Clear the screen before rendering
-    glViewport(0, 0, width(), height());
-    glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Clear the screen before rendering
+        glViewport(0, 0, width(), height());
+        glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Geometry shader
-    QOpenGLShaderProgram *shaderProgram;
-    shaderProgram = &geometryShaderProgram;
-    shaderProgram->bind();
+        // Geometry shader
+        shaderProgram = &geometryShaderProgram;
+        shaderProgram->bind();
 
-    for (Object* object : objects) {
-        // set texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, *object->getTexture());
-        glUniform1i(geometryShaderUniform_textureDiff, 0);
+        for (Object* object : objects) {
+            // set texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, *object->getTexture());
+            glUniform1i(geometryShaderUniform_textureDiff, 0);
 
-        // update transform uniform
-        QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
-        glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
+            // update transform uniform
+            QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
+            glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
 
-        // draw mesh
-        object->draw();
+            // draw mesh
+            object->draw();
+        }
+
+        shaderProgram->release();
     }
-
-    shaderProgram->release();
 
     /**
      * SECOND PASS - LIGHTING
      */
-    fbo->unbind(defaultFramebufferObject());
+    if (deferred) fbo->unbind(defaultFramebufferObject());
 
     /* SUN LIGHT */
     // Clear the screen before rendering
@@ -253,19 +263,35 @@ void MainView::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Sun light shader
-    shaderProgram = &lightSunShaderProgram;
+    shaderProgram = deferred ? &lightSunNonOptShaderProgram : &lightSunShaderProgram;
     shaderProgram->bind();
 
     // Update uniforms
-    fbo->updateShaderUniforms(shaderProgram);
+    if (deferred) fbo->updateShaderUniforms(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
     updateShaderUniforms(shaderProgram);
 
-    // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    if (deferred) {
+        glDrawArrays(GL_TRIANGLES, 0, 3); // render full screen quad by passing in 3 vertices without attributes. logic in vertex shader.
+    } else {
+        for (Object* object : objects) {
+            // set texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, *object->getTexture());
+            glUniform1i(shaderProgram->uniformLocation("textureDiff"), 0);
+
+            // update transform uniform
+            QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
+            glUniformMatrix4fv(shaderProgram->uniformLocation("mvpTransform"), 1, GL_FALSE, mvp.data());
+
+            // draw mesh
+            object->draw();
+        }
+    }
+
     shaderProgram->release();
 
-
+return;
     /* POINT LIGHTS */
     // opengl options
     glDisable(GL_DEPTH_TEST); // we do this ourselves in the fragshader
