@@ -6,7 +6,6 @@
 Program was tested on the RUG LWP Ubuntu computers.
 
 ## General
-
 I began with the CG 18-19 OpenGL_3 startpoint code from Nestor and starting building on top of that. I first implemented some abstractions for easily rendering multiple meshes and textures, see the `Mesh` and `Object` classes. An object is an entity that is rendered on screen, which can have a texture and a mesh attached. A mesh is loaded using the `Model` class. Next, I also added a view transform in order to simulate a camera view. All rotational controls rotate the entire scene. 
 
 ## gBuffers
@@ -41,7 +40,7 @@ We send all gBuffer textures by hooking a uniform for every texture. We allocate
 
 → Also, upon resizing, all gBuffer textures are correctly re-initialized using `glTexImage2D`.
 
-## (Deferred) Rendering
+## (Deferred) Rendering / Shading
 
 ### First pass
 We first cycle through the rendering once, simply rendering the geometry without any lighting calculations. We bind the fbo before rendering thus rendering into our (non-default) fbo. I created a simple shader for simply rendering objects: `vertshader_geometry` and `fragshader_geometry`. We render all objects in this pass (in this case, a lot of cats).
