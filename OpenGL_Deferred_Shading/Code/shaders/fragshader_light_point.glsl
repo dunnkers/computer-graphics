@@ -46,11 +46,11 @@ void main() {
     // light attenuation.
     float d = lightDistance / lightRad;
     float attenuation = 1.0 - d;
+    attenuation = clamp(1.0 / (1.0 + 0.5*d + d*d), 0.0, 1.0);
 
     // final color
     vec3 outColor = diff + spec;
-//    outColor *= ztest * attenuation; // plus attenuation
-//    outColor *= ztest; // plus ztest
+    outColor *= attenuation; // plus attenuation
 
     fragColor = vec4(outColor, 1.0);
 
