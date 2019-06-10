@@ -12,7 +12,7 @@ uniform mat3 normalTransform;
 
 void main()
 {
-    fragPosition = vertPosition;
+    fragPosition = (mvpTransform * vec4(vertPosition, 1.0)).xyz;
     fragNormal = normalTransform * vertNormal;
     fragTexCoords = vertTexCoords;
     gl_Position = mvpTransform * vec4(vertPosition, 1.0);

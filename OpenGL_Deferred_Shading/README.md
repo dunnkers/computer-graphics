@@ -29,13 +29,19 @@ Normals texture:
 
 ![normals texture](./Screenshots/texture-normals.png)
 
-→ Individual objects have their normal transformed by a `meshNormalTransform` uniform matrix. Normals are correctly drawn when objects are individually rotated:
+→ `Update 10-06-19` Individual objects have their normal transformed by a `meshNormalTransform` uniform matrix. Normals are correctly drawn when objects are individually rotated:
 
 ![normals texture rotated](./Screenshots/texture-normals-rotated.png)
 
 Position texture:
 
 ![position texture](./Screenshots/texture-position.png)
+
+→ `Update 10-06-19` By transforming the position by our Model View Projection (mvp) transform before sending it to the position texture, we obtain our positional texture in the correct and desired coordinate system.
+
+![position texture coordinates global](./Screenshots/texture-position-coordinates-global.png)
+
+![position texture coordinates global 2](./Screenshots/texture-position-coordinates-global-2.png)
 
 Depth texture:
 
