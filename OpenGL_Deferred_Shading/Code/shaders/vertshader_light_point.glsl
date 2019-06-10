@@ -11,8 +11,7 @@ uniform vec3 lightPos;
 
 void main()
 {
-  vec4 position = vpTransform * vec4((vertPosition * lightRad) + lightPos, 1.0);
-
-  gl_Position = position;
-  fragPosition = position;
+    vec4 position = vpTransform * vec4(vertPosition, 1.0);
+    gl_Position = position;
+    fragPosition = position;
 }

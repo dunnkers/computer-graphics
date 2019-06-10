@@ -42,10 +42,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint lightPointShaderUniform_lightRad;
     GLint lightPointShaderUniform_lightPos;
     GLint lightPointShaderUniform_lightCol;
-    // light sphere geometry:
-    GLuint spherePositionVbo;
-    GLuint sphereIndexVbo;
-    GLuint sphereIndexCount;
 
     // Meshes
     Mesh *mesh_cat;
@@ -73,6 +69,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     // Lights
     QVector<LightPoint *> lights;
+    QVector<Object *> lightBulbs;
 
     // Performance
     QElapsedTimer frameTimer; // used for computing performance
@@ -122,9 +119,7 @@ private:
     void loadTexture(QString file, GLuint texturePtr);
 
     void createObjects();
-    void createLights();
     void createLight(QVector3D position);
-    void createSphere();
 
     void updateProjectionTransform();
     void updateModelTransforms();

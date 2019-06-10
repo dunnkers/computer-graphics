@@ -77,6 +77,14 @@ Both shaders can be turned on or off individually using the UI.
 
 ![shader settings](./Screenshots/shader-settings.png)
 
+→ `Update 10-06-19` Using 'jupiter' light bulb sources and improved light positioning:
+
+![jupiter light bulbs](./Screenshots/jupiter-light-bulbs.png)
+
+![jupiter light bulbs](./Screenshots/jupiter-light-bulbs-2.png)
+
+![jupiter light bulbs](./Screenshots/jupiter-light-bulbs-3.png)
+
 ### Performance
 
 Pressing the `run performance test` button will rotate the screen and measure average FPS. Test will last 30 seconds or can be stopped earlier by pressing the button.

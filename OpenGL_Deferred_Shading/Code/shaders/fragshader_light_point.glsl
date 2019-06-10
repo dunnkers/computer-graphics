@@ -38,7 +38,7 @@ void main() {
 
     vec3 v = normalize(uniform_cameraPosition - position);
     vec3 h = normalize(l + v);
-    vec3 spec = lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 12.0); // specular
+    vec3 spec = lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 2.0); // specular
 
     // do some depth test.
     float ztest = step(0.0, lightRad - lightDistance); // set 0 when too far from light centre
@@ -49,7 +49,8 @@ void main() {
 
     // final color
     vec3 outColor = diff + spec;
-    outColor *= ztest * attenuation; // plus attenuation
+//    outColor *= ztest * attenuation; // plus attenuation
+//    outColor *= ztest; // plus ztest
 
     fragColor = vec4(outColor, 1.0);
 

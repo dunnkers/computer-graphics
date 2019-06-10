@@ -72,8 +72,6 @@ void MainView::initializeGL() {
     loadTextures();
 
     createObjects();
-    createLights();
-    createSphere(); // create the light sphere geometry.
 
     fbo = new FramebufferObjectInstance(width(), height());
 
@@ -156,9 +154,12 @@ void MainView::createObjects()
             cat->setRotation(QVector3D(i*i, j*j, 50*i + 40*j));
             objects.push_back(cat);
 
+            // create a light-bulb above every cat.
+            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
         }
     }
 
+    // Two random cubes.
     {
         Object* cube = new Object(mesh_cube);
         cube->setTexture(&texture_rug);
@@ -173,28 +174,23 @@ void MainView::createObjects()
     }
 }
 
-void MainView::createLights()
-{
-    int w = 20;
-    int h = 20;
-    int dist = 8;
-    for (int i = 0; i < w; ++i) {
-        for (int j = 0; j < h; ++j) {
-            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
-        }
-    }
-}
-
 void MainView::createLight(QVector3D position)
 {
-    LightPoint* light = new LightPoint(position, 15.0f);
+    LightPoint* light = new LightPoint(position, 250.0f);
     lights.push_back(light);
-    qDebug() << " lightcolor:"<<light->getColor();
+    qDebug() << "Light color:"<<light->getColor();
 
-    Object* cube = new Object(mesh_cube);
-    cube->setTranslation(position.x(), position.y(), position.z());
-    cube->setTexture(&texture_jupiter);
-    objects.push_back(cube);
+    Object* bulb = new Object(mesh_sphere);
+    bulb->setTranslation(position.x(), position.y(), position.z());
+    bulb->setTexture(&texture_jupiter);
+    bulb->setScale(1.0f);
+    lightBulbs.push_back(bulb);
+
+    Object* jupiter = new Object(mesh_sphere);
+    jupiter->setTranslation(position.x(), position.y(), position.z());
+    jupiter->setTexture(&texture_jupiter);
+    jupiter->setScale(0.2f);
+    objects.push_back(jupiter);
 }
 
 // --- OpenGL drawing
@@ -290,18 +286,25 @@ void MainView::paintGL() {
     glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
     updateShaderUniforms(shaderProgram);
 
-    // update transform uniform
-    glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
-                       (projectionTransform * viewMatrix).data());
-
     // draw light spheres
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, spherePositionVbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereIndexVbo);
-
+    int i = 0;
     for (LightPoint* lightPoint : lights) {
-        lightPoint->draw(shaderProgram, sphereIndexCount);
+        Object *sphere = lightBulbs.at(i);
+        QVector3D position = lightPoint->getPosition();
+        QVector3D color = lightPoint->getColor();
+
+        // update light bulb uniforms
+        glUniform1f(shaderProgram->uniformLocation("lightRad"), 15.f);
+        glUniform3f(shaderProgram->uniformLocation("lightPos"), position.x(), position.y(), position.z());
+        glUniform3f(shaderProgram->uniformLocation("lightCol"), color.x(), color.y(), color.z());
+
+        // update transform uniform
+        QMatrix4x4 m = sphere->getTransform();
+        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
+                           (projectionTransform * viewMatrix * m).data());
+
+        sphere->draw();
+        i ++;
     }
 
 
