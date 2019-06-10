@@ -8,11 +8,12 @@ out vec3 fragNormal;
 out vec2 fragTexCoords;
 
 uniform mat4 mvpTransform;
+uniform mat3 normalTransform;
 
 void main()
 {
     fragPosition = vertPosition;
-    fragNormal = vertNormal;
+    fragNormal = normalTransform * vertNormal;
     fragTexCoords = vertTexCoords;
     gl_Position = mvpTransform * vec4(vertPosition, 1.0);
 }

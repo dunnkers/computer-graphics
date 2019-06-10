@@ -17,6 +17,7 @@ public:
     void setTexture(GLuint *texturePointer);
 
     QMatrix4x4 getTransform();
+    QMatrix3x3 getNormalTransform();
     GLuint* getTexture();
 
     void bindTexture();
@@ -26,6 +27,7 @@ public:
 private:
     Mesh *mesh;
     QMatrix4x4 meshTransform;
+    QMatrix3x3 meshNormalTransform;
     GLuint *texture;
 };
 

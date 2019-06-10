@@ -29,6 +29,10 @@ Normals texture:
 
 ![normals texture](./Screenshots/texture-normals.png)
 
+→ Individual objects have their normal transformed by a `meshNormalTransform` uniform matrix. Normals are correctly drawn when objects are individually rotated:
+
+![normals texture rotated](./Screenshots/texture-normals-rotated.png)
+
 Position texture:
 
 ![position texture](./Screenshots/texture-position.png)

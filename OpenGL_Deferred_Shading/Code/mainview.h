@@ -30,6 +30,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     // geometry shader
     QOpenGLShaderProgram geometryShaderProgram;
     GLint geometryShaderUniform_mvpTransform;
+    GLint geometryShaderUniform_normalTransform;
     GLint geometryShaderUniform_textureDiff;
 
     // light shader - sun lights (directional)

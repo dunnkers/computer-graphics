@@ -92,6 +92,8 @@ void MainView::createShaderProgram()
     geometryShaderProgram.link();
     geometryShaderUniform_mvpTransform = geometryShaderProgram
             .uniformLocation("mvpTransform");
+    geometryShaderUniform_normalTransform = geometryShaderProgram
+            .uniformLocation("normalTransform");
     geometryShaderUniform_textureDiff = geometryShaderProgram
             .uniformLocation("textureDiff");
 
@@ -151,7 +153,9 @@ void MainView::createObjects()
             Object* cat = new Object(mesh_cat);
             cat->setTexture(&texturePtr);
             cat->setTranslation((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
+            cat->setRotation(QVector3D(i*i, j*j, 50*i + 40*j));
             objects.push_back(cat);
+
         }
     }
 
@@ -231,9 +235,13 @@ void MainView::paintGL() {
         glBindTexture(GL_TEXTURE_2D, *object->getTexture());
         glUniform1i(geometryShaderUniform_textureDiff, 0);
 
-        // update transform uniform
+        // update mvp transform uniform
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();
         glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
+
+        // update mesh normal transform
+        QMatrix3x3 normal = object->getNormalTransform();
+        glUniformMatrix3fv(geometryShaderUniform_normalTransform, 1, GL_FALSE, normal.data());
 
         // draw mesh
         object->draw();
