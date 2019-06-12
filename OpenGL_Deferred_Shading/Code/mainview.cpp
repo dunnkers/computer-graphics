@@ -148,16 +148,32 @@ void MainView::createObjects()
     int dist = 2;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
+            QVector3D position = QVector3D((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
+
             Object* cat = new Object(mesh_cat);
             cat->setTexture(&texturePtr);
-            cat->setTranslation((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
+            cat->setTranslation(position.x(), position.y(), position.z());
             cat->setRotation(QVector3D(i*i, j*j, 50*i + 40*j));
             objects.push_back(cat);
 
             // create a light-bulb above every cat.
-            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
+//            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
+
+            Object* jupiter = new Object(mesh_sphere);
+            jupiter->setTranslation(position.x(), position.y() + 6, position.z());
+            jupiter->setTexture(&texture_jupiter);
+            jupiter->setScale(2.5f);
+            objects.push_back(jupiter);
         }
     }
+    // red
+    createLight(new LightPoint(QVector3D(-8, 1, -8), QVector3D(1.0, 0.0, 0.0)));
+    // g
+    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
+    // b
+    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
+    // ..
+    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
 
     // Two random cubes.
     {
@@ -176,9 +192,15 @@ void MainView::createObjects()
 
 void MainView::createLight(QVector3D position)
 {
-    LightPoint* light = new LightPoint(position, 250.0f);
+    createLight(new LightPoint(position, 250.0f));
+}
+
+void MainView::createLight(LightPoint *light)
+{
+    QVector3D position = light->getPosition();
     lights.push_back(light);
 //    qDebug() << "Light color:"<<light->getColor();
+//    qDebug() << "Light position:"<<light->getPosition();
 
     Object* bulb = new Object(mesh_sphere);
     bulb->setTranslation(position.x(), position.y() + 1, position.z());
@@ -191,12 +213,6 @@ void MainView::createLight(QVector3D position)
     earth->setTexture(&texture_earth);
     earth->setScale(0.2f);
     objects.push_back(earth);
-
-    Object* jupiter = new Object(mesh_sphere);
-    jupiter->setTranslation(position.x(), position.y() + 6, position.z());
-    jupiter->setTexture(&texture_jupiter);
-    jupiter->setScale(2.5f);
-    objects.push_back(jupiter);
 }
 
 // --- OpenGL drawing

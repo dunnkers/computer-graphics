@@ -19,6 +19,6 @@ const vec2 uvs[3] = vec2[](
 
 void main()
 {
-  gl_Position = vec4(verts[gl_VertexID], 0.0, 1.0);
-  fragTexCoords = uvs[gl_VertexID];
+    gl_Position = vec4(verts[gl_VertexID], 0.0, 1.0);
+    fragTexCoords = uvs[gl_VertexID];
 }

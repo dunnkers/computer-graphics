@@ -120,6 +120,7 @@ private:
 
     void createObjects();
     void createLight(QVector3D position);
+    void createLight(LightPoint *light);
 
     void updateProjectionTransform();
     void updateModelTransforms();
