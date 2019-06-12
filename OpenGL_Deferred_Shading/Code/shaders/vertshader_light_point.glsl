@@ -1,17 +1,24 @@
 #version 330
 
-layout(location = 0) in vec3 vertPosition;
+out vec2 fragTexCoords;
 
-out vec4 fragPosition;
+// used to draw a full-screen quad.
+// vertices
+const vec2 verts[3] = vec2[](
+    vec2(-1, -1),
+    vec2(3, -1),
+    vec2(-1, 3)
+);
 
-uniform mat4 vpTransform;
-
-uniform float lightRad;
-uniform vec3 lightPos;
+// uv-coords
+const vec2 uvs[3] = vec2[](
+    vec2(0, 0),
+    vec2(2, 0),
+    vec2(0, 2)
+);
 
 void main()
 {
-    vec4 position = vpTransform * vec4(vertPosition, 1.0);
-    gl_Position = position;
-    fragPosition = position;
+  gl_Position = vec4(verts[gl_VertexID], 0.0, 1.0);
+  fragTexCoords = uvs[gl_VertexID];
 }

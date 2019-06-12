@@ -8,7 +8,7 @@ uniform sampler2D uniform_positionTexture;
 
 out vec4 fragColor;
 
-in vec4 fragPosition;
+in vec2 fragTexCoords;
 
 uniform float lightRad;
 uniform vec3 lightPos;
@@ -18,41 +18,59 @@ uniform vec3 lightCol;
 uniform int uniform_enableLights;
 uniform int uniform_currentTexture;
 
+const int light_count = 4;
+uniform vec3 lightPositions[light_count];
+uniform vec3 lightColors[light_count];
+
 void main() {
-    // light sphere screen space retrieval. map to correct range.
-    vec2 fragTexCoords = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
+//    // light sphere screen space retrieval. map to correct range.
+//    vec2 fragTexCoords = (fragPosition.xy / fragPosition.w) * 0.5 + 0.5;
 
     // retrieve data from gbuffers
-    vec3 color =      texture(uniform_colorTexture, fragTexCoords).xyz;
+    vec3 color =      texture(uniform_colorTexture, fragTexCoords.xy).xyz;
     vec3 normal = normalize(
-                      texture(uniform_normalTexture, fragTexCoords).xyz
+                      texture(uniform_normalTexture, fragTexCoords.xy).xyz
                 );
-    vec3 position =   texture(uniform_positionTexture, fragTexCoords).xyz;
+    vec3 position =   texture(uniform_positionTexture, fragTexCoords.xy).xyz;
 
-    // compute new light position
-    vec3 vector_lightToPosition = position.xyz - lightPos;
-    float lightDistance = length(vector_lightToPosition);  // position from the light
+    // then calculate lighting as usual
+//    vec3 lighting = color * 0.1; // hard-coded ambient component
+//    vec3 viewDir = normalize(uniform_cameraPosition - position);
+//    for (int i = 0; i < light_count; i ++)
+//    {
+//        // diffuse
+//        vec3 lightDir = normalize(lightPositions[i] - fragTexCoords);
+//        vec3 diffuse = max(dot(normal, lightDir), 0.0) * color * lightColors[i];
+//        lighting += diffuse;
+//    }
 
-    vec3 l = -vector_lightToPosition / lightDistance;
-    vec3 diff = lightCol * color.xyz * max(0.0, dot(normal.xyz, l)); // diffuse
+//    vec4 color2 =      texture(uniform_colorTexture, fragTexCoords.xy);
+    fragColor = vec4(normal, 1.0);
 
-    vec3 v = normalize(uniform_cameraPosition - position);
-    vec3 h = normalize(l + v);
-    vec3 spec = lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 2.0); // specular
+//    // compute new light position
+//    vec3 vector_lightToPosition = position.xyz - lightPos;
+//    float lightDistance = length(vector_lightToPosition);  // position from the light
 
-    // do some depth test.
-    float ztest = step(0.0, lightRad - lightDistance); // set 0 when too far from light centre
+//    vec3 l = -vector_lightToPosition / lightDistance;
+//    vec3 diff = lightCol * color.xyz * max(0.0, dot(normal.xyz, l)); // diffuse
 
-    // light attenuation.
-    float d = lightDistance / lightRad;
-    float attenuation = 1.0 - d;
-    attenuation = clamp(1.0 / (1.0 + 0.5*d + d*d), 0.0, 1.0);
+//    vec3 v = normalize(uniform_cameraPosition - position);
+//    vec3 h = normalize(l + v);
+//    vec3 spec = lightCol * 0.4 * pow(max(0.0, dot(h, normal)), 2.0); // specular
 
-    // final color
-    vec3 outColor = diff + spec;
-    outColor *= attenuation; // plus attenuation
+//    // do some depth test.
+//    float ztest = step(0.0, lightRad - lightDistance); // set 0 when too far from light centre
 
-    fragColor = vec4(outColor, 1.0);
+//    // light attenuation.
+//    float d = lightDistance / lightRad;
+//    float attenuation = 1.0 - d;
+//    attenuation = clamp(1.0 / (1.0 + 0.5*d + d*d), 0.0, 1.0);
+
+//    // final color
+//    vec3 outColor = diff + spec;
+//    outColor *= attenuation; // plus attenuation
+
+//    fragColor = vec4(outColor, 1.0);
 
     if (uniform_currentTexture != 0) fragColor = vec4(0, 0, 0, 0);
     if (uniform_enableLights == 0) fragColor = vec4(0, 0, 0, 0);

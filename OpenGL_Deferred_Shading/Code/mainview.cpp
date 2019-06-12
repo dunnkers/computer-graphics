@@ -143,8 +143,8 @@ void MainView::loadTextures()
 void MainView::createObjects()
 {
     // create an infamous cat-grid :)
-    int w = 20;
-    int h = 20;
+    int w = 8;
+    int h = 8;
     int dist = 2;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
@@ -178,18 +178,24 @@ void MainView::createLight(QVector3D position)
 {
     LightPoint* light = new LightPoint(position, 250.0f);
     lights.push_back(light);
-    qDebug() << "Light color:"<<light->getColor();
+//    qDebug() << "Light color:"<<light->getColor();
 
     Object* bulb = new Object(mesh_sphere);
-    bulb->setTranslation(position.x(), position.y(), position.z());
+    bulb->setTranslation(position.x(), position.y() + 1, position.z());
     bulb->setTexture(&texture_jupiter);
-    bulb->setScale(1.0f);
+    bulb->setScale(0.3f);
     lightBulbs.push_back(bulb);
 
+    Object* earth = new Object(mesh_sphere);
+    earth->setTranslation(position.x(), position.y(), position.z());
+    earth->setTexture(&texture_earth);
+    earth->setScale(0.2f);
+    objects.push_back(earth);
+
     Object* jupiter = new Object(mesh_sphere);
-    jupiter->setTranslation(position.x(), position.y(), position.z());
+    jupiter->setTranslation(position.x(), position.y() + 6, position.z());
     jupiter->setTexture(&texture_jupiter);
-    jupiter->setScale(0.2f);
+    jupiter->setScale(2.5f);
     objects.push_back(jupiter);
 }
 
@@ -250,6 +256,9 @@ void MainView::paintGL() {
      */
     fbo->unbind(defaultFramebufferObject());
 
+    // OpenGL settings
+    glDisable(GL_DEPTH_TEST);
+
     /* SUN LIGHT */
     // Clear the screen before rendering
     glViewport(0, 0, width(), height());
@@ -263,7 +272,22 @@ void MainView::paintGL() {
     // Update uniforms
     fbo->updateShaderUniforms(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
     updateShaderUniforms(shaderProgram);
+
+    // Update lighting positions and color array uniforms
+    const int light_count = 4;
+    QVector3D lightPositions[light_count];
+    QVector3D lightColors[light_count];
+    for (int i = 0; i < light_count; i++)
+    {
+        lightPositions[i] = lights.at(i)->getPosition();
+        lightColors[i] = lights.at(i)->getColor();
+    }
+    const int uniform_lightPositions = shaderProgram->uniformLocation("lightPositions");
+    shaderProgram->setUniformValueArray(uniform_lightPositions, lightPositions, light_count);
+    const int uniform_lightColors = shaderProgram->uniformLocation("lightColors");
+    shaderProgram->setUniformValueArray(uniform_lightColors, lightColors, light_count);
 
     // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -272,40 +296,51 @@ void MainView::paintGL() {
 
     /* POINT LIGHTS */
     // opengl options
-    glDisable(GL_DEPTH_TEST); // we do this ourselves in the fragshader
-    glEnable(GL_BLEND); // enable alpha blending
-    glBlendFunc(GL_ONE, GL_ONE);
-    glFrontFace(GL_CW); // configure which faces to render. render backfaces.
+//    glDisable(GL_DEPTH_TEST); // we do this ourselves in the fragshader
+            //    glEnable(GL_BLEND); // enable alpha blending
+            //    glBlendFunc(GL_ONE, GL_ONE);
+            //    glFrontFace(GL_CW); // configure which faces to render. render backfaces.
 
     // Point light shader
-    shaderProgram = &lightPointShaderProgram;
-    shaderProgram->bind();
+//    shaderProgram = &lightPointShaderProgram;
+//    shaderProgram->bind();
 
     // Update uniforms
-    fbo->updateShaderUniforms(shaderProgram);
-    glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
-    updateShaderUniforms(shaderProgram);
+//    fbo->updateShaderUniforms(shaderProgram);
+//    glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
+//    updateShaderUniforms(shaderProgram);
 
     // draw light spheres
-    int i = 0;
-    for (LightPoint* lightPoint : lights) {
-        Object *sphere = lightBulbs.at(i);
-        QVector3D position = lightPoint->getPosition();
-        QVector3D color = lightPoint->getColor();
 
-        // update light bulb uniforms
-        glUniform1f(shaderProgram->uniformLocation("lightRad"), 15.f);
-        glUniform3f(shaderProgram->uniformLocation("lightPos"), position.x(), position.y(), position.z());
-        glUniform3f(shaderProgram->uniformLocation("lightCol"), color.x(), color.y(), color.z());
+    // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
+//    glDrawArrays(GL_TRIANGLES, 0, 3);
+//    shaderProgram->release();
+            //    for (Object *bulb : lightBulbs) {
+            //        QMatrix4x4 m = bulb->getTransform();
+            //        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
+            //                           (projectionTransform * viewMatrix * m).data());
+            //        bulb->draw();
+            //    }
 
-        // update transform uniform
-        QMatrix4x4 m = sphere->getTransform();
-        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
-                           (projectionTransform * viewMatrix * m).data());
+            //    int i = 0;
+            //    for (LightPoint* lightPoint : lights) {
+            //        Object *sphere = lightBulbs.at(i);
+            //        QVector3D position = lightPoint->getPosition();
+            //        QVector3D color = lightPoint->getColor();
 
-        sphere->draw();
-        i ++;
-    }
+            //        // update light bulb uniforms
+            //        glUniform1f(shaderProgram->uniformLocation("lightRad"), 15.f);
+            //        glUniform3f(shaderProgram->uniformLocation("lightPos"), position.x(), position.y(), position.z());
+            //        glUniform3f(shaderProgram->uniformLocation("lightCol"), color.x(), color.y(), color.z());
+
+            //        // update transform uniform
+            //        QMatrix4x4 m = sphere->getTransform();
+            //        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
+            //                           (projectionTransform * viewMatrix * m).data());
+
+            //        sphere->draw();
+            //        i ++;
+            //    }
 
 
     // Performance analysis
