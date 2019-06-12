@@ -4,13 +4,17 @@ in vec3 fragNormal;
 in vec2 fragTexCoords;
 
 uniform sampler2D textureDiff;
+uniform vec3 materialAmbient;
+uniform bool hasTextureBool;
 
 out vec4 gBufferOutputs[3];
 
 void main()
 {
-    vec4 diff = texture(textureDiff, fragTexCoords).rgba;
-    gBufferOutputs[0] = vec4(diff.rgb, 1);
+    vec3 col = vec3(0, 0, 0);
+    if (hasTextureBool) col += texture(textureDiff, fragTexCoords).rgb;
+    col += materialAmbient;
+    gBufferOutputs[0] = vec4(col, 1);
     gBufferOutputs[1] = vec4(fragNormal, 1);
     gBufferOutputs[2] = vec4(fragPosition, 1);
 }

@@ -208,11 +208,12 @@ void MainView::createLight(LightPoint *light)
 //    bulb->setScale(0.3f);
 //    lightBulbs.push_back(bulb);
 
-    Object* earth = new Object(mesh_sphere);
-    earth->setTranslation(position.x(), position.y(), position.z());
-    earth->setTexture(&texture_earth);
-    earth->setScale(0.2f);
-    objects.push_back(earth);
+    Object* bulb = new Object(mesh_sphere);
+    bulb->setTranslation(position.x(), position.y(), position.z());
+//    bulb->setTexture(&texture_bulb);
+    bulb->setMaterialAmbient(light->getColor());
+    bulb->setScale(0.2f);
+    objects.push_back(bulb);
 }
 
 // --- OpenGL drawing
@@ -249,9 +250,16 @@ void MainView::paintGL() {
 
     for (Object* object : objects) {
         // set texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, *object->getTexture());
-        glUniform1i(geometryShaderUniform_textureDiff, 0);
+        glUniform1i(shaderProgram->uniformLocation("hasTextureBool"), object->hasTexture());
+        if (object->hasTexture()) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, *object->getTexture());
+            glUniform1i(geometryShaderUniform_textureDiff, 0);
+        }
+
+        // material - ambient
+        QVector3D materialAmbient = object->getMaterialAmbient();
+        shaderProgram->setUniformValue(shaderProgram->uniformLocation("materialAmbient"), materialAmbient);
 
         // update mvp transform uniform
         QMatrix4x4 mvp = projectionTransform * viewMatrix * object->getTransform();

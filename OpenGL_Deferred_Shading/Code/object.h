@@ -15,12 +15,14 @@ public:
     void setScale(float scale);
     void setRotation(QVector3D rotation);
     void setTexture(GLuint *texturePointer);
+    void setMaterialAmbient(QVector3D ambient);
 
     QMatrix4x4 getTransform();
     QMatrix3x3 getNormalTransform();
     GLuint* getTexture();
+    QVector3D getMaterialAmbient();
+    bool hasTexture();
 
-    void bindTexture();
     void draw();
     void destroy();
     ~Object();
@@ -29,6 +31,8 @@ private:
     QMatrix4x4 meshTransform;
     QMatrix3x3 meshNormalTransform;
     GLuint *texture;
+    QVector3D materialAmbient = QVector3D(0, 0, 0);
+    bool hasTextureBool = false;
 };
 
 #endif // OBJECT_H

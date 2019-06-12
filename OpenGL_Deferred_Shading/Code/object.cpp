@@ -35,6 +35,12 @@ void Object::setRotation(QVector3D rotation)
 void Object::setTexture(GLuint *texturePointer)
 {
     texture = texturePointer;
+    hasTextureBool = true;
+}
+
+void Object::setMaterialAmbient(QVector3D ambient)
+{
+    materialAmbient = ambient;
 }
 
 QMatrix4x4 Object::getTransform()
@@ -52,9 +58,14 @@ GLuint* Object::getTexture()
     return texture;
 }
 
-void Object::bindTexture()
+QVector3D Object::getMaterialAmbient()
 {
+    return materialAmbient;
+}
 
+bool Object::hasTexture()
+{
+    return hasTextureBool;
 }
 
 void Object::draw()
