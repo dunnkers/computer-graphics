@@ -21,10 +21,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_ResetRotationButton_clicked(bool checked)
 {
     Q_UNUSED(checked);
-    ui->RotationDialX->setValue(0);
-    ui->RotationDialY->setValue(0);
-    ui->RotationDialZ->setValue(0);
-    ui->mainView->setRotation(0, 0, 0);
+    QVector3D rotation_default = ui->mainView->rotation_default;
+    ui->RotationDialX->setValue(static_cast<int>(rotation_default.x()));
+    ui->RotationDialY->setValue(static_cast<int>(rotation_default.y()));
+    ui->RotationDialZ->setValue(static_cast<int>(rotation_default.z()));
+    ui->mainView->setRotation(ui->mainView->rotation_default);
 }
 
 void MainWindow::on_RotationDialX_sliderMoved(int value)
@@ -123,6 +124,7 @@ void MainWindow::on_perfAnalysisButton_toggled(bool checked)
     if (checked) {
         on_ResetScaleButton_clicked(true);
         on_ResetRotationButton_clicked(true);
+        ui->mainView->setRotation(ui->mainView->rotation_default);
         ui->perfAnalysisButton->setText("Stop performance test");
     } else {
 

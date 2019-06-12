@@ -76,6 +76,7 @@ void MainView::initializeGL() {
     fbo = new FramebufferObjectInstance(width(), height());
 
     // Initialize transformations
+    setRotation(rotation_default);
     updateProjectionTransform();
     updateViewMatrix();
 }
@@ -133,11 +134,14 @@ void MainView::loadTextures()
     glGenTextures(1, &texture_rug);
     loadTexture(":/textures/rug_logo.png", texture_rug);
 
-    glGenTextures(1, &texture_earth);
-    loadTexture(":/textures/earth.png", texture_earth);
+//    glGenTextures(1, &texture_earth);
+//    loadTexture(":/textures/earth.png", texture_earth);
 
     glGenTextures(1, &texture_jupiter);
     loadTexture(":/textures/jupiter.png", texture_jupiter);
+
+    glGenTextures(1, &texture_ground);
+    loadTexture(":/textures/ground.png", texture_ground, true);
 }
 
 void MainView::createObjects()
@@ -188,6 +192,11 @@ void MainView::createObjects()
         cube->setTranslation(-20.0f, 4.0f, 0.0);
         objects.push_back(cube);
     }
+    Object *floor = new Object(mesh_cube);
+    floor->setTexture(&texture_ground);
+    floor->setScale(200.0f);
+    floor->setTranslation(0.0, -1.005f, 0.0);
+    objects.push_back(floor);
 }
 
 void MainView::createLight(QVector3D position)
@@ -453,9 +462,10 @@ void MainView::destroyModelBuffers()
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
-    glDeleteTextures(1, &texture_earth);
+//    glDeleteTextures(1, &texture_earth);
     glDeleteTextures(1, &texture_jupiter);
     glDeleteTextures(1, &texture_rug);
+    glDeleteTextures(1, &texture_ground);
 
     // destroy fbo
     fbo->destroy();
@@ -465,7 +475,17 @@ void MainView::destroyModelBuffers()
 
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ)
 {
-    rotation = { static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ) };
+    setRotation(static_cast<float>(rotateX), static_cast<float>(rotateY), static_cast<float>(rotateZ));
+}
+
+void MainView::setRotation(QVector3D rotation)
+{
+    setRotation(rotation.x(), rotation.y(), rotation.z());
+}
+
+void MainView::setRotation(float rotateX, float rotateY, float rotateZ)
+{
+    rotation = { rotateX, rotateY, rotateZ };
     updateViewMatrix();
 }
 

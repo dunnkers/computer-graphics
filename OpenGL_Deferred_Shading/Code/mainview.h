@@ -53,6 +53,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLuint texture_rug;
     GLuint texture_earth;
     GLuint texture_jupiter;
+    GLuint texture_ground;
 
     // Objects
     QVector<Object *> objects;
@@ -80,12 +81,15 @@ public:
     {
         ALL = 0, COLOR = 1, NORMALS = 2, POSITION = 3, DEPTH = 4
     };
+    const QVector3D rotation_default = QVector3D(-10.0, 0, 0);
 
     MainView(QWidget *parent = nullptr);
     ~MainView();
 
     // Functions for widget input events
     void setRotation(int rotateX, int rotateY, int rotateZ);
+    void setRotation(QVector3D rotation);
+    void setRotation(float rotateX, float rotateY, float rotateZ);
     void setScale(int scale);
     void setCurrentTexture(CurrentTexture currentTexture);
     void toggleSun(bool enabled);
@@ -117,6 +121,7 @@ private:
     // Loads texture data into the buffer of texturePtr.
     void loadTextures();
     void loadTexture(QString file, GLuint texturePtr);
+    void loadTexture(QString file, GLuint texturePtr, bool repeat);
 
     void createObjects();
     void createLight(QVector3D position);
