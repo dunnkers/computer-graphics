@@ -41,7 +41,7 @@ void main()
     vec3 sunLight;
     {
         vec3 l = normalize(vec3(-0.6, 0.35, 0.2)); // sunlight direction
-        vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.75; // diffuse
+        vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.5; // diffuse
 
         vec3 v = normalize(uniform_cameraPosition - position);
         vec3 h = normalize(l + v);
@@ -56,6 +56,15 @@ void main()
     vec3 bulbsLight = vec3(0.0, 0.0, 0.0);
     vec3 viewDir  = normalize(uniform_cameraPosition - position);
     for (int i = 0; i < light_count; i ++) {
+        vec3 vertPosition;
+        { // reconstruct world coordinate position from the pixel coordinates.
+            vec4 vertPos;
+            vertPos.xy = fragTexCoords * 2.0f - 1.0f;
+            vertPos.z = depth.x * 2.0f - 1.0f;
+            vertPos.w = 1.0f;
+            vec4 loc = uniform_mvpTransform_inv * vertPos;
+            vertPosition = loc.xyz / loc.w;
+        }
 
         // From LearnGL
 //        float radius;
@@ -68,35 +77,29 @@ void main()
 //            / (2 * quadratic);
 //        }
 //        {
-//            float distance = length(lightPositions[i] - position);
-//            if (distance > 25.0f) continue;
+//            float distance = length(lightPositions[i] - vertPosition);
+//            if (distance > 20.0f) continue;
 
-//            vec3 lightDir = normalize(lightPositions[i] - position);
+//            vec3 lightDir = normalize(lightPositions[i] - vertPosition);
 //            vec3 diffuse = max(dot(normal, lightDir), 0.0) * color * lightColors[i];
 //            bulbsLight += diffuse;
 
 //            // specular
 //            vec3 halfwayDir = normalize(lightDir + viewDir);
-//            float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
+//            float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 //            vec3 specular = lightColors[i] * spec;// * Specular;
 //            bulbsLight += specular;
 //        }
-
+//continue;
         // Phong shading from OpenGL_3-startpoint
         {
-            vec4 vertPos;
-            vertPos.xy = fragTexCoords * 2.0f - 1.0f;
-            vertPos.z = depth.x * 2.0f - 1.0f;
-            vertPos.w = 1.0f;
-            vec4 loc = uniform_mvpTransform_inv * vertPos;
-            vec3 vertPosition = loc.xyz / loc.w;
 
 //            // inverse pixel position to original position.
 //            vec3 vertPosition = (vec4(position, 1.0) * uniform_mvpTransform_inv).xyz;
 //            vertPosition.z = depth.x * 2 - 1;
 
             float dist = length(lightPositions[i] - vertPosition);
-            if (dist > 20.0f) continue;
+            if (dist > 15.0f) continue;
             vec4 material = vec4(0.5, 0.5, 1, 5);
 
             // Ambient colour does not depend on any vectors.
@@ -121,9 +124,6 @@ void main()
 
     // output color
     fragColor = vec4(color_acc, 1.0);
-
-
-//    fragColor = vec4(vertPos, 1.0);
 
     if (uniform_currentTexture == 1) fragColor = vec4(color, 1.0);
     if (uniform_currentTexture == 2) fragColor = vec4(normal * 0.5 + 0.5, 1.0); // map range

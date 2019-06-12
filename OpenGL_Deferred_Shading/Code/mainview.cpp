@@ -174,10 +174,10 @@ void MainView::createObjects()
     createLight(new LightPoint(QVector3D(-16, 1, -8), QVector3D(1.0, 0.0, 0.0)));
     // g
     createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
-//    // b
-//    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
-//    // ..
-//    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
+    // b
+    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
+    // ..
+    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
 
     // Two random cubes.
     {
