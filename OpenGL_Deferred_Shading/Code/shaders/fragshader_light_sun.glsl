@@ -19,9 +19,10 @@ uniform int uniform_enableLights;
 uniform int uniform_currentTexture;
 
 // lights
-const int light_count = 1;
-uniform vec3 lightPositions[light_count];
-uniform vec3 lightColors[light_count];
+const int max_light_count = 256;
+uniform int light_count;
+uniform vec3 lightPositions[max_light_count];
+uniform vec3 lightColors[max_light_count];
 
 void main()
 {

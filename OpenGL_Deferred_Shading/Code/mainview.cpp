@@ -169,7 +169,7 @@ void MainView::createObjects()
     // red
     createLight(new LightPoint(QVector3D(-16, 1, -8), QVector3D(1.0, 0.0, 0.0)));
     // g
-//    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
+    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
 //    // b
 //    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
 //    // ..
@@ -199,18 +199,9 @@ void MainView::createLight(LightPoint *light)
 {
     QVector3D position = light->getPosition();
     lights.push_back(light);
-//    qDebug() << "Light color:"<<light->getColor();
-//    qDebug() << "Light position:"<<light->getPosition();
-
-//    Object* bulb = new Object(mesh_sphere);
-//    bulb->setTranslation(position.x(), position.y() + 1, position.z());
-//    bulb->setTexture(&texture_jupiter);
-//    bulb->setScale(0.3f);
-//    lightBulbs.push_back(bulb);
 
     Object* bulb = new Object(mesh_sphere);
     bulb->setTranslation(position.x(), position.y(), position.z());
-//    bulb->setTexture(&texture_bulb);
     bulb->setMaterialAmbient(light->getColor());
     bulb->setScale(0.2f);
     objects.push_back(bulb);
@@ -300,18 +291,20 @@ void MainView::paintGL() {
     updateShaderUniforms(shaderProgram);
 
     // Update lighting positions and color array uniforms
-    const int light_count = 1;
-    QVector3D lightPositions[light_count];
-    QVector3D lightColors[light_count];
+    const int light_count = lights.size();
+    QVector<QVector3D> lightPositions;
+    QVector<QVector3D> lightColors;
     for (int i = 0; i < light_count; i++)
     {
-        lightPositions[i] = lights.at(i)->getPosition();
-        lightColors[i] = lights.at(i)->getColor();
+        lightPositions.push_back(lights.at(i)->getPosition());
+        lightColors.push_back(lights.at(i)->getColor());
     }
     const int uniform_lightPositions = shaderProgram->uniformLocation("lightPositions");
-    shaderProgram->setUniformValueArray(uniform_lightPositions, lightPositions, light_count);
+    shaderProgram->setUniformValueArray(uniform_lightPositions, lightPositions.data(), light_count);
     const int uniform_lightColors = shaderProgram->uniformLocation("lightColors");
-    shaderProgram->setUniformValueArray(uniform_lightColors, lightColors, light_count);
+    shaderProgram->setUniformValueArray(uniform_lightColors, lightColors.data(), light_count);
+    const int uniform_light_count = shaderProgram->uniformLocation("light_count");
+    shaderProgram->setUniformValue(uniform_light_count, lights.size());
 
     QMatrix4x4 mvp_inv = projectionTransform * viewMatrix;
     int loc = shaderProgram->uniformLocation("uniform_mvpTransform_inv");
