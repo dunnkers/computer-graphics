@@ -5,6 +5,7 @@ in vec2 fragTexCoords;
 out vec4 fragColor;
 
 uniform vec3 uniform_cameraPosition; // camera position
+uniform mat4 uniform_mvpTransform_inv; // inverse mvp transformation
 
 // gbuffers
 uniform sampler2D uniform_colorTexture;
@@ -82,16 +83,17 @@ void main()
 
         // Phong shading from OpenGL_3-startpoint
         {
+            // inverse pixel position to original position.
+            vec3 vertPosition = (vec4(position, 1.0) * uniform_mvpTransform_inv).xyz;
+            vertPosition.z = depth.x;
+
             vec4 material = vec4(0.5, 0.5, 1, 5);
-            vec3 lightColour = lightColors[i];
-            vec3 vertPosition = vec3(-8, 2, -8);
-            vec3 relativeLightPosition = lightPositions[i];
 
             // Ambient colour does not depend on any vectors.
 //            bulbsLight += material.x * color;
 
             // Calculate light direction vectors in the phong model.
-            vec3 lightDirection   = normalize(relativeLightPosition - vertPosition);
+            vec3 lightDirection   = normalize(lightPositions[i] - vertPosition);
             vec3 normal           = normalize(normal);
 
             // Diffuse colour.
@@ -102,7 +104,7 @@ void main()
             vec3 viewDirection     = normalize(-vertPosition); // camera?!
             vec3 reflectDirection  = reflect(-lightDirection, normal);
             float specularIntesity = max(dot(reflectDirection, viewDirection), 0);
-            bulbsLight += color * lightColour * material.z * pow(specularIntesity, material.w);
+            bulbsLight += color * lightColors[i] * material.z * pow(specularIntesity, material.w);
         }
     }
     if (uniform_enableLights == 1) color_acc += bulbsLight;

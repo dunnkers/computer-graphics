@@ -167,13 +167,13 @@ void MainView::createObjects()
         }
     }
     // red
-    createLight(new LightPoint(QVector3D(-8, 1, -8), QVector3D(1.0, 0.0, 0.0)));
+    createLight(new LightPoint(QVector3D(-16, 1, -8), QVector3D(1.0, 0.0, 0.0)));
     // g
-    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
-    // b
-    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
-    // ..
-    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
+//    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
+//    // b
+//    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
+//    // ..
+//    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
 
     // Two random cubes.
     {
@@ -202,11 +202,11 @@ void MainView::createLight(LightPoint *light)
 //    qDebug() << "Light color:"<<light->getColor();
 //    qDebug() << "Light position:"<<light->getPosition();
 
-    Object* bulb = new Object(mesh_sphere);
-    bulb->setTranslation(position.x(), position.y() + 1, position.z());
-    bulb->setTexture(&texture_jupiter);
-    bulb->setScale(0.3f);
-    lightBulbs.push_back(bulb);
+//    Object* bulb = new Object(mesh_sphere);
+//    bulb->setTranslation(position.x(), position.y() + 1, position.z());
+//    bulb->setTexture(&texture_jupiter);
+//    bulb->setScale(0.3f);
+//    lightBulbs.push_back(bulb);
 
     Object* earth = new Object(mesh_sphere);
     earth->setTranslation(position.x(), position.y(), position.z());
@@ -292,7 +292,7 @@ void MainView::paintGL() {
     updateShaderUniforms(shaderProgram);
 
     // Update lighting positions and color array uniforms
-    const int light_count = 4;
+    const int light_count = 1;
     QVector3D lightPositions[light_count];
     QVector3D lightColors[light_count];
     for (int i = 0; i < light_count; i++)
@@ -304,6 +304,11 @@ void MainView::paintGL() {
     shaderProgram->setUniformValueArray(uniform_lightPositions, lightPositions, light_count);
     const int uniform_lightColors = shaderProgram->uniformLocation("lightColors");
     shaderProgram->setUniformValueArray(uniform_lightColors, lightColors, light_count);
+
+    QMatrix4x4 mvp_inv = projectionTransform * viewMatrix;
+    int loc = shaderProgram->uniformLocation("uniform_mvpTransform_inv");
+    shaderProgram->setUniformValue(loc, mvp_inv.inverted());
+//    glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
 
     // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
     glDrawArrays(GL_TRIANGLES, 0, 3);
