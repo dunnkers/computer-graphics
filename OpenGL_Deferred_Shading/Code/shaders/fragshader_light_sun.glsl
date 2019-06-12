@@ -84,10 +84,19 @@ void main()
 
         // Phong shading from OpenGL_3-startpoint
         {
-            // inverse pixel position to original position.
-            vec3 vertPosition = (vec4(position, 1.0) * uniform_mvpTransform_inv).xyz;
-            vertPosition.z = depth.x;
+            vec4 vertPos;
+            vertPos.xy = fragTexCoords * 2.0f - 1.0f;
+            vertPos.z = depth.x * 2.0f - 1.0f;
+            vertPos.w = 1.0f;
+            vec4 loc = uniform_mvpTransform_inv * vertPos;
+            vec3 vertPosition = loc.xyz / loc.w;
 
+//            // inverse pixel position to original position.
+//            vec3 vertPosition = (vec4(position, 1.0) * uniform_mvpTransform_inv).xyz;
+//            vertPosition.z = depth.x * 2 - 1;
+
+            float dist = length(lightPositions[i] - vertPosition);
+            if (dist > 20.0f) continue;
             vec4 material = vec4(0.5, 0.5, 1, 5);
 
             // Ambient colour does not depend on any vectors.
@@ -98,20 +107,23 @@ void main()
             vec3 normal           = normalize(normal);
 
             // Diffuse colour.
-            float diffuseIntesity = max(dot(normal, lightDirection), 0);
-            bulbsLight += color * material.y * diffuseIntesity;
+            float diffuseIntensity = max(dot(normal, lightDirection), 0);
+            bulbsLight += color * material.y * diffuseIntensity;
 
             // Specular colour.
-            vec3 viewDirection     = normalize(-vertPosition); // camera?!
+            vec3 viewDirection     = normalize(uniform_cameraPosition - vertPosition); // camera?!
             vec3 reflectDirection  = reflect(-lightDirection, normal);
-            float specularIntesity = max(dot(reflectDirection, viewDirection), 0);
-            bulbsLight += color * lightColors[i] * material.z * pow(specularIntesity, material.w);
+            float specularIntensity = max(dot(reflectDirection, viewDirection), 0);
+            bulbsLight += color * lightColors[i] * material.z * pow(specularIntensity, material.w);
         }
     }
     if (uniform_enableLights == 1) color_acc += bulbsLight;
 
     // output color
     fragColor = vec4(color_acc, 1.0);
+
+
+//    fragColor = vec4(vertPos, 1.0);
 
     if (uniform_currentTexture == 1) fragColor = vec4(color, 1.0);
     if (uniform_currentTexture == 2) fragColor = vec4(normal * 0.5 + 0.5, 1.0); // map range
