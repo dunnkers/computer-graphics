@@ -76,9 +76,6 @@ void main()
         // distance of lightsource to fragment real world position
         float dist = length(lightPositions[i] - vertPosition);
 
-        // color the lightbulb itself
-        if (dist < 0.2f) bulbsLight += lightColors[i] * 0.6;
-
         /* Phong Shading */
         float attenuation = 1.0 / (1.0 + 0.1 * dist + 0.02 * dist * dist);
         vec4 material = vec4(0.0f, attenuation, attenuation, 16.0f);
