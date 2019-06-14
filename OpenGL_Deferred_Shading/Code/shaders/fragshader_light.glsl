@@ -76,14 +76,14 @@ void main()
         // distance of lightsource to fragment real world position
         float dist = length(lightPositions[i] - vertPosition);
 
+        // don't compute light at all when too far
+        if (dist > 20.0f) continue;
+
         /* Phong Shading */
         float attenuation = 1.0 / (1.0 + 0.1 * dist + 0.02 * dist * dist);
         vec4 material = vec4(0.0f, attenuation, attenuation, 16.0f);
 
         // phong shading computation.
-        // ambient colour.
-        bulbsLight += material.x * color;
-
         // calculate light direction vectors in the phong model.
         vec3 lightDirection   = normalize(lightPositions[i] - vertPosition);
         vec3 normal           = normalize(normal);
