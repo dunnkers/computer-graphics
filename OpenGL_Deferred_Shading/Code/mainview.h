@@ -87,6 +87,7 @@ public:
     void setCurrentTexture(CurrentTexture currentTexture);
     void toggleSun(bool enabled);
     void toggleLights(bool enabled);
+    void toggleAnimation(bool enabled);
     void perfAnalysis(bool start);
 protected:
     void initializeGL();
@@ -139,6 +140,7 @@ private:
     CurrentTexture currentTexture = ALL; // The current texture to display
     bool enableSun = true;
     bool enableLights = true;
+    bool animate = false;
 };
 
 #endif // MAINVIEW_H

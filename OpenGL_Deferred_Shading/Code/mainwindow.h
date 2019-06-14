@@ -34,6 +34,7 @@ private slots:
     void on_enableSun_toggled(bool checked);
     void on_enableLights_toggled(bool checked);
     void on_perfAnalysisButton_toggled(bool checked);
+    void on_animate_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H

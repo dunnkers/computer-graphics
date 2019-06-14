@@ -52,6 +52,31 @@ float LightPoint::getRadius()
     return radius;
 }
 
+void LightPoint::setPosition(QVector3D pos)
+{
+    position = pos;
+}
+
+void LightPoint::setBulb(Object *bulbObj)
+{
+    bulb = bulbObj;
+}
+
+Object* LightPoint::getBulb()
+{
+    return bulb;
+}
+
+void LightPoint::setAnimationCoefs(QVector3D aniCoefs)
+{
+    animationCoefs = aniCoefs;
+}
+
+QVector3D LightPoint::getAnimationCoefs()
+{
+    return animationCoefs;
+}
+
 void LightPoint::draw(QOpenGLShaderProgram *shaderProgram, GLuint sphereIndexCount)
 {
     glUniform1f(shaderProgram->uniformLocation("lightRad"), radius);

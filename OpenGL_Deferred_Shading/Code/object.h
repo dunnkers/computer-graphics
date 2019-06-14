@@ -11,6 +11,7 @@ class Object
 public:
     Object(QString filename);
     Object(Mesh *meshPointer);
+    void setTranslation(QVector3D translation);
     void setTranslation(float x, float y, float z);
     void setScale(float scale);
     void setRotation(QVector3D rotation);

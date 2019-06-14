@@ -204,14 +204,14 @@ void MainView::createLight(QVector3D position)
 
 void MainView::createLight(LightPoint *light)
 {
-    QVector3D position = light->getPosition();
-    lights.push_back(light);
-
     Object* bulb = new Object(mesh_sphere);
-    bulb->setTranslation(position.x(), position.y(), position.z());
+    bulb->setTranslation(light->getPosition());
     bulb->setMaterialAmbient(light->getColor());
     bulb->setScale(0.2f);
     objects.push_back(bulb);
+
+    light->setBulb(bulb);
+    lights.push_back(light);
 }
 
 // --- OpenGL drawing
@@ -300,11 +300,24 @@ void MainView::paintGL() {
     const int light_count = lights.size();
     QVector<QVector3D> lightPositions;
     QVector<QVector3D> lightColors;
-    for (int i = 0; i < light_count; i++)
+    for (LightPoint *light : lights)
     {
-        lightPositions.push_back(lights.at(i)->getPosition());
-        lightColors.push_back(lights.at(i)->getColor());
+        lightPositions.push_back(light->getPosition());
+        lightColors.push_back(light->getColor());
+
+        // Animation
+        if (!animate) continue;
+        // animate light sources and bulbs
+        QVector3D pos = light->getPosition();
+        QVector3D aniCoefs = light->getAnimationCoefs();
+        pos += aniCoefs;
+        if (pos.y() > 5.0f) aniCoefs.setY(-0.03f);
+        if (pos.y() < 1.0f) aniCoefs.setY(0.03f);
+        light->setAnimationCoefs(aniCoefs);
+        light->setPosition(pos);
+        light->getBulb()->setTranslation(aniCoefs);
     }
+
     const int uniform_lightPositions = shaderProgram->uniformLocation("lightPositions");
     shaderProgram->setUniformValueArray(uniform_lightPositions, lightPositions.data(), light_count);
     const int uniform_lightColors = shaderProgram->uniformLocation("lightColors");
@@ -457,6 +470,17 @@ void MainView::toggleLights(bool enabled)
 {
     qDebug() << "Toggling lights enabled to" << enabled;
     enableLights = enabled;
+}
+
+void MainView::toggleAnimation(bool enabled)
+{
+    qDebug() << "Toggling animation enabled to" << enabled;
+    animate = enabled;
+    if (animate) {
+        timer.start(1000 / 60);
+    } else {
+        timer.stop();
+    };
 }
 
 void MainView::perfAnalysis(bool start)

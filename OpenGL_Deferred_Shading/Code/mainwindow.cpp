@@ -134,3 +134,9 @@ void MainWindow::on_perfAnalysisButton_toggled(bool checked)
     // run performance analysis
     ui->mainView->perfAnalysis(checked);
 }
+
+void MainWindow::on_animate_toggled(bool checked)
+{
+    ui->mainView->toggleAnimation(checked);
+    ui->mainView->update();
+}

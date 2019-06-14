@@ -14,6 +14,11 @@ Object::Object(Mesh *meshPointer)
     meshNormalTransform.setToIdentity();
 }
 
+void Object::setTranslation(QVector3D translation)
+{
+    this->setTranslation(translation.x(), translation.y(), translation.z());
+}
+
 void Object::setTranslation(float x, float y, float z)
 {
     meshTransform.translate(x, y, z);
