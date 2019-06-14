@@ -3,6 +3,8 @@
 
 `[14-06-2019]`
 
+![animation-1](./Screenshots/animation-1.gif)
+
 ## Usage
 
 Program was tested on the RUG LWP Ubuntu computers.
@@ -57,7 +59,9 @@ Lighting pass. I am using one shader which computes a directional (sun) light an
 
 We supply the light shader with 3 vertices without attributes and use this to render a quad. The vertex shader supplies the fragment coordinates to the fragment shader. In the fragment shader, we can then grab the data from the gBuffers, which have been filled in the first pass.
 
-In order to now compute the lighting, we do then still need to compute, for every fragment, its original world location. We do this by supplying the inverse view-project matrix as a uniform to the shader
+In order to now compute the lighting, we do then still need to compute, for every fragment, its original world location. We do this by supplying the inverse view-project matrix as a uniform to the shader on every frame. We take the fragment pixel location (map it back to -1 to 1 range), the depth value from the depth buffer (also map back to -1 to 1 range) and store the as a `vec3`. We then transform this vector by the inverse matrix, and lastly we undo the last transformation by dividing by the vector `xyz` components by its `w` component. We have now reconstructed the original vertex position from the fragment pixel location.
+
+Now, since we simply have the vertex location again, we can use the same Phong illumation computations as we did previously. I edited the material components and added some attenuation, to decrease the light intensity the farther the light travels from the lightsource. The attenuation is of form `1/(a + bx + cx^2)` where `x` is distance.
 
 ***Sunlight (directional):***
 
@@ -72,13 +76,20 @@ Using both light sources:
 
 ![shaders both](./Screenshots/lighting-both.png)
 
-Both shaders can be turned on or off individually using the UI.
+Lighting can be turned on or off individually using the UI.
 
 ![shader settings](./Screenshots/shader-settings.png)
 
+#### Lightbulbs
+
+For every light that is created, also a little sphere object is created. Every sphere does not get a texture, but gets an ambient color matching its light color instead. In the light-shader, when the distance of the vertex position to the light source is less than `< 0.2f`, we output the color of the lightbulb. Since we also size the lightbulbs `0.2f`, this means that some extra color is added to the lightbulb in the shading process. In this way, the light bulbs really seem to be turned 'on' or 'off', depending whether the lights are turned on or off.
+
+![Lightbulb](./Screenshots/lightbulb.png)
+A lightbulb hovering just above a cat. Visible are correct diffuse and specular lighting calculations.
+
 ### Scene
 
-I drew a scene with a grid of cats on top of a large box, with some planets around it. Light sources hover above the cats.
+I drew a scene with a grid of cats on top of a large box, with some planets around it. Light sources hover above the cats. 20x20 grid:
 
 ![scene-1](./Screenshots/scene-1.png)
 
