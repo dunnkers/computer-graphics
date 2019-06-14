@@ -55,7 +55,7 @@ We switch back to the normal fbo by binding `defaultFramebufferObject()`:
 `glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject);`
 
 ### Second pass
-Lighting pass. I am using one shader which computes a directional (sun) light and light bulbs. The shader is called `vertshader_light.glsl` and `fragshader_light.glsl`.
+Lighting pass. I am using one shader which computes a directional (sun) light and light bulbs. In the shader, I initialize a zero-vector to represent (dark) color, and then accumulate the light as I go. I first compute the directional sunlight color, and then loop over all the lights (supplied by uniform arrays) and add that light to the color accumulation vector. The shader is called `vertshader_light.glsl` and `fragshader_light.glsl`.
 
 We supply the light shader with 3 vertices without attributes and use this to render a quad. The vertex shader supplies the fragment coordinates to the fragment shader. In the fragment shader, we can then grab the data from the gBuffers, which have been filled in the first pass.
 
@@ -85,6 +85,7 @@ Lighting can be turned on or off individually using the UI.
 For every light that is created, also a little sphere object is created. Every sphere does not get a texture, but gets an ambient color matching its light color instead. In the light-shader, when the distance of the vertex position to the light source is less than `< 0.2f`, we output the color of the lightbulb. Since we also size the lightbulbs `0.2f`, this means that some extra color is added to the lightbulb in the shading process. In this way, the light bulbs really seem to be turned 'on' or 'off', depending whether the lights are turned on or off.
 
 ![Lightbulb](./Screenshots/lightbulb.png)
+
 A lightbulb hovering just above a cat. Visible are correct diffuse and specular lighting calculations.
 
 ### Scene
