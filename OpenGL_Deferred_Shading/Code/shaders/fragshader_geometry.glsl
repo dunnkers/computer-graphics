@@ -11,7 +11,7 @@ out vec4 gBufferOutputs[3];
 
 void main()
 {
-    vec3 col = vec3(0, 0, 0);
+    vec3 col = vec3(0.0f, 0.0f, 0.0f);
     if (hasTextureBool) col += texture(textureDiff, fragTexCoords).rgb;
     col += materialAmbient;
     gBufferOutputs[0] = vec4(col, 1);

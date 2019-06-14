@@ -147,9 +147,9 @@ void MainView::loadTextures()
 void MainView::createObjects()
 {
     // create an infamous cat-grid :)
-    int w = 8;
-    int h = 8;
-    int dist = 2;
+    int w = 20;
+    int h = 20;
+    int dist = 10;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
             QVector3D position = QVector3D((-(w / 2)*dist) + i * dist, 0, (-(h / 2)*dist) + j * dist);
@@ -161,23 +161,23 @@ void MainView::createObjects()
             objects.push_back(cat);
 
             // create a light-bulb above every cat.
-//            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
+            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
 
-            Object* jupiter = new Object(mesh_sphere);
-            jupiter->setTranslation(position.x(), position.y() + 6, position.z());
-            jupiter->setTexture(&texture_jupiter);
-            jupiter->setScale(2.5f);
-            objects.push_back(jupiter);
+//            Object* jupiter = new Object(mesh_sphere);
+//            jupiter->setTranslation(position.x(), position.y() + 6, position.z());
+//            jupiter->setTexture(&texture_jupiter);
+//            jupiter->setScale(2.5f);
+//            objects.push_back(jupiter);
         }
     }
-    // red
-    createLight(new LightPoint(QVector3D(-16, 1, -8), QVector3D(1.0, 0.0, 0.0)));
-    // g
-    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
-    // b
-    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
-    // ..
-    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
+//    // red
+//    createLight(new LightPoint(QVector3D(-16, 0, -8), QVector3D(1.0, 0.0, 0.0)));
+//    // g
+//    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
+//    // b
+//    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
+//    // ..
+//    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
 
     // Two random cubes.
     {
@@ -190,6 +190,12 @@ void MainView::createObjects()
         Object* cube = new Object(mesh_cube);
         cube->setTexture(&texture_rug);
         cube->setTranslation(-20.0f, 4.0f, 0.0);
+        objects.push_back(cube);
+    }
+    {
+        Object* cube = new Object(mesh_cube);
+        cube->setTexture(&texture_rug);
+        cube->setTranslation(-10.0f, 0.0f, 0.0);
         objects.push_back(cube);
     }
     Object *floor = new Object(mesh_cube);
