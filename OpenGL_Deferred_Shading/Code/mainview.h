@@ -33,15 +33,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint geometryShaderUniform_normalTransform;
     GLint geometryShaderUniform_textureDiff;
 
-    // light shader - sun lights (directional)
-    QOpenGLShaderProgram lightSunShaderProgram;
-
-    // light shader - point lights
-    QOpenGLShaderProgram lightPointShaderProgram;
-    GLint lightPointShaderUniform_vpTransform;
-    GLint lightPointShaderUniform_lightRad;
-    GLint lightPointShaderUniform_lightPos;
-    GLint lightPointShaderUniform_lightCol;
+    // light shader - lights (directional & point lights)
+    QOpenGLShaderProgram lightShaderProgram;
 
     // Meshes
     Mesh *mesh_cat;
@@ -124,6 +117,8 @@ private:
     void loadTexture(QString file, GLuint texturePtr, bool repeat);
 
     void createObjects();
+    void createJupiter(float x, float y, float z, float scale);
+    void createEarth(float x, float y, float z, float scale);
     void createLight(QVector3D position);
     void createLight(LightPoint *light);
 

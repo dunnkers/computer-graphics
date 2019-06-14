@@ -7,12 +7,10 @@
         <file>textures/rug_logo.png</file>
         <file>models/cat.obj</file>
         <file>models/sphere.obj</file>
-        <file>shaders/fragshader_light_sun.glsl</file>
+        <file>shaders/fragshader_light.glsl</file>
         <file>shaders/fragshader_geometry.glsl</file>
-        <file>shaders/fragshader_light_point.glsl</file>
-        <file>shaders/vertshader_light_sun.glsl</file>
+        <file>shaders/vertshader_light.glsl</file>
         <file>shaders/vertshader_geometry.glsl</file>
-        <file>shaders/vertshader_light_point.glsl</file>
         <file>textures/earth.png</file>
         <file>textures/jupiter.png</file>
         <file>textures/ground.png</file>

@@ -97,26 +97,11 @@ void MainView::createShaderProgram()
             .uniformLocation("textureDiff");
 
     // Create Sun Light Shader program (directional lighting)
-    lightSunShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_light_sun.glsl");
-    lightSunShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_light_sun.glsl");
-    lightSunShaderProgram.link();
-
-    // Create Point Light Shader Program
-    lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_light_point.glsl");
-    lightPointShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_light_point.glsl");
-    lightPointShaderProgram.link();
-    lightPointShaderUniform_vpTransform = lightPointShaderProgram
-            .uniformLocation("vpTransform");
-    lightPointShaderUniform_lightRad = lightPointShaderProgram
-            .uniformLocation("lightRad");
-    lightPointShaderUniform_lightPos = lightPointShaderProgram
-            .uniformLocation("lightPos");
-    lightPointShaderUniform_lightCol = lightPointShaderProgram
-            .uniformLocation("lightCol");
+    lightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_light.glsl");
+    lightShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_light.glsl");
+    lightShaderProgram.link();
 }
 
 void MainView::loadMeshes()
@@ -134,8 +119,8 @@ void MainView::loadTextures()
     glGenTextures(1, &texture_rug);
     loadTexture(":/textures/rug_logo.png", texture_rug);
 
-//    glGenTextures(1, &texture_earth);
-//    loadTexture(":/textures/earth.png", texture_earth);
+    glGenTextures(1, &texture_earth);
+    loadTexture(":/textures/earth.png", texture_earth);
 
     glGenTextures(1, &texture_jupiter);
     loadTexture(":/textures/jupiter.png", texture_jupiter);
@@ -147,8 +132,8 @@ void MainView::loadTextures()
 void MainView::createObjects()
 {
     // create an infamous cat-grid :)
-    int w = 20;
-    int h = 20;
+    int w = 10;
+    int h = 10;
     int dist = 10;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
@@ -162,47 +147,54 @@ void MainView::createObjects()
 
             // create a light-bulb above every cat.
             createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
-
-//            Object* jupiter = new Object(mesh_sphere);
-//            jupiter->setTranslation(position.x(), position.y() + 6, position.z());
-//            jupiter->setTexture(&texture_jupiter);
-//            jupiter->setScale(2.5f);
-//            objects.push_back(jupiter);
         }
     }
-//    // red
-//    createLight(new LightPoint(QVector3D(-16, 0, -8), QVector3D(1.0, 0.0, 0.0)));
-//    // g
-//    createLight(new LightPoint(QVector3D(-8, 1, 8), QVector3D(0.0, 1.0, 0.0)));
-//    // b
-//    createLight(new LightPoint(QVector3D(8, 1, -8), QVector3D(0.0, 0.0, 1.0)));
-//    // ..
-//    createLight(new LightPoint(QVector3D(8, 1, 8), QVector3D(1.0, 1.0, 0.0)));
 
-    // Two random cubes.
-    {
+    // Random cubes.
+    for (int i = 0; i < w; i ++) {
         Object* cube = new Object(mesh_cube);
         cube->setTexture(&texture_rug);
-        cube->setTranslation(9.0f, 10.0f, 0.0);
+        float cubeScale = rand() % 3 + 1.0f;
+        cube->setTranslation(-75.0f + i*dist, cubeScale - 1.0f, 0.0);
+        cube->setScale(cubeScale);
         objects.push_back(cube);
     }
-    {
-        Object* cube = new Object(mesh_cube);
-        cube->setTexture(&texture_rug);
-        cube->setTranslation(-20.0f, 4.0f, 0.0);
-        objects.push_back(cube);
-    }
-    {
-        Object* cube = new Object(mesh_cube);
-        cube->setTexture(&texture_rug);
-        cube->setTranslation(-10.0f, 0.0f, 0.0);
-        objects.push_back(cube);
-    }
+    // Random planets
+    createJupiter(-60.0f, 9.0f, -25.0f, 3.0f);
+    createJupiter(0.0f, 12.0f, -5.0f, 2.5f);
+    createJupiter(20.0f, 10.0f, -40.0f, 2.5f);
+    createJupiter(-20.0f, 9.0f, -25.0f, 3.0f);
+    createJupiter(70.0f, 16.0f, 60.0f, 3.5f);
+    createEarth(-70.0f, 7.0f, -25.0f, 2.0f);
+    createEarth(-50.0f, 10.0f, -5.0f, 1.5f);
+    createEarth(-20.0f, 12.0f, 20.0f, 1.0f);
+    createEarth(20.0f, 13.0f, 25.0f, 0.5f);
+    createEarth(50.0f, 8.0f, 30.0f, 2.5f);
+
+    // The floor
     Object *floor = new Object(mesh_cube);
     floor->setTexture(&texture_ground);
     floor->setScale(200.0f);
     floor->setTranslation(0.0, -1.005f, 0.0);
     objects.push_back(floor);
+}
+
+void MainView::createJupiter(float x, float y, float z, float scale)
+{
+    Object* jupiter = new Object(mesh_sphere);
+    jupiter->setTranslation(x, y, z);
+    jupiter->setTexture(&texture_jupiter);
+    jupiter->setScale(scale);
+    objects.push_back(jupiter);
+}
+
+void MainView::createEarth(float x, float y, float z, float scale)
+{
+    Object* earth = new Object(mesh_sphere);
+    earth->setTranslation(x, y, z);
+    earth->setTexture(&texture_earth);
+    earth->setScale(scale);
+    objects.push_back(earth);
 }
 
 void MainView::createLight(QVector3D position)
@@ -289,14 +281,13 @@ void MainView::paintGL() {
     // OpenGL settings
     glDisable(GL_DEPTH_TEST);
 
-    /* SUN LIGHT */
     // Clear the screen before rendering
     glViewport(0, 0, width(), height());
     glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Sun light shader
-    shaderProgram = &lightSunShaderProgram;
+    // Light shader
+    shaderProgram = &lightShaderProgram;
     shaderProgram->bind();
 
     // Update uniforms
@@ -324,61 +315,10 @@ void MainView::paintGL() {
     QMatrix4x4 mvp_inv = projectionTransform * viewMatrix;
     int loc = shaderProgram->uniformLocation("uniform_mvpTransform_inv");
     shaderProgram->setUniformValue(loc, mvp_inv.inverted());
-//    glUniformMatrix4fv(geometryShaderUniform_mvpTransform, 1, GL_FALSE, mvp.data());
 
     // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
     glDrawArrays(GL_TRIANGLES, 0, 3);
     shaderProgram->release();
-
-
-    /* POINT LIGHTS */
-    // opengl options
-//    glDisable(GL_DEPTH_TEST); // we do this ourselves in the fragshader
-            //    glEnable(GL_BLEND); // enable alpha blending
-            //    glBlendFunc(GL_ONE, GL_ONE);
-            //    glFrontFace(GL_CW); // configure which faces to render. render backfaces.
-
-    // Point light shader
-//    shaderProgram = &lightPointShaderProgram;
-//    shaderProgram->bind();
-
-    // Update uniforms
-//    fbo->updateShaderUniforms(shaderProgram);
-//    glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
-//    updateShaderUniforms(shaderProgram);
-
-    // draw light spheres
-
-    // render a full screen triangle by passing in 3 vertices without attributes. logic in vertex shader.
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-//    shaderProgram->release();
-            //    for (Object *bulb : lightBulbs) {
-            //        QMatrix4x4 m = bulb->getTransform();
-            //        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
-            //                           (projectionTransform * viewMatrix * m).data());
-            //        bulb->draw();
-            //    }
-
-            //    int i = 0;
-            //    for (LightPoint* lightPoint : lights) {
-            //        Object *sphere = lightBulbs.at(i);
-            //        QVector3D position = lightPoint->getPosition();
-            //        QVector3D color = lightPoint->getColor();
-
-            //        // update light bulb uniforms
-            //        glUniform1f(shaderProgram->uniformLocation("lightRad"), 15.f);
-            //        glUniform3f(shaderProgram->uniformLocation("lightPos"), position.x(), position.y(), position.z());
-            //        glUniform3f(shaderProgram->uniformLocation("lightCol"), color.x(), color.y(), color.z());
-
-            //        // update transform uniform
-            //        QMatrix4x4 m = sphere->getTransform();
-            //        glUniformMatrix4fv(lightPointShaderUniform_vpTransform, 1, GL_FALSE,
-            //                           (projectionTransform * viewMatrix * m).data());
-
-            //        sphere->draw();
-            //        i ++;
-            //    }
-
 
     // Performance analysis
     frameCount ++;
@@ -468,7 +408,7 @@ void MainView::destroyModelBuffers()
 
     // deleting texture buffers
     glDeleteTextures(1, &texturePtr);
-//    glDeleteTextures(1, &texture_earth);
+    glDeleteTextures(1, &texture_earth);
     glDeleteTextures(1, &texture_jupiter);
     glDeleteTextures(1, &texture_rug);
     glDeleteTextures(1, &texture_ground);
