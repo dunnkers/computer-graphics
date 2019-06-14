@@ -1,6 +1,8 @@
 # Deferred Shading
 > An additional assignment in the CG 2018-2019 programme
 
+`[14-06-2019]`
+
 ## Usage
 
 Program was tested on the RUG LWP Ubuntu computers.
@@ -29,19 +31,9 @@ Normals texture:
 
 ![normals texture](./Screenshots/texture-normals.png)
 
-→ `Update 10-06-19` Object normals were incorrect when objects were rotated. Individual objects now have their normal transformed by a `meshNormalTransform` uniform matrix. Normals are correctly drawn when objects are individually rotated:
-
-![normals texture rotated](./Screenshots/texture-normals-rotated.png)
-
 Position texture:
 
 ![position texture](./Screenshots/texture-position.png)
-
-→ `Update 10-06-19` Position texture was stored in incorrect coordinate space. By transforming the position by our Model View Projection transform (`mvpTransform`), before sending it to the position texture, we obtain our positional texture in the correct and desired coordinate system.
-
-![position texture coordinates global](./Screenshots/texture-position-coordinates-global.png)
-
-![position texture coordinates global 2](./Screenshots/texture-position-coordinates-global-2.png)
 
 Depth texture:
 
@@ -61,15 +53,22 @@ We switch back to the normal fbo by binding `defaultFramebufferObject()`:
 `glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject);`
 
 ### Second pass
-Lighting pass. We are using two separate shaders for lighting. I have one shader which computes a directional light, simulating sunlight, appropriately calling the shader `vertshader_light_sun` and `fragshader_light_sun`. As you can see light falls on the models from a specific direction:
+Lighting pass. I am using one shader which computes a directional (sun) light and light bulbs. The shader is called `vertshader_light.glsl` and `fragshader_light.glsl`.
+
+We supply the light shader with 3 vertices without attributes and use this to render a quad. The vertex shader supplies the fragment coordinates to the fragment shader. In the fragment shader, we can then grab the data from the gBuffers, which have been filled in the first pass.
+
+In order to now compute the lighting, we do then still need to compute, for every fragment, its original world location. We do this by supplying the inverse view-project matrix as a uniform to the shader
+
+***Sunlight (directional):***
 
 ![shader sunlight](./Screenshots/lighting-sun-light.png)
 
-The second shader computes light from a point light source. I added lots of different point light sources to best illustrate the benefit of deferred shading. A grid of 20 by 20 (=400) light points are generated, hovering slightly above the cats. The colors are generated at random in the `lightpoint.cpp` class. This type of shading looks as follows:
+***Lightbulbs (point lights):***
+I added lots of different point light sources to best illustrate the benefit of deferred shading. A grid of light points are generated, hovering slightly above the cats. The colors are generated at random in the `lightpoint.cpp` class.
 
 ![shader point light](./Screenshots/lighting-point-lights.png)
 
-Using both shaders:
+Using both light sources:
 
 ![shaders both](./Screenshots/lighting-both.png)
 
@@ -77,13 +76,28 @@ Both shaders can be turned on or off individually using the UI.
 
 ![shader settings](./Screenshots/shader-settings.png)
 
-→ `Update 10-06-19` Using 'jupiter' light bulb sources and improved light positioning:
+### Scene
 
-![jupiter light bulbs](./Screenshots/jupiter-light-bulbs.png)
+I drew a scene with a grid of cats on top of a large box, with some planets around it. Light sources hover above the cats.
 
-![jupiter light bulbs](./Screenshots/jupiter-light-bulbs-2.png)
+![scene-1](./Screenshots/scene-1.png)
 
-![jupiter light bulbs](./Screenshots/jupiter-light-bulbs-3.png)
+
+![scene-2](./Screenshots/scene-2.png)
+
+
+![scene-3](./Screenshots/scene-3.png)
+
+
+![scene-4](./Screenshots/scene-4.png)
+
+Grid size if configurable in the `createObjects()` function in `mainview.cpp` by editing variables `w` and `h`.
+
+### Animation
+
+By pressing the animate checkbox the lightbulbs will hover up and down. This way, you can see the light interactions better as well test the performance.
+
+![animation-1](./Screenshots/animation-1.gif)
 
 ### Performance
 
@@ -91,13 +105,13 @@ Pressing the `run performance test` button will rotate the screen and measure av
 
 ![performance button](./Screenshots/performance-button.png)
 
+Performance test in progress.
+
+![animation-2](./Screenshots/animation-2.gif)
+
 When test is stopped the average fps is printed onto the console.
 
 ![performance result](./Screenshots/performance-result.png)
-
-The test will update rotation on every frame, so slow performance means slow rotation, whilst fast performance will rotate the screen faster.
-
-![performance rotation](./Screenshots/performance-rotation-ex.gif)
 
 ### Controls
 

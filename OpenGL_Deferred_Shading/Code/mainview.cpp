@@ -311,8 +311,8 @@ void MainView::paintGL() {
         QVector3D pos = light->getPosition();
         QVector3D aniCoefs = light->getAnimationCoefs();
         pos += aniCoefs;
-        if (pos.y() > 5.0f) aniCoefs.setY(-0.03f);
-        if (pos.y() < 1.0f) aniCoefs.setY(0.03f);
+        if (pos.y() > 3.0f) aniCoefs.setY(-0.03f);
+        if (pos.y() < 0.5f) aniCoefs.setY(0.03f);
         light->setAnimationCoefs(aniCoefs);
         light->setPosition(pos);
         light->getBulb()->setTranslation(aniCoefs);
