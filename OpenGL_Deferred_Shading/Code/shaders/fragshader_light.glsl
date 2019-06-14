@@ -64,16 +64,15 @@ void main()
      * light from bulbs (point-lights)
      */
     vec3 bulbsLight = vec3(0.0, 0.0, 0.0);
-    vec3 viewDir  = normalize(uniform_cameraPosition - position);
-    for (int i = 0; i < light_count; i ++) {
-        // reconstruct world coordinate position from the pixel coordinates.
-        vec4 vertPos;
-        vertPos.xy = fragTexCoords * 2.0f - 1.0f;
-        vertPos.z = depth.x * 2.0f - 1.0f;
-        vertPos.w = 1.0f;
-        vec4 loc = uniform_mvpTransform_inv * vertPos;
-        vec3 vertPosition = loc.xyz / loc.w;
+    // reconstruct world coordinate position from the pixel coordinates.
+    vec4 vertPos;
+    vertPos.xy = fragTexCoords * 2.0f - 1.0f;
+    vertPos.z = depth.x * 2.0f - 1.0f;
+    vertPos.w = 1.0f;
+    vec4 loc = uniform_mvpTransform_inv * vertPos;
+    vec3 vertPosition = loc.xyz / loc.w;
 
+    for (int i = 0; i < light_count; i ++) {
         // distance of lightsource to fragment real world position
         float dist = length(lightPositions[i] - vertPosition);
 
