@@ -38,6 +38,7 @@ private slots:
     void on_ambientButton_toggled(bool checked);
     void on_diffuseButton_toggled(bool checked);
     void on_specularButton_toggled(bool checked);
+    void on_emissionButton_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H

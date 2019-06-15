@@ -158,3 +158,9 @@ void MainWindow::on_specularButton_toggled(bool checked)
     ui->mainView->toggleSpecular(checked);
     ui->mainView->update();
 }
+
+void MainWindow::on_emissionButton_toggled(bool checked)
+{
+    ui->mainView->toggleEmission(checked);
+    ui->mainView->update();
+}

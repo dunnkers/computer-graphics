@@ -16,6 +16,7 @@ uniform sampler2D uniform_depthTexture;
 // settings
 uniform int uniform_enableSun;
 uniform int uniform_enableLights;
+uniform int uniform_enableEmission;
 uniform int uniform_enableAmbient;
 uniform int uniform_enableDiffuse;
 uniform int uniform_enableSpecular;
@@ -30,7 +31,8 @@ uniform vec3 lightColors[max_light_count];
 void main()
 {
     // retrieve data from gbuffers
-    vec3 color =      texture(uniform_colorTexture, fragTexCoords).xyz;
+    vec4 color_comp = texture(uniform_colorTexture, fragTexCoords);
+    vec3 color =      color_comp.xyz;
     vec3 normal = normalize(
                 texture(uniform_normalTexture, fragTexCoords).xyz
           );
@@ -45,6 +47,11 @@ void main()
 
     // color accumulation
     vec3 color_acc = vec3(0.0, 0.0, 0.0);
+
+    /**
+     * light emission
+     */
+    if (uniform_enableEmission == 1) color_acc += color * color_comp.w;
 
     /**
      * sun light (directional light)

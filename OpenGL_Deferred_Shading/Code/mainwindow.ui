@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1048</width>
-    <height>622</height>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -393,8 +393,8 @@
          <widget class="QCheckBox" name="ambientButton">
           <property name="geometry">
            <rect>
-            <x>5</x>
-            <y>30</y>
+            <x>0</x>
+            <y>50</y>
             <width>81</width>
             <height>20</height>
            </rect>
@@ -409,8 +409,8 @@
          <widget class="QCheckBox" name="diffuseButton">
           <property name="geometry">
            <rect>
-            <x>5</x>
-            <y>60</y>
+            <x>0</x>
+            <y>80</y>
             <width>81</width>
             <height>20</height>
            </rect>
@@ -425,14 +425,30 @@
          <widget class="QCheckBox" name="specularButton">
           <property name="geometry">
            <rect>
-            <x>5</x>
-            <y>90</y>
+            <x>0</x>
+            <y>110</y>
             <width>91</width>
             <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>Specular</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="emissionButton">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>20</y>
+            <width>86</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Emission</string>
           </property>
           <property name="checked">
            <bool>true</bool>

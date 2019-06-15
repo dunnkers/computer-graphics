@@ -207,7 +207,8 @@ void MainView::createLight(LightPoint *light)
     Object* bulb = new Object(mesh_sphere);
     bulb->setTranslation(light->getPosition());
     bulb->setMaterialAmbient(light->getColor());
-    bulb->setScale(0.2f); // 0.2
+    bulb->setMaterialEmission(0.8f); // let bulb emit light.
+    bulb->setScale(0.2f);
     objects.push_back(bulb);
 
     light->setBulb(bulb);
@@ -255,6 +256,10 @@ void MainView::paintGL() {
             glUniform1i(geometryShaderUniform_textureDiff, 0);
         }
 
+        // material - emission component
+        float materialEmission = object->getMaterialEmission();
+        glUniform1f(shaderProgram->uniformLocation("materialEmission"), materialEmission);
+
         // material - ambient
         QVector3D materialAmbient = object->getMaterialAmbient();
         shaderProgram->setUniformValue(shaderProgram->uniformLocation("materialAmbient"), materialAmbient);
@@ -294,6 +299,7 @@ void MainView::paintGL() {
     fbo->updateShaderUniforms(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableEmission"), enableEmission);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableAmbient"), enableAmbient);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableDiffuse"), enableDiffuse);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSpecular"), enableSpecular);
@@ -487,6 +493,12 @@ void MainView::toggleAnimation(bool enabled)
     } else {
         timer.stop();
     };
+}
+
+void MainView::toggleEmission(bool enabled)
+{
+    qDebug() << "Toggling Emission enabled to" << enabled;
+    enableEmission = enabled;
 }
 
 void MainView::toggleAmbient(bool enabled)

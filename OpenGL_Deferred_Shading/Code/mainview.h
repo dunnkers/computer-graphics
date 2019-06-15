@@ -88,6 +88,7 @@ public:
     void toggleSun(bool enabled);
     void toggleLights(bool enabled);
     void toggleAnimation(bool enabled);
+    void toggleEmission(bool enabled);
     void toggleAmbient(bool enabled);
     void toggleDiffuse(bool enabled);
     void toggleSpecular(bool enabled);
@@ -144,6 +145,7 @@ private:
     bool enableSun = true;
     bool enableLights = true;
     bool animate = false;
+    bool enableEmission = true;
     bool enableAmbient = true;
     bool enableDiffuse = true;
     bool enableSpecular = true;

@@ -49,6 +49,11 @@ void Object::setMaterialAmbient(QVector3D ambient)
     materialAmbient = ambient;
 }
 
+void Object::setMaterialEmission(float emission)
+{
+    materialEmission = emission;
+}
+
 QMatrix4x4 Object::getTransform()
 {
     return meshTransform;
@@ -72,6 +77,11 @@ QVector3D Object::getMaterialAmbient()
 float Object::getScale()
 {
     return scale;
+}
+
+float Object::getMaterialEmission()
+{
+    return materialEmission;
 }
 
 bool Object::hasTexture()
