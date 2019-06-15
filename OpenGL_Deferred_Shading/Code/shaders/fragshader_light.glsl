@@ -85,7 +85,7 @@ void main()
         if (dist > 20.0f) continue;
 
         /* Phong Shading */
-        float attenuation = 1.0 / (1.0 + 0.1 * dist + 0.02 * dist * dist);
+        float attenuation = 1.0 / (1.0 + 0.1 * dist + 0.15 * dist * dist);
         vec4 material = vec4(0.0f, attenuation, attenuation, 16.0f);
 
         // phong shading computation.
