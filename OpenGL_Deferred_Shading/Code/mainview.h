@@ -88,6 +88,9 @@ public:
     void toggleSun(bool enabled);
     void toggleLights(bool enabled);
     void toggleAnimation(bool enabled);
+    void toggleAmbient(bool enabled);
+    void toggleDiffuse(bool enabled);
+    void toggleSpecular(bool enabled);
     void perfAnalysis(bool start);
 protected:
     void initializeGL();
@@ -141,6 +144,9 @@ private:
     bool enableSun = true;
     bool enableLights = true;
     bool animate = false;
+    bool enableAmbient = true;
+    bool enableDiffuse = true;
+    bool enableSpecular = true;
 };
 
 #endif // MAINVIEW_H

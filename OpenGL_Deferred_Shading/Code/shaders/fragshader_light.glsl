@@ -16,6 +16,9 @@ uniform sampler2D uniform_depthTexture;
 // settings
 uniform int uniform_enableSun;
 uniform int uniform_enableLights;
+uniform int uniform_enableAmbient;
+uniform int uniform_enableDiffuse;
+uniform int uniform_enableSpecular;
 uniform int uniform_currentTexture;
 
 // lights
@@ -46,17 +49,19 @@ void main()
     /**
      * sun light (directional light)
      */
-    vec3 sunLight;
+    vec3 sunLight = vec3(0.0, 0.0, 0.0);
     {
         vec3 l = normalize(vec3(-0.6, 0.35, 0.2)); // sunlight direction
         vec3 diff = color.xyz * max(0.0, dot(normal.xyz, l)) * 0.5; // diffuse
+        if (uniform_enableDiffuse == 1) sunLight += diff;
 
         vec3 v = normalize(uniform_cameraPosition - position);
         vec3 h = normalize(l + v);
         float spec = pow(max(0.0, dot(h, normal)), 16.0) * 0.3; // specular
+        if (uniform_enableSpecular == 1) sunLight += spec;
 
         vec3 ambi = color.xyz * 0.25; // ambient
-        sunLight = vec3(diff + spec + ambi);
+        if (uniform_enableAmbient == 1) sunLight += ambi;
     }
     if (uniform_enableSun == 1) color_acc += sunLight;
 
@@ -90,13 +95,15 @@ void main()
 
         // diffuse colour.
         float diffuseIntensity = max(dot(normal, lightDirection), 0);
-        bulbsLight += color * lightColors[i] * material.y * diffuseIntensity;
+        vec3 diff = color * lightColors[i] * material.y * diffuseIntensity;
+        if (uniform_enableDiffuse == 1) bulbsLight += diff;
 
         // specular colour.
         vec3 viewDirection     = normalize(uniform_cameraPosition - vertPosition);
         vec3 reflectDirection  = reflect(-lightDirection, normal);
         float specularIntensity = max(dot(reflectDirection, viewDirection), 0);
-        bulbsLight += color * lightColors[i] * material.z * pow(specularIntensity, material.w);
+        vec3 spec = color * lightColors[i] * material.z * pow(specularIntensity, material.w);
+        if (uniform_enableSpecular == 1) bulbsLight += spec;
     }
     if (uniform_enableLights == 1) color_acc += bulbsLight;
 

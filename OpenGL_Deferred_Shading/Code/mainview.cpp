@@ -294,6 +294,9 @@ void MainView::paintGL() {
     fbo->updateShaderUniforms(shaderProgram);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableSun"), enableSun);
     glUniform1i(shaderProgram->uniformLocation("uniform_enableLights"), enableLights);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableAmbient"), enableAmbient);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableDiffuse"), enableDiffuse);
+    glUniform1i(shaderProgram->uniformLocation("uniform_enableSpecular"), enableSpecular);
     updateShaderUniforms(shaderProgram);
 
     // Update lighting positions and color array uniforms
@@ -484,6 +487,24 @@ void MainView::toggleAnimation(bool enabled)
     } else {
         timer.stop();
     };
+}
+
+void MainView::toggleAmbient(bool enabled)
+{
+    qDebug() << "Toggling Ambient enabled to" << enabled;
+    enableAmbient = enabled;
+}
+
+void MainView::toggleDiffuse(bool enabled)
+{
+    qDebug() << "Toggling Diffuse enabled to" << enabled;
+    enableDiffuse = enabled;
+}
+
+void MainView::toggleSpecular(bool enabled)
+{
+    qDebug() << "Toggling Specular enabled to" << enabled;
+    enableSpecular = enabled;
 }
 
 void MainView::perfAnalysis(bool start)

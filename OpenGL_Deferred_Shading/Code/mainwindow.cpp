@@ -140,3 +140,21 @@ void MainWindow::on_animate_toggled(bool checked)
     ui->mainView->toggleAnimation(checked);
     ui->mainView->update();
 }
+
+void MainWindow::on_ambientButton_toggled(bool checked)
+{
+    ui->mainView->toggleAmbient(checked);
+    ui->mainView->update();
+}
+
+void MainWindow::on_diffuseButton_toggled(bool checked)
+{
+    ui->mainView->toggleDiffuse(checked);
+    ui->mainView->update();
+}
+
+void MainWindow::on_specularButton_toggled(bool checked)
+{
+    ui->mainView->toggleSpecular(checked);
+    ui->mainView->update();
+}

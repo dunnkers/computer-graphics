@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1048</width>
-    <height>615</height>
+    <height>622</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -216,7 +216,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>205</width>
+           <width>104</width>
            <height>0</height>
           </size>
          </property>
@@ -375,6 +375,67 @@
           </property>
           <property name="text">
            <string>Animate</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QGroupBox" name="reflectionBox">
+         <property name="minimumSize">
+          <size>
+           <width>86</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Reflection</string>
+         </property>
+         <widget class="QCheckBox" name="ambientButton">
+          <property name="geometry">
+           <rect>
+            <x>5</x>
+            <y>30</y>
+            <width>81</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Ambient</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="diffuseButton">
+          <property name="geometry">
+           <rect>
+            <x>5</x>
+            <y>60</y>
+            <width>81</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Diffuse</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="specularButton">
+          <property name="geometry">
+           <rect>
+            <x>5</x>
+            <y>90</y>
+            <width>91</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Specular</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </widget>
