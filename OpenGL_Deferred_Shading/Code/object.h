@@ -22,6 +22,7 @@ public:
     QMatrix3x3 getNormalTransform();
     GLuint* getTexture();
     QVector3D getMaterialAmbient();
+    float getScale();
     bool hasTexture();
 
     void draw();
@@ -32,6 +33,7 @@ private:
     QMatrix4x4 meshTransform;
     QMatrix3x3 meshNormalTransform;
     GLuint *texture;
+    float scale;
     QVector3D materialAmbient = QVector3D(0, 0, 0);
     bool hasTextureBool = false;
 };

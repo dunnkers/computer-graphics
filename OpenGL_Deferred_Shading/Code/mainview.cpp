@@ -146,7 +146,7 @@ void MainView::createObjects()
             objects.push_back(cat);
 
             // create a light-bulb above every cat.
-            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0, (-(h / 2)*dist) + j * dist));
+            createLight(QVector3D((-(w / 2)*dist) + i * dist, 1.0f, (-(h / 2)*dist) + j * dist));
         }
     }
 
@@ -207,7 +207,7 @@ void MainView::createLight(LightPoint *light)
     Object* bulb = new Object(mesh_sphere);
     bulb->setTranslation(light->getPosition());
     bulb->setMaterialAmbient(light->getColor());
-    bulb->setScale(0.2f);
+    bulb->setScale(0.2f); // 0.2
     objects.push_back(bulb);
 
     light->setBulb(bulb);
@@ -312,10 +312,13 @@ void MainView::paintGL() {
         QVector3D aniCoefs = light->getAnimationCoefs();
         pos += aniCoefs;
         if (pos.y() > 3.0f) aniCoefs.setY(-0.03f);
-        if (pos.y() < 0.5f) aniCoefs.setY(0.03f);
+        if (pos.y() < 1.0f) aniCoefs.setY(0.03f);
         light->setAnimationCoefs(aniCoefs);
         light->setPosition(pos);
-        light->getBulb()->setTranslation(aniCoefs);
+        Object *bulb = light->getBulb();
+
+        // translate, taking into account a possible scaled object (scale != 1)
+        bulb->setTranslation(aniCoefs * (1 / bulb->getScale()));
     }
 
     const int uniform_lightPositions = shaderProgram->uniformLocation("lightPositions");

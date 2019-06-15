@@ -27,6 +27,7 @@ void Object::setTranslation(float x, float y, float z)
 
 void Object::setScale(float scale)
 {
+    this->scale = scale;
     meshTransform.scale(scale);
     meshNormalTransform = meshTransform.normalMatrix();
 }
@@ -66,6 +67,11 @@ GLuint* Object::getTexture()
 QVector3D Object::getMaterialAmbient()
 {
     return materialAmbient;
+}
+
+float Object::getScale()
+{
+    return scale;
 }
 
 bool Object::hasTexture()
