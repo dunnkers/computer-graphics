@@ -1,5 +1,3 @@
-## CG
+## Computer Graphics RUG 18/19
 
-🌞
-
-By Indy and Jerra.
+Check out the individual assignment folders for explanations and instructions 🌞
